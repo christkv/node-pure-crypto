@@ -24,17 +24,9 @@ var hexStringToBinaryArray = function(string) {
 
 suite.addTests({  
   "AES official known-answer tests":function(assert, finished) {
-    // var key = "00010203050607080A0B0C0D0F101112";
-    // var pt = "506812A45F08C889B97F5980038B8359";
-    // var cts = "D8F532538289EF7D06B506A4FD5BE9C9";
-    //    
-    // var keyArray = hexStringToBinaryArray(key);
-    // var dataArray = hexStringToBinaryArray(pt);
-    // var resultArray = hexStringToBinaryArray(cts);
-    // 
-    // var aesKey = new AESKey(keyArray);    
-    // var encrypted = aesKey.encrypt(dataArray);
-    // assert.deepEqual(resultArray, encrypted);
+    // keys = ["00010203050607080A0B0C0D0F101112"];
+    // pts = ["506812A45F08C889B97F5980038B8359"];
+    // cts = ["D8F532538289EF7D06B506A4FD5BE9C9"];
     
     for(var i = 0; i < keys.length; i++) {
       var key = hexStringToBinaryArray(keys[i]);
@@ -43,6 +35,9 @@ suite.addTests({
       var aes = new AESKey(key);
       var encrypted = aes.encrypt(pt);
       assert.deepEqual(ct, encrypted);
+      // Decrypt the encrypted data and compare
+      var decrypted = aes.decrypt(encrypted);
+      assert.deepEqual(pt, decrypted);
     }
 
     finished();
