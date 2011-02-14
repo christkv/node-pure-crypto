@@ -33,10 +33,10 @@ suite.addTests({
       var pt = hexStringToBinaryArray(pts[i]);
       var ct = hexStringToBinaryArray(cts[i]);
       var aes = new AESKey(key);
-      var encrypted = aes.encrypt(pt);
+      var encrypted = aes.encrypt(pt);  // Destructive to save memory
       assert.deepEqual(ct, encrypted);
       // Decrypt the encrypted data and compare
-      var decrypted = aes.decrypt(encrypted);
+      var decrypted = aes.decrypt(encrypted); // Destructive to save memory
       assert.deepEqual(pt, decrypted);
     }
 
