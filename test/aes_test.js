@@ -4,8 +4,7 @@ var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
   AESKey = require('aes').AESKey,
-  crypto = require('crypto'),
-  BinaryParser = require('binary_parser').BinaryParser;
+  crypto = require('crypto');
     
 var suite = exports.suite = new TestSuite("AES official known-answer tests");
 
