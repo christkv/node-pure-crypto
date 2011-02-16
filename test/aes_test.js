@@ -13,8 +13,6 @@ var hexStringToBinaryArray = function(string) {
   var array = new Array(numberofValues);
 
   for(var i = 0; i < numberofValues; i++) {
-    // var value = parseInt(string[i*2] + string[i*2 + 1], 16);
-    // array[i] = value;
     array[i] = parseInt(string[i*2] + string[i*2 + 1], 16);
   }
   
@@ -23,10 +21,6 @@ var hexStringToBinaryArray = function(string) {
 
 suite.addTests({  
   "AES official known-answer tests":function(assert, finished) {
-    // keys = ["00010203050607080A0B0C0D0F101112"];
-    // pts = ["506812A45F08C889B97F5980038B8359"];
-    // cts = ["D8F532538289EF7D06B506A4FD5BE9C9"];
-    
     for(var i = 0; i < keys.length; i++) {
       var key = hexStringToBinaryArray(keys[i]);
       var pt = hexStringToBinaryArray(pts[i]);
