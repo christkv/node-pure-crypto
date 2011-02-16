@@ -4,6 +4,7 @@ var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
   AESKey = require('aes').AESKey,
+  XTeaKey = require('xtea').XTeaKey,
   CBCMode = require('cbc').CBCMode,
   NullPad = require('padding').NullPad,
   crypto = require('crypto'),
@@ -103,4 +104,60 @@ suite.addTests({
     assert.deepEqual(pt, decrypt);    
     finished();
   },  
+  
+  "testAES":function(assert, finished) {
+		var keys = [
+  		"00010203050607080A0B0C0D0F101112",
+  		"14151617191A1B1C1E1F202123242526"];
+		var cts = [
+  		"D8F532538289EF7D06B506A4FD5BE9C94894C5508A8D8E29AB600DB0261F0555A8FA287B89E65C0973F1F8283E70C72863FE1C8F1F782084CE05626E961A67B3",
+  		"59AB30F4D4EE6E4FF9907EF65B1FB68C96890CE217689B1BE0C93ED51CF21BB5A0101A8C30714EC4F52DBC9C6F4126067D363F67ABE58463005E679B68F0B496"];
+		var pts = [
+  		"506812A45F08C889B97F5980038B8359506812A45F08C889B97F5980038B8359506812A45F08C889B97F5980038B8359",
+  		"5C6D71CA30DE8B8B00549984D2EC7D4B5C6D71CA30DE8B8B00549984D2EC7D4B5C6D71CA30DE8B8B00549984D2EC7D4B"];
+  		
+  	for(var i = 0; i < keys.length; i++) {
+  	  var key = hexStringToBinaryArray(keys[i]);
+  	  var pt = hexStringToBinaryArray(pts[i]);
+  	  var ct = hexStringToBinaryArray(cts[i]);
+  	  var aes = new AESKey(key);
+  		var iv = hexStringToBinaryArray("00000000000000000000000000000000");
+  	  var cbc = new CBCMode(aes, null, iv);
+  	  // Encrypt the pt key
+  	  var encrypted = cbc.encrypt(pt);
+  	  assert.deepEqual(ct, encrypted);
+  	  // Decrypt
+  	  var decrypted = cbc.decrypt(encrypted);
+      assert.deepEqual(pt, decrypted);
+  	  finished();
+  	}
+  },
+  
+  "testXTea":function(assert, finished) {
+		var keys = [
+		  "2b02056806144976775d0e266c287843",
+  		"00000000000000000000000000000000"];
+		var cts = [
+		  "790958213819878370eb8251ffdac371081c5a457fc42502c63910306fea150be8674c3b8e675516",
+  		"2dc7e8d3695b0538d8f1640d46dca717790af2ab545e11f3b08e798eb3f17b1744299d4d20b534aa"];
+		var pts = [
+		  "74657374206d652e74657374206d652e74657374206d652e74657374206d652e",
+  		"0000000000000000000000000000000000000000000000000000000000000000"];
+
+  	for(var i = 0; i < keys.length; i++) {
+  	  var key = hexStringToBinaryArray(keys[i]);
+  	  var pt = hexStringToBinaryArray(pts[i]);
+  	  var ct = hexStringToBinaryArray(cts[i]);
+  	  var tea = new XTeaKey(key);
+  		var iv = hexStringToBinaryArray("00000000000000000000000000000000");
+  	  var cbc = new CBCMode(tea, null, iv);
+  	  // Encrypt the pt key
+  	  var encrypted = cbc.encrypt(pt);
+  	  assert.deepEqual(ct, encrypted);
+  	  // Decrypt
+      var decrypted = cbc.decrypt(encrypted);
+      assert.deepEqual(pt, decrypted);
+  	  finished();
+  	}    
+  },
 });
