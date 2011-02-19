@@ -4,4 +4,5 @@ require.paths.unshift("./lib", "./external-libs/node-async-testing", "./test");
 require('aes_test').suite.runTests(function() {});
 require('cbc_test').suite.runTests(function() {});
 require('ofb_test').suite.runTests(function() {});
+require('cfb8_test').suite.runTests(function() {});
 
