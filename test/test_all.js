@@ -6,4 +6,5 @@ require('cbc_test').suite.runTests(function() {});
 require('ofb_test').suite.runTests(function() {});
 require('cfb8_test').suite.runTests(function() {});
 require('cfb_test').suite.runTests(function() {});
+require('ecb_test').suite.runTests(function() {});
 
