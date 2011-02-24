@@ -8,4 +8,5 @@ require('cfb8_test').suite.runTests(function() {});
 require('cfb_test').suite.runTests(function() {});
 require('ecb_test').suite.runTests(function() {});
 require('blowfish_test').suite.runTests(function() {});
+require('des_test').suite.runTests(function() {});
 
