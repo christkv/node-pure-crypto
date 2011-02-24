@@ -201,19 +201,21 @@ suite.addTests({
     // Encrypt using the purejs librarie's streaming api in 1024 blocks
     var iv = "000102030405060708090a0b0c0d0e0f";
     var cbc = new CBCMode(new AESKey(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+    // Blocksize
+    var blockSize = 32;
 
     // Split the data
-    var numberOfBlocks = Math.floor(data.length / 1024);
-    var leftOverbytes = data.length % 1024;
+    var numberOfBlocks = Math.floor(data.length / blockSize);
+    var leftOverbytes = data.length % blockSize;
     var encryptedData = "";
 
     for(var i = 0; i < numberOfBlocks; i++) {
-     encryptedData += cbc.updateEncrypt(data.substr(i * 1024, 1024));
+     encryptedData += cbc.updateEncrypt(data.substr(i * blockSize, blockSize));
     }    
 
     // If we have leftover bytes
     if(leftOverbytes > 0) 
-     encryptedData += cbc.updateEncrypt(data.substr(numberOfBlocks*1024)); 
+     encryptedData += cbc.updateEncrypt(data.substr(numberOfBlocks*blockSize)); 
     // ok dokey let's finialize (ensuring we have the last padded block added)    
     encryptedData += cbc.finalEncrypt();
 
@@ -237,17 +239,17 @@ suite.addTests({
     // Clean cbc instance
     cbc = new CBCMode(new AESKey(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
     // Split the data
-    var numberOfBlocks = Math.floor(nodejsEncrypted.length / 1024);
-    var leftOverbytes = nodejsEncrypted.length % 1024;
+    var numberOfBlocks = Math.floor(nodejsEncrypted.length / blockSize);
+    var leftOverbytes = nodejsEncrypted.length % blockSize;
     var decryptedData = "";
 
     for(var i = 0; i < numberOfBlocks; i++) {
-      decryptedData += cbc.updateDecrypt(nodejsEncrypted.substr(i * 1024, 1024));
+      decryptedData += cbc.updateDecrypt(nodejsEncrypted.substr(i * blockSize, blockSize));
     }    
 
     // Update with leftover bytes
     if(leftOverbytes > 0) 
-      decryptedData += cbc.updateDecrypt(nodejsEncrypted.substr(numberOfBlocks*1024));          
+      decryptedData += cbc.updateDecrypt(nodejsEncrypted.substr(numberOfBlocks*blockSize));          
     // ok dokey let's finialize (ensuring we have the last padded block added)    
     decryptedData += cbc.finalDecrypt();
 
