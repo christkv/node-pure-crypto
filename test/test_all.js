@@ -9,4 +9,5 @@ require('cfb_test').suite.runTests(function() {});
 require('ecb_test').suite.runTests(function() {});
 require('blowfish_test').suite.runTests(function() {});
 require('des_test').suite.runTests(function() {});
+require('triple_des_test').suite.runTests(function() {});
 
