@@ -8,15 +8,12 @@ var TestSuite = require('async_testing').TestSuite,
   
 var suite = exports.suite = new TestSuite("Rabbit tests");
 
-// 5KB of random, dummy data
-var data = [];
-for (var i = 0; i < 5000; i++) data.push(String.fromCharCode(Math.floor(Math.random() * 256)));
-data = data.join("");
-
-// Random 256-bit key
-var key = [];
-for (var i = 0; i < 32; i++) key.push(String.fromCharCode(Math.floor(Math.random() * 256)));
-key = key.join("");
+var randomdata = function(size) {
+  // 5KB of random, dummy data
+  var data = [];
+  for (var i = 0; i < size; i++) data.push(String.fromCharCode(Math.floor(Math.random() * 256)));
+  return data.join("");  
+}
 
 suite.addTests({  
   "Test Rabbit Vectors":function(assert, finished) {
@@ -32,12 +29,7 @@ suite.addTests({
                "6D7D012292CCDCE0E2120058B94ECD1F", 
                "4D1051A123AFB670BF8D8505C8D85A44"];
     var ivs = [null, null, null, "0000000000000000", "597E26C175F573C3", "2717F4D21A56EBA6"];    
-
-    // keys = ["00000000"];
-    // pts = ["00000000000000000000000000000000"];
-    // cts = ["6D7D012292CCDCE0E2120058B94ECD1F"];
-    // ivs = ["597E26C175F573C3"];
-
+  
     // Test vectors
     for(var i = 0; i < keys.length; i++) {
       var key = util.hexStringToBinaryArray(keys[i]);
@@ -55,13 +47,66 @@ suite.addTests({
       var decrypted = rabbit.decrypt(encrypted);
       assert.deepEqual(pt, decrypted);
     }
-
-    // // Test D(E(m)) == m
-    // var key = Crypto.util.randomBytes(16);
-    // assert.equal(data, Crypto.Rabbit.decrypt(Crypto.Rabbit.encrypt(data, key), key));
-    // assert.equal('Сообщение', Crypto.Rabbit.decrypt(Crypto.Rabbit.encrypt('Сообщение', 'Пароль'), 'Пароль'));
+  
     finished();
   },
+  
+  "Streaming api test":function(assert, finished) {
+    var key = "DC51C3AC3BFC62F12E3D36FE91281329";
+    // Encrypt using the pure js library    
+    var iv = "0001020304050607";
+    // 5K of random data
+    var data = randomdata(1025);
+    // Blocksize
+    var blockSize = 32;
+    // Encrypt using the purejs librarie's streaming api in 1024 blocks
+    var rabbit = new Rabbit(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  
+    // Split the data
+    var numberOfBlocks = Math.floor(data.length / blockSize);
+    var leftOverbytes = data.length % blockSize;
+    var encryptedData = "";
+  
+    for(var i = 0; i < numberOfBlocks; i++) {
+      encryptedData += rabbit.updateEncrypt(data.substr(i * blockSize, blockSize));
+    }    
+  
+    // If we have leftover bytes
+    if(leftOverbytes > 0) {
+      encryptedData += rabbit.updateEncrypt(data.substr(data.length - leftOverbytes));      
+    }
+    // ok dokey let's finialize (ensuring we have the last padded block added)    
+    encryptedData += rabbit.finalEncrypt();    
+    // One bang encryption
+    var oneTimeEncryptedData = rabbit.encrypt(util.binaryStringToArray(data));
+    // Ensure stream is compatible with the onetime encryption    
+    assert.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+  
+    // Convert onetime encrypted data to binary
+    oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
+  
+    // Clean cbc instance
+    rabbit = new Rabbit(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+    // Split the data
+    var numberOfBlocks = Math.floor(oneTimeEncryptedData.length / blockSize);
+    var leftOverbytes = oneTimeEncryptedData.length % blockSize;
+    var decryptedData = "";
+      
+    for(var i = 0; i < numberOfBlocks; i++) {
+      decryptedData += rabbit.updateDecrypt(oneTimeEncryptedData.substr(i * blockSize, blockSize));
+    }    
+    
+    // Update with leftover bytes
+    if(leftOverbytes > 0) 
+      decryptedData += rabbit.updateDecrypt(oneTimeEncryptedData.substr(numberOfBlocks*blockSize));          
+      
+    // ok dokey let's finialize (ensuring we have the last padded block added)    
+    decryptedData += rabbit.finalDecrypt();
+      
+    // Ensure stream is compatible with the onetime encryption    
+    assert.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+    finished();
+  },    
 });
 
 // Test 1: Key setup and encryption/decryption/prng 
