@@ -4,7 +4,8 @@ var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
   MARC4 = require('marc4').MARC4,
-  util = require('utils');  
+  util = require('utils'),
+  crypto = require('crypto');
   
 var suite = exports.suite = new TestSuite("MARC4 tests");
 
@@ -40,6 +41,31 @@ suite.addTests({
       assert.deepEqual(pt, decrypted);
     }
       
+    finished();
+  },
+  
+  "More Arc4 tests - Arc4 is MARC 4 with drop = 0":function(assert, finished) {
+    var key = "Key";
+    var pt = "Plaintext";
+
+    var marc4 = new MARC4(util.binaryStringToArray(key), 0);
+    var src = marc4.encrypt(util.binaryStringToArray(pt));
+    assert.deepEqual(util.hexStringToBinaryArray("BBF316E8D940AF0AD3"), src)
+
+    var key = "Wiki";
+    var pt = "pedia";
+
+    var marc4 = new MARC4(util.binaryStringToArray(key), 0);
+    var src = marc4.encrypt(util.binaryStringToArray(pt));
+    assert.deepEqual(util.hexStringToBinaryArray("1021BF0420"), src)
+
+    var key = "Secret";
+    var pt = "Attack at dawn";
+
+    var marc4 = new MARC4(util.binaryStringToArray(key), 0);
+    var src = marc4.encrypt(util.binaryStringToArray(pt));
+    assert.deepEqual(util.hexStringToBinaryArray("45A01F645FC35B383552544B9BF5"), src)
+
     finished();
   },
   

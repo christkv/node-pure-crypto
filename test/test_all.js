@@ -19,4 +19,5 @@ require('des_test').suite.runTests(function() {});
 require('triple_des_test').suite.runTests(function() {});
 require('rabbit_test').suite.runTests(function() {});
 require('marc4_test').suite.runTests(function() {});
+require('arc4_test').suite.runTests(function() {});
 
