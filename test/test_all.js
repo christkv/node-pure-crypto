@@ -7,7 +7,7 @@ var debug = require('sys').debug,
 // Tests
 require('aes_test').suite.runTests(function() {});
 // Set max emitters (bug if no emitters registered)
-debug(inspect(process.setMaxListeners(100)))
+process.setMaxListeners(100);
 // Execute rest of tests
 require('cbc_test').suite.runTests(function() {});
 require('ofb_test').suite.runTests(function() {});
@@ -20,4 +20,5 @@ require('triple_des_test').suite.runTests(function() {});
 require('rabbit_test').suite.runTests(function() {});
 require('marc4_test').suite.runTests(function() {});
 require('arc4_test').suite.runTests(function() {});
+require('cast_128_test').suite.runTests(function() {});
 
