@@ -21,4 +21,5 @@ require('rabbit_test').suite.runTests(function() {});
 require('marc4_test').suite.runTests(function() {});
 require('arc4_test').suite.runTests(function() {});
 require('cast_128_test').suite.runTests(function() {});
+require('cast_256_test').suite.runTests(function() {});
 
