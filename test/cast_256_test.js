@@ -46,89 +46,46 @@ suite.addTests({
     finished();
   },  
 
-  // "Node Compatibility Tests":function(assert, finished) {
-  //   var key = "0123456712345678234567893456789A";
-  //   var pt =  "0123456789ABCDEF0123456789ABCDEF";
-  //   // Encrypt using the pure js library    
-  //   var iv = "0001020304050607";
-  // 
-  //   // OFB Mode
-  //   var cipher = crypto.createCipheriv("cast5-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
-  //   var decipher = crypto.createDecipheriv("cast5-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
-  //   var nodeEncrypted = cipher.update(util.hexStringToBinary(pt), 'binary');
-  //   nodeEncrypted += cipher.final('binary');
-  //   
-  //   var ofb = new OFBMode(new CAST128(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
-  //   assert.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
-  //     
-  //   var ofb = new OFBMode(new CAST128(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var decryptedPureJs = ofb.decrypt(util.binaryStringToArray(nodeEncrypted));
-  //   var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
-  //   decryptedNode += decipher.final('binary');      
-  //   
-  //   assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
-  //   
-  //   // CBC Mode
-  //   var cipher = crypto.createCipheriv("cast5-cbc", util.hexStringToBinary(key), util.hexStringToBinary(iv));
-  //   var decipher = crypto.createDecipheriv("cast5-cbc", util.hexStringToBinary(key), util.hexStringToBinary(iv));
-  //   var nodeEncrypted = cipher.update(util.hexStringToBinary(pt), 'binary');
-  //   nodeEncrypted += cipher.final('binary');
-  //   
-  //   var cbc = new CBCMode(new CAST128(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var src = cbc.encrypt(util.hexStringToBinaryArray(pt));
-  //   assert.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
-  //   
-  //   var cbc = new CBCMode(new CAST128(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var decryptedPureJs = cbc.decrypt(util.binaryStringToArray(nodeEncrypted));
-  //   var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
-  //   decryptedNode += decipher.final('binary');      
-  //   
-  //   assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
-  //   
-  //   // ECB Mode
-  //   var cipher = crypto.createCipheriv("cast5-ecb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
-  //   var decipher = crypto.createDecipheriv("cast5-ecb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
-  //   var nodeEncrypted = cipher.update(util.hexStringToBinary(pt), 'binary');
-  //   nodeEncrypted += cipher.final('binary');
-  //   
-  //   var ecb = new ECBMode(new CAST128(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var src = ecb.encrypt(util.hexStringToBinaryArray(pt));
-  //   assert.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
-  //   
-  //   var ecb = new ECBMode(new CAST128(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var decryptedPureJs = ecb.decrypt(util.binaryStringToArray(nodeEncrypted));
-  //   var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
-  //   decryptedNode += decipher.final('binary');      
-  //   
-  //   assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
-  //   
-  //   // CFB Mode
-  //   var cipher = crypto.createCipheriv("cast5-cfb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
-  //   var decipher = crypto.createDecipheriv("cast5-cfb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
-  //   var nodeEncrypted = cipher.update(util.hexStringToBinary(pt), 'binary');
-  //   nodeEncrypted += cipher.final('binary');
-  //   
-  //   var ofb = new CFBMode(new CAST128(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
-  //   
-  //   var ofb = new CFBMode(new CAST128(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var decryptedPureJs = ofb.decrypt(util.binaryStringToArray(nodeEncrypted));
-  //   var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
-  //   decryptedNode += decipher.final('binary');      
-  //   
-  //   assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
-  //   finished();    
-  // },
-  // 
+  "Node Compatibility Tests":function(assert, finished) {
+    var key = "0123456712345678234567893456789A";
+    var pt =  "0123456789ABCDEF0123456789ABCDEF";
+    // Encrypt using the pure js library    
+    var iv = "0001020304050607";
+  
+    // OFB Mode
+    var ofb = new OFBMode(new CAST256(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+    var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
+      
+    var ofb = new OFBMode(new CAST256(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+    var decryptedPureJs = ofb.decrypt(src);
+    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    
+    // CBC Mode
+    var cbc = new CBCMode(new CAST256(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+    var src = cbc.encrypt(util.hexStringToBinaryArray(pt));
+    
+    var cbc = new CBCMode(new CAST256(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+    var decryptedPureJs = cbc.decrypt(src);    
+    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    
+    // ECB Mode
+    var ecb = new ECBMode(new CAST256(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+    var src = ecb.encrypt(util.hexStringToBinaryArray(pt));
+    
+    var ecb = new ECBMode(new CAST256(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+    var decryptedPureJs = ecb.decrypt(src);    
+    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    
+    // CFB Mode
+    var ofb = new CFBMode(new CAST256(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+    var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
+    
+    var ofb = new CFBMode(new CAST256(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+    var decryptedPureJs = ofb.decrypt(src);
+    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    finished();    
+  },
+  
   // "Streaming api test":function(assert, finished) {
   //   var key = "0123456712345678234567893456789A";
   //   // Encrypt using the pure js library    
@@ -138,7 +95,7 @@ suite.addTests({
   //   // Blocksize
   //   var blockSize = 32;
   //   // Encrypt using the purejs librarie's streaming api in 1024 blocks
-  //   var ofb = new OFBMode(new CAST128(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+  //   var ofb = new OFBMode(new CAST256(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
   // 
   //   // Split the data
   //   var numberOfBlocks = Math.floor(data.length / blockSize);
@@ -174,7 +131,7 @@ suite.addTests({
   //   assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedNode));    
   //     
   //   // Clean cbc instance
-  //   ofb = new OFBMode(new CAST128(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
+  //   ofb = new OFBMode(new CAST256(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
   //   // Split the data
   //   var numberOfBlocks = Math.floor(nodejsEncrypted.length / blockSize);
   //   var leftOverbytes = nodejsEncrypted.length % blockSize;
