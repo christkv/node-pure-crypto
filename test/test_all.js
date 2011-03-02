@@ -23,4 +23,5 @@ require('arc4_test').suite.runTests(function() {});
 require('cast_128_test').suite.runTests(function() {});
 require('cast_256_test').suite.runTests(function() {});
 require('rc6_test').suite.runTests(function() {});
+require('rc5_test').suite.runTests(function() {});
 
