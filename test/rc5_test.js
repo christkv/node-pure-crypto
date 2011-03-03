@@ -61,100 +61,158 @@ suite.addTests({
     finished();
   },  
 
-  // "Node Compatibility Tests":function(assert, finished) {
-  //   var key = "0123456789abcdef0112233445566778899aabbccddeeff01032547698badcfe";
-  //   var pt =  "02132435465768798a9bacbdcedfe0f1";
-  //   // Encrypt using the pure js library    
-  //   var iv = "0001020304050607";
-  //     
-  //   // OFB Mode
-  //   var ofb = new OFBMode(new RC5(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
-  //     
-  //   var ofb = new OFBMode(new RC5(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var decryptedPureJs = ofb.decrypt(src);
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-  //   
-  //   // CBC Mode
-  //   var cbc = new CBCMode(new RC5(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var src = cbc.encrypt(util.hexStringToBinaryArray(pt));
-  //   
-  //   var cbc = new CBCMode(new RC5(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var decryptedPureJs = cbc.decrypt(src);    
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-  //   
-  //   // ECB Mode
-  //   var ecb = new ECBMode(new RC5(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var src = ecb.encrypt(util.hexStringToBinaryArray(pt));
-  //   
-  //   var ecb = new ECBMode(new RC5(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var decryptedPureJs = ecb.decrypt(src);    
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-  //   
-  //   // CFB Mode
-  //   var ofb = new CFBMode(new RC5(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
-  //   
-  //   var ofb = new CFBMode(new RC5(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   var decryptedPureJs = ofb.decrypt(src);
-  //   assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-  //   finished();    
-  // },
-  // 
-  // "Streaming api test":function(assert, finished) {
-  //   var key = "0123456789abcdef0112233445566778899aabbccddeeff01032547698badcfe";
-  //   // Encrypt using the pure js library    
-  //   var iv = "0001020304050607";
-  //   // 5K of random data
-  //   var data = randomdata(1025);
-  //   // Blocksize
-  //   var blockSize = 32;
-  //   // Encrypt using the purejs librarie's streaming api in 1024 blocks
-  //   var ofb = new OFBMode(new RC5(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  // 
-  //   // Split the data
-  //   var numberOfBlocks = Math.floor(data.length / blockSize);
-  //   var leftOverbytes = data.length % blockSize;
-  //   var encryptedData = "";
-  // 
-  //   for(var i = 0; i < numberOfBlocks; i++) {
-  //     encryptedData += ofb.updateEncrypt(data.substr(i * blockSize, blockSize));
-  //   }    
-  // 
-  //   // If we have leftover bytes
-  //   if(leftOverbytes > 0) {
-  //     encryptedData += ofb.updateEncrypt(data.substr(data.length - leftOverbytes));      
-  //   }
-  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
-  //   encryptedData += ofb.finalEncrypt();
-  //   
-  //   // Single pass encryption
-  //   ofb = new OFBMode(new RC5(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-  //   src = ofb.encrypt(util.binaryStringToArray(data));
-  //   assert.deepEqual(src, util.binaryStringToArray(encryptedData));
-  //       
-  //   // Clean cbc instance
-  //   ofb = new OFBMode(new RC5(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
-  //   // Split the data
-  //   var numberOfBlocks = Math.floor(src.length / blockSize);
-  //   var leftOverbytes = src.length % blockSize;
-  //   var decryptedData = "";
-  //     
-  //   for(var i = 0; i < numberOfBlocks; i++) {
-  //     decryptedData += ofb.updateDecrypt(util.arrayToBinaryString(src).substr(i * blockSize, blockSize));
-  //   }    
-  //   
-  //   // Update with leftover bytes
-  //   if(leftOverbytes > 0) 
-  //     decryptedData += ofb.updateDecrypt(util.arrayToBinaryString(src).substr(numberOfBlocks*blockSize));          
-  //     
-  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
-  //   decryptedData += ofb.finalDecrypt();
-  // 
-  //   // Compare
-  //   assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
-  //   finished();
-  // },
+  "Node Compatibility Tests":function(assert, finished) {
+    var key = "80000000000000000000000000000000";
+    var pt =  "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF";
+    // Encrypt using the pure js library    
+    var iv = "0001020304050607";
+
+    // OFB Mode
+    var cipher = crypto.createCipheriv("rc5-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
+    var decipher = crypto.createDecipheriv("rc5-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
+    var nodeEncrypted = cipher.update(util.hexStringToBinary(pt), 'binary');
+    nodeEncrypted += cipher.final('binary');
+    
+    var ofb = new OFBMode(new RC5(util.hexStringToBinaryArray(key), 12), null, util.hexStringToBinaryArray(iv));
+    var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
+    assert.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
+      
+    var ofb = new OFBMode(new RC5(util.hexStringToBinaryArray(key), 12), null, util.hexStringToBinaryArray(iv));
+    var decryptedPureJs = ofb.decrypt(util.binaryStringToArray(nodeEncrypted));
+    var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
+    decryptedNode += decipher.final('binary');      
+    
+    assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
+    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
+    
+    // CBC Mode
+    var cipher = crypto.createCipheriv("rc5-cbc", util.hexStringToBinary(key), util.hexStringToBinary(iv));
+    var decipher = crypto.createDecipheriv("rc5-cbc", util.hexStringToBinary(key), util.hexStringToBinary(iv));
+    var nodeEncrypted = cipher.update(util.hexStringToBinary(pt), 'binary');
+    nodeEncrypted += cipher.final('binary');
+    
+    var cbc = new CBCMode(new RC5(util.hexStringToBinaryArray(key), 12), null, util.hexStringToBinaryArray(iv));
+    var src = cbc.encrypt(util.hexStringToBinaryArray(pt));
+    assert.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
+    
+    var cbc = new CBCMode(new RC5(util.hexStringToBinaryArray(key), 12), null, util.hexStringToBinaryArray(iv));
+    var decryptedPureJs = cbc.decrypt(util.binaryStringToArray(nodeEncrypted));
+    var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
+    decryptedNode += decipher.final('binary');      
+    
+    assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
+    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
+    
+    // ECB Mode
+    var cipher = crypto.createCipheriv("rc5-ecb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
+    var decipher = crypto.createDecipheriv("rc5-ecb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
+    var nodeEncrypted = cipher.update(util.hexStringToBinary(pt), 'binary');
+    nodeEncrypted += cipher.final('binary');
+    
+    var ecb = new ECBMode(new RC5(util.hexStringToBinaryArray(key), 12), null, util.hexStringToBinaryArray(iv));
+    var src = ecb.encrypt(util.hexStringToBinaryArray(pt));
+    assert.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
+    
+    var ecb = new ECBMode(new RC5(util.hexStringToBinaryArray(key), 12), null, util.hexStringToBinaryArray(iv));
+    var decryptedPureJs = ecb.decrypt(util.binaryStringToArray(nodeEncrypted));
+    var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
+    decryptedNode += decipher.final('binary');      
+    
+    assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
+    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
+    
+    // CFB Mode
+    var cipher = crypto.createCipheriv("rc5-cfb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
+    var decipher = crypto.createDecipheriv("rc5-cfb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
+    var nodeEncrypted = cipher.update(util.hexStringToBinary(pt), 'binary');
+    nodeEncrypted += cipher.final('binary');
+    
+    var ofb = new CFBMode(new RC5(util.hexStringToBinaryArray(key), 12), null, util.hexStringToBinaryArray(iv));
+    var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
+    
+    var ofb = new CFBMode(new RC5(util.hexStringToBinaryArray(key), 12), null, util.hexStringToBinaryArray(iv));
+    var decryptedPureJs = ofb.decrypt(util.binaryStringToArray(nodeEncrypted));
+    var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
+    decryptedNode += decipher.final('binary');      
+    
+    assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
+    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
+    finished();    
+  },
+
+  "Streaming api test":function(assert, finished) {
+    var key = "80000000000000000000000000000000";
+    // Encrypt using the pure js library    
+    var iv = "0001020304050607";
+    // 5K of random data
+    var data = randomdata(1025);
+    // Blocksize
+    var blockSize = 32;
+    // Encrypt using the purejs librarie's streaming api in 1024 blocks
+    var ofb = new OFBMode(new RC5(util.hexStringToBinaryArray(key), 12), null, util.hexStringToBinaryArray(iv));
+  
+    // Split the data
+    var numberOfBlocks = Math.floor(data.length / blockSize);
+    var leftOverbytes = data.length % blockSize;
+    var encryptedData = "";
+  
+    for(var i = 0; i < numberOfBlocks; i++) {
+      encryptedData += ofb.updateEncrypt(data.substr(i * blockSize, blockSize));
+    }    
+  
+    // If we have leftover bytes
+    if(leftOverbytes > 0) {
+      encryptedData += ofb.updateEncrypt(data.substr(data.length - leftOverbytes));      
+    }
+    // ok dokey let's finialize (ensuring we have the last padded block added)    
+    encryptedData += ofb.finalEncrypt();
+  
+    // Encrypt using node.js to ensure have have the same
+    var cipher = crypto.createCipheriv("rc5-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));    
+    var nodejsEncrypted = cipher.update(data, 'binary');
+    nodejsEncrypted += cipher.final('binary');
+    
+    // Verify encrypted streaming data
+    var a = util.binaryStringToArray(nodejsEncrypted);    
+    var b = util.binaryStringToArray(encryptedData);    
+    assert.deepEqual(b, a);
+  
+    // Decrypt the streaming data
+    var decipher = crypto.createDecipheriv("rc5-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
+    var decryptedNode = decipher.update(encryptedData, 'binary');
+    decryptedNode += decipher.final('binary');    
+    // Decrypted content check for node.js
+    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedNode));    
+      
+    // Clean cbc instance
+    ofb = new OFBMode(new RC5(util.hexStringToBinaryArray(key), 12), null, util.hexStringToBinaryArray(iv));    
+    // Split the data
+    var numberOfBlocks = Math.floor(nodejsEncrypted.length / blockSize);
+    var leftOverbytes = nodejsEncrypted.length % blockSize;
+    var decryptedData = "";
+      
+    for(var i = 0; i < numberOfBlocks; i++) {
+      decryptedData += ofb.updateDecrypt(nodejsEncrypted.substr(i * blockSize, blockSize));
+    }    
+    
+    // Update with leftover bytes
+    if(leftOverbytes > 0) 
+      decryptedData += ofb.updateDecrypt(nodejsEncrypted.substr(numberOfBlocks*blockSize));          
+      
+    // ok dokey let's finialize (ensuring we have the last padded block added)    
+    decryptedData += ofb.finalDecrypt();
+      
+    // Verify encryption
+    var a = util.binaryStringToArray(decryptedNode);    
+    var b = util.binaryStringToArray(decryptedData);    
+    // Verify the decryption against node.js
+    assert.deepEqual(b, a);    
+    finished();
+  },
 });
 
 var keysSet1 = ["80000000000000000000000000000000",
