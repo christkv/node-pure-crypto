@@ -24,4 +24,4 @@ require('cast_128_test').suite.runTests(function() {});
 require('cast_256_test').suite.runTests(function() {});
 require('rc6_test').suite.runTests(function() {});
 require('rc5_test').suite.runTests(function() {});
-
+require('idea_test').suite.runTests(function() {});
