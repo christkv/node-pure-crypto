@@ -28,3 +28,4 @@ require('idea_test').suite.runTests(function() {});
 require('seed_test').suite.runTests(function() {});
 require('mars_test').suite.runTests(function() {});
 require('serpent_test').suite.runTests(function() {});
+require('twofish_test').suite.runTests(function() {});
