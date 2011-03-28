@@ -42,7 +42,6 @@ suite.addTests({
     // Test vectors
     for(var i = 0; i < keys.length; i++) {
       var key = util.hexStringToBinaryArray(keys[i]);
-      // debug("=================== key :: " + keys[i])
       var pt = util.hexStringToBinaryArray(pts[i]);
       var ct = util.hexStringToBinaryArray(cts[i]);
       
