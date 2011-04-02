@@ -31,3 +31,4 @@ require('serpent_test').suite.runTests(function() {});
 require('twofish_test').suite.runTests(function() {});
 require('salsa20_test').suite.runTests(function() {});
 require('xsalsa20_test').suite.runTests(function() {});
+require('sosemanuk_test').suite.runTests(function() {});
