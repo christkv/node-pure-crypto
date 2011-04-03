@@ -3,11 +3,7 @@ require.paths.unshift("./lib", "./external-libs/node-async-testing");
 var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
-  Salsa20 = require('salsa20').Salsa20,
-  ECBMode = require('ecb').ECBMode,
-  OFBMode = require('ofb').OFBMode,
-  CBCMode = require('cbc').CBCMode,
-  CFBMode = require('cfb').CFBMode,
+  Salsa20 = require('stream/salsa20').Salsa20,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');

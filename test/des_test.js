@@ -4,11 +4,11 @@ var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
   crypto = require('crypto'),
-  DESKey = require('des').DESKey,
-  OFBMode = require('ofb').OFBMode,
-  CBCMode = require('cbc').CBCMode,
-  ECBMode = require('ecb').ECBMode,
-  CFBMode = require('cfb').CFBMode,
+  DESKey = require('block/des').DESKey,
+  OFBMode = require('block/ofb').OFBMode,
+  CBCMode = require('block/cbc').CBCMode,
+  ECBMode = require('block/ecb').ECBMode,
+  CFBMode = require('block/cfb').CFBMode,
   util = require('utils');
     
 var suite = exports.suite = new TestSuite("DESKey Test");

@@ -3,10 +3,10 @@ require.paths.unshift("./lib", "./external-libs/node-async-testing");
 var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
-  AESKey = require('aes').AESKey,
-  XTeaKey = require('xtea').XTeaKey,
-  CBCMode = require('cbc').CBCMode,
-  NullPad = require('padding').NullPad,
+  AESKey = require('block/aes').AESKey,
+  XTeaKey = require('block/xtea').XTeaKey,
+  CBCMode = require('block/cbc').CBCMode,
+  NullPad = require('padding/null').NullPad,
   crypto = require('crypto'),
   util = require('utils');
     

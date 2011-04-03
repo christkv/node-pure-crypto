@@ -3,11 +3,11 @@ require.paths.unshift("./lib", "./external-libs/node-async-testing");
 var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
-  Sosemanuk = require('sosemanuk').Sosemanuk,
-  ECBMode = require('ecb').ECBMode,
-  OFBMode = require('ofb').OFBMode,
-  CBCMode = require('cbc').CBCMode,
-  CFBMode = require('cfb').CFBMode,
+  Sosemanuk = require('stream/sosemanuk').Sosemanuk,
+  ECBMode = require('block/ecb').ECBMode,
+  OFBMode = require('block/ofb').OFBMode,
+  CBCMode = require('block/cbc').CBCMode,
+  CFBMode = require('block/cfb').CFBMode,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
@@ -53,50 +53,6 @@ suite.addTests({
       var sosemanuk = new Sosemanuk(key, iv);
       var decrypted = sosemanuk.decrypt(encrypted);            
       assert.deepEqual(zeroedData(zero), decrypted);
-
-
-      // 
-      // // Encrypt in chunks of data
-      // for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
-      //   l += j;
-      //   if((k + l) > m) {
-      //     l = m - k;
-      //   }
-      //   var crypted = sosemanuk.encrypt(pt.slice(k, k+l));
-      //   encrypted = encrypted.concat(crypted);
-      //   k += l;
-      // }
-      // 
-      // // Assert correctness of encryption
-      // for(var i = 0; i < stream.length; i++) {
-      //   var chunk = util.hexStringToBinaryArray(stream[i].chunk);
-      //   var start = stream[i].start;
-      //   var len = stream[i].len;
-      //   assert.deepEqual(chunk, encrypted.slice(start, start + len));
-      // }
-      // 
-      // // var bx = new Array(encrypted.length);
-      // var out = new Array(xor.length);
-      // for(var i = 0; i < xor.length; i++) out[i] = 0;
-      // var bx = xorDigest(encrypted, out);
-      // assert.deepEqual(xor, bx);
-      // 
-      // // Decrypt the data and verify
-      // var sosemanuk = new Sosemanuk(key, iv);
-      // var decrypted = [];
-      // 
-      // // Decrypt in chunks of data
-      // for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
-      //   l += j;
-      //   if((k + l) > m) {
-      //     l = m - k;
-      //   }
-      //   var uncrypted = sosemanuk.decrypt(encrypted.slice(k, k+l));
-      //   decrypted = decrypted.concat(uncrypted);
-      //   k += l;
-      // }
-      // // Assert correct decryption
-      // assert.deepEqual(pt, decrypted);
     }
       
     finished();

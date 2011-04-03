@@ -3,7 +3,7 @@ require.paths.unshift("./lib", "./external-libs/node-async-testing");
 var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
-  AESKey = require('aes').AESKey,
+  AESKey = require('block/aes').AESKey,
   crypto = require('crypto');
     
 var suite = exports.suite = new TestSuite("AES official known-answer tests");

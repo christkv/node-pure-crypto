@@ -3,7 +3,7 @@ require.paths.unshift("./lib", "./external-libs/node-async-testing");
 var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
-  Rabbit = require('rabbit').Rabbit,
+  Rabbit = require('stream/rabbit').Rabbit,
   util = require('utils');  
   
 var suite = exports.suite = new TestSuite("Rabbit tests");

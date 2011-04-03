@@ -3,7 +3,7 @@ require.paths.unshift("./lib", "./external-libs/node-async-testing");
 var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
-  MARC4 = require('marc4').MARC4,
+  MARC4 = require('block/marc4').MARC4,
   util = require('utils'),
   crypto = require('crypto');
   

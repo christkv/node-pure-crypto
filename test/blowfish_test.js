@@ -4,11 +4,11 @@ var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
   crypto = require('crypto'),
-  BlowFish = require('blowfish').BlowFish,
-  OFBMode = require('ofb').OFBMode,
-  CBCMode = require('cbc').CBCMode,
-  ECBMode = require('ecb').ECBMode,
-  CFBMode = require('cfb').CFBMode,
+  BlowFish = require('block/blowfish').BlowFish,
+  OFBMode = require('block/ofb').OFBMode,
+  CBCMode = require('block/cbc').CBCMode,
+  ECBMode = require('block/ecb').ECBMode,
+  CFBMode = require('block/cfb').CFBMode,
   util = require('utils');
     
 var suite = exports.suite = new TestSuite("BlowFishKey Test");

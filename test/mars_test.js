@@ -3,11 +3,11 @@ require.paths.unshift("./lib", "./external-libs/node-async-testing");
 var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
-  Mars = require('mars').Mars,
-  ECBMode = require('ecb').ECBMode,
-  OFBMode = require('ofb').OFBMode,
-  CBCMode = require('cbc').CBCMode,
-  CFBMode = require('cfb').CFBMode,
+  Mars = require('block/mars').Mars,
+  ECBMode = require('block/ecb').ECBMode,
+  OFBMode = require('block/ofb').OFBMode,
+  CBCMode = require('block/cbc').CBCMode,
+  CFBMode = require('block/cfb').CFBMode,
   util = require('utils'),
   crypto = require('crypto');
   
