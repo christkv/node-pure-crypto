@@ -36,3 +36,4 @@ require('hc128_test').suite.runTests(function() {});
 require('hc256_test').suite.runTests(function() {});
 require('vmpc_test').suite.runTests(function() {});
 require('vmpcksa3_test').suite.runTests(function() {});
+require('skipjack_test').suite.runTests(function() {});
