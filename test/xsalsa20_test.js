@@ -12,7 +12,7 @@ var TestSuite = require('async_testing').TestSuite,
   Long = require('long').Long,
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("XXSalsa20 tests");
+var suite = exports.suite = new TestSuite("XSalsa20 tests");
 
 var randomdata = function(size) {
   // 5KB of random, dummy data
