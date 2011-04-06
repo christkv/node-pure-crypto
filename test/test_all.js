@@ -40,3 +40,4 @@ require('skipjack_test').suite.runTests(function() {});
 require('noekeon_test').suite.runTests(function() {});
 require('isaac_test').suite.runTests(function() {});
 require('grainv1_test').suite.runTests(function() {});
+require('grain128_test').suite.runTests(function() {});

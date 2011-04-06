@@ -126,7 +126,7 @@ suite.addTests({
     finished();
   },      
   
-  "Test GainV1 Official Vectors":function(assert, finished) {      
+  "Test GrainV1 Official Vectors":function(assert, finished) {      
     // Test vectors
     for(var ij = 0; ij < testCases.length; ij++) {
       var zero = testCases[ij].zero;
