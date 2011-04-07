@@ -43,3 +43,4 @@ require('grainv1_test').suite.runTests(function() {});
 require('grain128_test').suite.runTests(function() {});
 require('gost28147_test').suite.runTests(function() {});
 require('camellia_test').suite.runTests(function() {});
+require('aesfast_test').suite.runTests(function() {});
