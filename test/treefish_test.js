@@ -22,6 +22,12 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
+var zeroedData = function(size) {
+  var data = new Array(size);
+  for(var i = 0; i < size; i++) data[i] = 0;
+  return data;
+}
+
 suite.addTests({  
   "Test TreeFish 256 Vectors":function(assert, finished) {
     var keys = ["0000000000000000000000000000000000000000000000000000000000000000",
@@ -45,28 +51,28 @@ suite.addTests({
       // Encrypt the data and verify
       var treeFish = new TreeFish(key, tweak);
       var encrypted = treeFish.encrypt(pt);
-
+  
       // Create inputdata
       var b0 = Long.fromString(pts[i].slice(0, 16), 16);
       var b1 = Long.fromString(pts[i].slice(16, 32), 16);
       var b2 = Long.fromString(pts[i].slice(32, 48), 16);
       var b3 = Long.fromString(pts[i].slice(48, 64), 16);      
       var inputdata = TreeFish.putBytes([b0, b1, b2, b3], [], treeFish.BlockSize);      
-
+  
       // Create encrypted data
       b0 = Long.fromString(cts[i].slice(0, 16), 16);
       b1 = Long.fromString(cts[i].slice(16, 32), 16);
       b2 = Long.fromString(cts[i].slice(32, 48), 16);
       b3 = Long.fromString(cts[i].slice(48, 64), 16);      
       var ctdata = TreeFish.putBytes([b0, b1, b2, b3], [], treeFish.BlockSize);
-
+  
       // plaintext feed forward
       for(var i = 0; i < encrypted.length; i++) {
         encrypted[i] = encrypted[i] ^ inputdata[i];
       }
       
       assert.deepEqual(ctdata, encrypted)
-
+  
       // Decrypt and check
       // plaintext feed backward :-)
       for(var i = 0; i < encrypted.length; i++) {
@@ -81,7 +87,7 @@ suite.addTests({
       
     finished();
   },  
-
+  
   "Test TreeFish 512 Vectors":function(assert, finished) {
     var keys = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
                 "17161514131211101F1E1D1C1B1A191827262524232221202F2E2D2C2B2A292837363534333231303F3E3D3C3B3A393847464544434241404F4E4D4C4B4A4948"];
@@ -148,13 +154,13 @@ suite.addTests({
       
     finished();
   },  
-
+  
   "Test TreeFish 1024 Vectors":function(assert, finished) {
     var keys = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" 
               + "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
                 "17161514131211101F1E1D1C1B1A191827262524232221202F2E2D2C2B2A292837363534333231303F3E3D3C3B3A393847464544434241404F4E4D4C4B4A4948"
               + "57565554535251505F5E5D5C5B5A595867666564636261606F6E6D6C6B6A696877767574737271707F7E7D7C7B7A797887868584838281808F8E8D8C8B8A8988"];
-
+  
     var pts = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" 
              + "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
                "F8F9FAFBFCFDFEFFF0F1F2F3F4F5F6F7E8E9EAEBECEDEEEFE0E1E2E3E4E5E6E7D8D9DADBDCDDDEDFD0D1D2D3D4D5D6D7C8C9CACBCCCDCECFC0C1C2C3C4C5C6C7"
@@ -238,5 +244,79 @@ suite.addTests({
     }
       
     finished();
-  },    
+  },  
+  
+  "Streaming api test":function(assert, finished) {
+    var key = "17161514131211101F1E1D1C1B1A191827262524232221202F2E2D2C2B2A2928";
+    var tweak = "07060504030201000F0E0D0C0B0A0908";
+    // Encrypt using the pure js library    
+    var iv = "000102030405060708090a0b0c0d0e0f000102030405060708090a0b0c0d0e0f";
+    // 5K of random data
+    var data = zeroedData(1024);
+    // Blocksize
+    var blockSize = 32;
+
+    var treeFish = new TreeFish(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(tweak));
+    var encrypted = [];
+    var numberOfBlocks = data.length/blockSize;
+    for(var i = 0; i < numberOfBlocks; i++) {
+      encrypted = encrypted.concat(treeFish.encrypt(data.slice(i*blockSize, i*blockSize + blockSize)));
+    }
+    
+    var decrypted = [];
+    for(var i = 0; i < numberOfBlocks; i++) {
+      decrypted = decrypted.concat(treeFish.decrypt(encrypted.slice(i*blockSize, i*blockSize + blockSize)));
+    }
+    
+    // Check that we have a valid decrypted data array
+    assert.deepEqual(data, decrypted);
+    var data = zeroedData(1025);
+
+    // Encrypt using the purejs librarie's streaming api in 1024 blocks
+    var ofb = new OFBMode(new TreeFish(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(tweak)), null, util.hexStringToBinaryArray(iv));
+    encrypted = ofb.encrypt(data);
+
+    var ofb = new OFBMode(new TreeFish(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(tweak)), null, util.hexStringToBinaryArray(iv));
+    decrypted = ofb.decrypt(encrypted);
+    assert.deepEqual(data, decrypted)
+
+    var ofb = new OFBMode(new TreeFish(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(tweak)), null, util.hexStringToBinaryArray(iv));
+    var data = util.arrayToBinaryString(zeroedData(1025));
+    // Split the data
+    var numberOfBlocks = Math.floor(data.length / blockSize);
+    var leftOverbytes = data.length % blockSize;
+    var encryptedData = "";
+      
+    for(var i = 0; i < numberOfBlocks; i++) {
+      encryptedData += ofb.updateEncrypt(data.substr(i * blockSize, blockSize));
+    }    
+      
+    // If we have leftover bytes
+    if(leftOverbytes > 0) {
+      encryptedData += ofb.updateEncrypt(data.substr(data.length - leftOverbytes));
+    }
+    // ok dokey let's finialize (ensuring we have the last padded block added)    
+    encryptedData += ofb.finalEncrypt();
+    
+    // Clean cbc instance
+    ofb = new OFBMode(new TreeFish(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(tweak)), null, util.hexStringToBinaryArray(iv));
+    // Split the data
+    var numberOfBlocks = Math.floor(encryptedData.length / blockSize);
+    var leftOverbytes = encryptedData.length % blockSize;
+    var decryptedData = "";
+    
+    for(var i = 0; i < numberOfBlocks; i++) {
+      decryptedData += ofb.updateDecrypt(encryptedData.substr(i * blockSize, blockSize));
+    }    
+    
+    // Update with leftover bytes
+    if(leftOverbytes > 0) 
+      decryptedData += ofb.updateDecrypt(encryptedData.substr(numberOfBlocks*blockSize));          
+      
+    // ok dokey let's finialize (ensuring we have the last padded block added)    
+    decryptedData += ofb.finalDecrypt();
+
+    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+    finished();
+  },
 });
