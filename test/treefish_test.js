@@ -22,20 +22,7 @@ var randomdata = function(size) {
 }
 
 suite.addTests({  
-  "Test TreeFish Vectors":function(assert, finished) {
-    // long[] three_256_01_key = { 0x1716151413121110L, 0x1F1E1D1C1B1A1918L,
-    //         0x2726252423222120L, 0x2F2E2D2C2B2A2928L };
-    // long[] three_256_01_input = { 0xF8F9FAFBFCFDFEFFL, 0xF0F1F2F3F4F5F6F7L,
-    //         0xE8E9EAEBECEDEEEFL, 0xE0E1E2E3E4E5E6E7L };
-    // long[] three_256_01_result = { 0x277610F5036C2E1FL, 0x25FB2ADD1267773EL,
-    //         0x9E1D67B3E4B06872L, 0x3F76BC7651B39682L };
-    // long[] three_256_01_tweak = { 0x0706050403020100L, 0x0F0E0D0C0B0A0908L };    
-    
-    // var keys = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"];
-    // var pts = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"];
-    // var tweaks = ["00000000000000000000000000000000"]
-    // var cts = ["94EEEA8B1F2ADA84ADF103313EAE6670952419A1F4B16D53D83F13E63C9F6B11"];
-
+  "Test TreeFish 256 Vectors":function(assert, finished) {
     var keys = ["0000000000000000000000000000000000000000000000000000000000000000",
                 "17161514131211101F1E1D1C1B1A191827262524232221202F2E2D2C2B2A2928"];
     var pts = ["0000000000000000000000000000000000000000000000000000000000000000",
@@ -47,8 +34,8 @@ suite.addTests({
     
     // Test vectors
     for(var i = 0; i < keys.length; i++) {
-      // var key = util.hexStringToBinaryArray(keys[i]);
-      var key = keys[i];
+      var key = util.hexStringToBinaryArray(keys[i]);
+      // var key = keys[i];
       var pt = util.hexStringToBinaryArray(pts[i]);
       var tweak = util.hexStringToBinaryArray(tweaks[i]);
       // var tweak = tweaks[i];
@@ -79,6 +66,73 @@ suite.addTests({
       
       assert.deepEqual(ctdata, encrypted)
 
+      // Decrypt and check
+      // plaintext feed backward :-)
+      for(var i = 0; i < encrypted.length; i++) {
+        encrypted[i] = encrypted[i] ^ inputdata[i];
+      }      
+      
+      // Decrypt data and verify
+      treeFish = new TreeFish(key, tweak);
+      var decrypted = treeFish.decrypt(encrypted);      
+      assert.deepEqual(inputdata, decrypted);
+    }
+      
+    finished();
+  },  
+
+  "Test TreeFish 512 Vectors":function(assert, finished) {
+    var keys = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                "17161514131211101F1E1D1C1B1A191827262524232221202F2E2D2C2B2A292837363534333231303F3E3D3C3B3A393847464544434241404F4E4D4C4B4A4948"];
+    var pts = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+               "F8F9FAFBFCFDFEFFF0F1F2F3F4F5F6F7E8E9EAEBECEDEEEFE0E1E2E3E4E5E6E7D8D9DADBDCDDDEDFD0D1D2D3D4D5D6D7C8C9CACBCCCDCECFC0C1C2C3C4C5C6C7"];
+    var tweaks = ["00000000000000000000000000000000",
+                  "07060504030201000F0E0D0C0B0A0908"]
+    var cts = ["BC2560EFC6BBA2B1E3361F162238EB40FB8631EE0ABBD1757B9479D4C5479ED1CFF0356E58F8C27BB1B7B08430F0E7F7E9A380A56139ABF1BE7B6D4AA11EB47E",
+               "D4A32EDD6ABEFA1C6AD5C4252C3FF74335AC875BE2DED68C99A6C774EA5CD06CDCEC9C4251D7F4F8F5761BCB3EF592AFFCABCB6A3212DF60FD6EDE9FF9A2E14E"];
+    
+    // Test vectors
+    for(var i = 0; i < keys.length; i++) {
+      // var key = util.hexStringToBinaryArray(keys[i]);
+      var key = keys[i];
+      var pt = util.hexStringToBinaryArray(pts[i]);
+      var tweak = util.hexStringToBinaryArray(tweaks[i]);
+      // var tweak = tweaks[i];
+      var ct = util.hexStringToBinaryArray(cts[i]);
+      
+      // Encrypt the data and verify
+      var treeFish = new TreeFish(key, tweak);
+      var encrypted = treeFish.encrypt(pt);
+  
+      // Create inputdata
+      var b0 = Long.fromString(pts[i].slice(0, 16), 16);
+      var b1 = Long.fromString(pts[i].slice(16, 32), 16);
+      var b2 = Long.fromString(pts[i].slice(32, 48), 16);
+      var b3 = Long.fromString(pts[i].slice(48, 64), 16);      
+      var b4 = Long.fromString(pts[i].slice(64 + 0, 64 + 16), 16);
+      var b5 = Long.fromString(pts[i].slice(64 + 16, 64 + 32), 16);
+      var b6 = Long.fromString(pts[i].slice(64 + 32, 64 + 48), 16);
+      var b7 = Long.fromString(pts[i].slice(64 + 48, 64 + 64), 16);      
+      var inputdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7], [], treeFish.BlockSize);      
+  
+      // Create encrypted data
+      b0 = Long.fromString(cts[i].slice(0, 16), 16);
+      b1 = Long.fromString(cts[i].slice(16, 32), 16);
+      b2 = Long.fromString(cts[i].slice(32, 48), 16);
+      b3 = Long.fromString(cts[i].slice(48, 64), 16);      
+      b4 = Long.fromString(cts[i].slice(64 + 0, 64 + 16), 16);
+      b5 = Long.fromString(cts[i].slice(64 + 16, 64 + 32), 16);
+      b6 = Long.fromString(cts[i].slice(64 + 32, 64 + 48), 16);
+      b7 = Long.fromString(cts[i].slice(64 + 48, 64 + 64), 16);      
+      var ctdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7], [], treeFish.BlockSize);
+  
+      // plaintext feed forward
+      for(var i = 0; i < encrypted.length; i++) {
+        encrypted[i] = encrypted[i] ^ inputdata[i];
+      }
+      
+      assert.deepEqual(ctdata, encrypted)
+  
       // Decrypt and check
       // plaintext feed backward :-)
       for(var i = 0; i < encrypted.length; i++) {
