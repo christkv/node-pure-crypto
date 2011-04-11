@@ -147,6 +147,81 @@ suite.addTests({
       
     finished();
   },  
+
+  "Test TreeFish 1024 Vectors":function(assert, finished) {
+    var keys = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" 
+             + "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+               "17161514131211101F1E1D1C1B1A191827262524232221202F2E2D2C2B2A292837363534333231303F3E3D3C3B3A393847464544434241404F4E4D4C4B4A4948"
+             + "57565554535251505F5E5D5C5B5A595867666564636261606F6E6D6C6B6A696877767574737271707F7E7D7C7B7A797887868584838281808F8E8D8C8B8A8988"];
+
+    var pts = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" 
+             + "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+               "F8F9FAFBFCFDFEFFF0F1F2F3F4F5F6F7E8E9EAEBECEDEEEFE0E1E2E3E4E5E6E7D8D9DADBDCDDDEDFD0D1D2D3D4D5D6D7C8C9CACBCCCDCECFC0C1C2C3C4C5C6C7"
+             + "B8B9BABBBCBDBEBFB0B1B2B3B4B5B6B7A8A9AAABACADAEAFA0A1A2A3A4A5A6A798999A9B9C9D9E9F909192939495969788898A8B8C8D8E8F8081828384858687"];
+                      
+    var tweaks = ["00000000000000000000000000000000",
+                  "07060504030201000F0E0D0C0B0A0908"]
+    var cts = ["04B3053D0A3D5CF00136E0D1C7DD85F7067B212F6EA78A5C0DA9C10B4C54E1C60F4EC27394CBACF032437F0568EA4FD5CFF56D1D7654B49CA2D5FB14369B2E7B"
+             + "540306B460472E0B71C18254BCEA820DC36B4068BEAF32C8FA4329597A360095C4A36C28434A5B9AD54331444B1046CFDF11834830B2A4601E39E8DFE1F7EE4F",
+               "483AC62C27B09B594CB85AA9E48221AA80BC1644069F7D0BFCB26748FF92B235E83D70243B5D294B316A3CA3587A0E025461FD7C8EF6C1B97DD5C1A4C98CA574",
+             + "FDA694875AA31A3503D1319C26C2624CA2066D0DF2BF78276831CCDAA5C8A3702B8FCD9189698DACE47818BBFD604399DF47E519CBCEA5415EFD5FF4A5D4C259"];
+    
+    // Test vectors
+    for(var i = 0; i < keys.length; i++) {
+      // var key = util.hexStringToBinaryArray(keys[i]);
+      var key = keys[i];
+      var pt = util.hexStringToBinaryArray(pts[i]);
+      var tweak = util.hexStringToBinaryArray(tweaks[i]);
+      // var tweak = tweaks[i];
+      var ct = util.hexStringToBinaryArray(cts[i]);
+      
+      // Encrypt the data and verify
+      var treeFish = new TreeFish(key, tweak);
+      var encrypted = treeFish.encrypt(pt);
+  
+      // Create inputdata
+      var b0 = Long.fromString(pts[i].slice(0, 16), 16);
+      var b1 = Long.fromString(pts[i].slice(16, 32), 16);
+      var b2 = Long.fromString(pts[i].slice(32, 48), 16);
+      var b3 = Long.fromString(pts[i].slice(48, 64), 16);      
+      var b4 = Long.fromString(pts[i].slice(64 + 0, 64 + 16), 16);
+      var b5 = Long.fromString(pts[i].slice(64 + 16, 64 + 32), 16);
+      var b6 = Long.fromString(pts[i].slice(64 + 32, 64 + 48), 16);
+      var b7 = Long.fromString(pts[i].slice(64 + 48, 64 + 64), 16);      
+      var inputdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7], [], treeFish.BlockSize);      
+  
+      // Create encrypted data
+      b0 = Long.fromString(cts[i].slice(0, 16), 16);
+      b1 = Long.fromString(cts[i].slice(16, 32), 16);
+      b2 = Long.fromString(cts[i].slice(32, 48), 16);
+      b3 = Long.fromString(cts[i].slice(48, 64), 16);      
+      b4 = Long.fromString(cts[i].slice(64 + 0, 64 + 16), 16);
+      b5 = Long.fromString(cts[i].slice(64 + 16, 64 + 32), 16);
+      b6 = Long.fromString(cts[i].slice(64 + 32, 64 + 48), 16);
+      b7 = Long.fromString(cts[i].slice(64 + 48, 64 + 64), 16);      
+      var ctdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7], [], treeFish.BlockSize);
+  
+      // plaintext feed forward
+      for(var i = 0; i < encrypted.length; i++) {
+        encrypted[i] = encrypted[i] ^ inputdata[i];
+      }
+      
+      assert.deepEqual(ctdata, encrypted)
+  
+      // // Decrypt and check
+      // // plaintext feed backward :-)
+      // for(var i = 0; i < encrypted.length; i++) {
+      //   encrypted[i] = encrypted[i] ^ inputdata[i];
+      // }      
+      // 
+      // // Decrypt data and verify
+      // treeFish = new TreeFish(key, tweak);
+      // var decrypted = treeFish.decrypt(encrypted);      
+      // assert.deepEqual(inputdata, decrypted);
+    }
+      
+    finished();
+  },  
   
   // "Streaming api test":function(assert, finished) {
   //   var key = "b1656851699e29fa24b70148503d2dfc";
