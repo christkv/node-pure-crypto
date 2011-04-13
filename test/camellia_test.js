@@ -77,7 +77,7 @@ suite.addTests({
 
       var camellia = new Camellia(util.hexStringToBinaryArray(key));
       var decrypted = camellia.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted)      
+      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted)      
     }
 
     finished();
@@ -86,7 +86,7 @@ suite.addTests({
   "Streaming api test":function(assert, finished) {
     var key = "546d203368656c326973652073736e62206167796967747473656865202c3d73";
     // Encrypt using the pure js library    
-    var iv = "0001020304050607";
+    var iv = "00010203040506070001020304050607";
     // 5K of random data
     var data = randomdata(1025);
     // Blocksize

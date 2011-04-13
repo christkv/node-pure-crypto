@@ -48,7 +48,7 @@ suite.addTests({
     for(var i = 0; i < keys.length; i++) {
     // for(var i = 0; i < keys.length; i++) {
       var key = keys[i];
-      var pt = pts[i];
+      var pt = pts[i]
       var ct = cts[i];
       var sbox = sboxs[i];
       // Encrypt using the purejs librarie's streaming api in 1024 blocks
@@ -63,7 +63,7 @@ suite.addTests({
 
       var gost28147 = new Gost28147(util.hexStringToBinaryArray(key), sbox);
       var decrypted = gost28147.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted)      
+      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted)      
     }
 
     finished();

@@ -57,13 +57,12 @@ suite.addTests({
     // Encrypt using the pure js library    
     var iv = "00010203040506070001020304050607";
     // 5K of random data
-    // var data = randomdata(33);
-    var data = util.arrayToBinaryString(zeroedData(33));
+    var data = randomdata(1025);
     // Blocksize
     var blockSize = 16;
     // Encrypt using the purejs librarie's streaming api in 1024 blocks
     var ofb = new OFBMode(new Noekeon(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
-    debug(util.binaryStringToArray(data))
+  
     // Split the data
     var numberOfBlocks = Math.floor(data.length / blockSize);
     var leftOverbytes = data.length % blockSize;
@@ -85,27 +84,82 @@ suite.addTests({
     src = ofb.encrypt(util.binaryStringToArray(data));
     assert.deepEqual(src, util.binaryStringToArray(encryptedData));
         
-    // var src = encryptedData;
-    // // Clean cbc instance
-    // ofb = new OFBMode(new Noekeon(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
-    // // Split the data
-    // var numberOfBlocks = Math.floor(src.length / blockSize);
-    // var leftOverbytes = src.length % blockSize;
-    // var decryptedData = "";
-    //   
-    // for(var i = 0; i < numberOfBlocks; i++) {
-    //   decryptedData += ofb.updateDecrypt(util.arrayToBinaryString(src).substr(i * blockSize, blockSize));
-    // }    
-    // 
-    // // Update with leftover bytes
-    // if(leftOverbytes > 0) 
-    //   decryptedData += ofb.updateDecrypt(util.arrayToBinaryString(src).substr(numberOfBlocks*blockSize));          
-    //   
-    // // ok dokey let's finialize (ensuring we have the last padded block added)    
-    // decryptedData += ofb.finalDecrypt();
-    //   
-    // // Compare
-    // assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+    // Clean cbc instance
+    ofb = new OFBMode(new Noekeon(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
+    // Split the data
+    var numberOfBlocks = Math.floor(src.length / blockSize);
+    var leftOverbytes = src.length % blockSize;
+    var decryptedData = "";
+      
+    for(var i = 0; i < numberOfBlocks; i++) {
+      decryptedData += ofb.updateDecrypt(util.arrayToBinaryString(src).substr(i * blockSize, blockSize));
+    }    
+    
+    // Update with leftover bytes
+    if(leftOverbytes > 0) 
+      decryptedData += ofb.updateDecrypt(util.arrayToBinaryString(src).substr(numberOfBlocks*blockSize));          
+      
+    // ok dokey let's finialize (ensuring we have the last padded block added)    
+    decryptedData += ofb.finalDecrypt();
+
+    // Compare
+    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
     finished();
-  },
+  },  
+  
+  // "Streaming api test":function(assert, finished) {
+  //   var key = "b1656851699e29fa24b70148503d2dfc";
+  //   // Encrypt using the pure js library    
+  //   var iv = "00010203040506070001020304050607";
+  //   // 5K of random data
+  //   // var data = randomdata(33);
+  //   var data = util.arrayToBinaryString(zeroedData(33));
+  //   // Blocksize
+  //   var blockSize = 16;
+  //   // Encrypt using the purejs librarie's streaming api in 1024 blocks
+  //   var ofb = new OFBMode(new Noekeon(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+  //   // Split the data
+  //   var numberOfBlocks = Math.floor(data.length / blockSize);
+  //   var leftOverbytes = data.length % blockSize;
+  //   var encryptedData = "";
+  // 
+  //   for(var i = 0; i < numberOfBlocks; i++) {
+  //     encryptedData += ofb.updateEncrypt(data.substr(i * blockSize, blockSize));
+  //   }    
+  // 
+  //   // If we have leftover bytes
+  //   if(leftOverbytes > 0) {
+  //     encryptedData += ofb.updateEncrypt(data.substr(data.length - leftOverbytes));      
+  //   }
+  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
+  //   encryptedData += ofb.finalEncrypt();
+  //   
+  //   // Single pass encryption
+  //   ofb = new OFBMode(new Noekeon(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
+  //   src = ofb.encrypt(util.binaryStringToArray(data));
+  //   assert.deepEqual(src, util.binaryStringToArray(encryptedData));
+  //       
+  //   // var src = encryptedData;
+  //   // // Clean cbc instance
+  //   // ofb = new OFBMode(new Noekeon(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
+  //   // // Split the data
+  //   // var numberOfBlocks = Math.floor(src.length / blockSize);
+  //   // var leftOverbytes = src.length % blockSize;
+  //   // var decryptedData = "";
+  //   //   
+  //   // for(var i = 0; i < numberOfBlocks; i++) {
+  //   //   decryptedData += ofb.updateDecrypt(util.arrayToBinaryString(src).substr(i * blockSize, blockSize));
+  //   // }    
+  //   // 
+  //   // // Update with leftover bytes
+  //   // if(leftOverbytes > 0) 
+  //   //   decryptedData += ofb.updateDecrypt(util.arrayToBinaryString(src).substr(numberOfBlocks*blockSize));          
+  //   //   
+  //   // // ok dokey let's finialize (ensuring we have the last padded block added)    
+  //   // decryptedData += ofb.finalDecrypt();
+  //   //   
+  //   // // Compare
+  //   // assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+  //   finished();
+  // },
 });

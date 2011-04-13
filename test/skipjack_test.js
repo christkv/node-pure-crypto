@@ -43,7 +43,7 @@ suite.addTests({
       // Decrypt data and verify
       skipjack = new SkipJack(key);
       var decrypted = skipjack.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted);
+      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
     finished();

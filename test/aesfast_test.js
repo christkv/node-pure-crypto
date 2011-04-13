@@ -21,31 +21,17 @@ var hexStringToBinaryArray = function(string) {
 
 suite.addTests({  
   "AES official known-answer tests":function(assert, finished) {
-    // var keys = ["A0A1A2A3A5A6A7A8AAABACADAFB0B1B2"];
-    // var pts = ["F5F4F7F684878689A6A7A0A1D2CDCCCF"];
-    // var cts = ["CE52AF650D088CA559425223F4D32694"];
-    
-    // DEBUG: A0A1A2A3A5A6A7A8AAABACADAFB0B1B2
-    // DEBUG:   F5F4F7F684878689A6A7A0A1D2CDCCCF
-    // DEBUG:   CE52AF650D088CA559425223F4D32694
-    
     for(var i = 0; i < keys.length; i++) {
       var key = hexStringToBinaryArray(keys[i]);
       var pt = hexStringToBinaryArray(pts[i]);
       var ct = hexStringToBinaryArray(cts[i]);
       var aes = new AESKey(key);
       var encrypted = aes.encrypt(pt);  // Destructive to save memory
-      // debug(keys[i])
-      // debug("  " + pts[i])
-      // debug("  " + cts[i])
-      
-      // debug(ct)
-      // debug(encrypted)
       
       assert.deepEqual(ct, encrypted);
       // Decrypt the encrypted data and compare
       var decrypted = aes.decrypt(encrypted); // Destructive to save memory
-      assert.deepEqual(pt, decrypted);
+      assert.deepEqual(hexStringToBinaryArray(pts[i]), decrypted);
     }
 
     finished();

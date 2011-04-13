@@ -51,20 +51,20 @@ suite.addTests({
       // Encrypt the data and verify
       var treeFish = new TreeFish(key, tweak);
       var encrypted = treeFish.encrypt(pt);
-  
+      
       // Create inputdata
       var b0 = Long.fromString(pts[i].slice(0, 16), 16);
       var b1 = Long.fromString(pts[i].slice(16, 32), 16);
       var b2 = Long.fromString(pts[i].slice(32, 48), 16);
       var b3 = Long.fromString(pts[i].slice(48, 64), 16);      
-      var inputdata = TreeFish.putBytes([b0, b1, b2, b3], [], treeFish.BlockSize);      
+      var inputdata = TreeFish.putBytes([b0, b1, b2, b3], [], 0, treeFish.BlockSize);      
   
       // Create encrypted data
       b0 = Long.fromString(cts[i].slice(0, 16), 16);
       b1 = Long.fromString(cts[i].slice(16, 32), 16);
       b2 = Long.fromString(cts[i].slice(32, 48), 16);
       b3 = Long.fromString(cts[i].slice(48, 64), 16);      
-      var ctdata = TreeFish.putBytes([b0, b1, b2, b3], [], treeFish.BlockSize);
+      var ctdata = TreeFish.putBytes([b0, b1, b2, b3], [], 0, treeFish.BlockSize);
   
       // plaintext feed forward
       for(var i = 0; i < encrypted.length; i++) {
@@ -120,7 +120,7 @@ suite.addTests({
       var b5 = Long.fromString(pts[i].slice(64 + 16, 64 + 32), 16);
       var b6 = Long.fromString(pts[i].slice(64 + 32, 64 + 48), 16);
       var b7 = Long.fromString(pts[i].slice(64 + 48, 64 + 64), 16);      
-      var inputdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7], [], treeFish.BlockSize);      
+      var inputdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7], [], 0, treeFish.BlockSize);      
   
       // Create encrypted data
       b0 = Long.fromString(cts[i].slice(0, 16), 16);
@@ -131,7 +131,7 @@ suite.addTests({
       b5 = Long.fromString(cts[i].slice(64 + 16, 64 + 32), 16);
       b6 = Long.fromString(cts[i].slice(64 + 32, 64 + 48), 16);
       b7 = Long.fromString(cts[i].slice(64 + 48, 64 + 64), 16);      
-      var ctdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7], [], treeFish.BlockSize);
+      var ctdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7], [], 0, treeFish.BlockSize);
   
       // plaintext feed forward
       for(var i = 0; i < encrypted.length; i++) {
@@ -203,7 +203,7 @@ suite.addTests({
       var b13 = Long.fromString(pts[i].slice(192 + 16, 192 + 32), 16);
       var b14 = Long.fromString(pts[i].slice(192 + 32, 192 + 48), 16);
       var b15 = Long.fromString(pts[i].slice(192 + 48, 192 + 64), 16);      
-      var inputdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15], [], treeFish.BlockSize);      
+      var inputdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15], [], 0, treeFish.BlockSize);      
   
       // Create encrypted data
       b0 = Long.fromString(cts[i].slice(0, 16), 16);
@@ -222,7 +222,7 @@ suite.addTests({
       b13 = Long.fromString(cts[i].slice(192 + 16, 192 + 32), 16);
       b14 = Long.fromString(cts[i].slice(192 + 32, 192 + 48), 16);
       b15 = Long.fromString(cts[i].slice(192 + 48, 192 + 64), 16);      
-      var ctdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15], [], treeFish.BlockSize);
+      var ctdata = TreeFish.putBytes([b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15], [], 0, treeFish.BlockSize);
   
       // plaintext feed forward
       for(var i = 0; i < encrypted.length; i++) {
@@ -255,7 +255,7 @@ suite.addTests({
     var data = zeroedData(1024);
     // Blocksize
     var blockSize = 32;
-
+  
     var treeFish = new TreeFish(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(tweak));
     var encrypted = [];
     var numberOfBlocks = data.length/blockSize;
@@ -271,15 +271,15 @@ suite.addTests({
     // Check that we have a valid decrypted data array
     assert.deepEqual(data, decrypted);
     var data = zeroedData(1025);
-
+  
     // Encrypt using the purejs librarie's streaming api in 1024 blocks
     var ofb = new OFBMode(new TreeFish(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(tweak)), null, util.hexStringToBinaryArray(iv));
     encrypted = ofb.encrypt(data);
-
+  
     var ofb = new OFBMode(new TreeFish(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(tweak)), null, util.hexStringToBinaryArray(iv));
     decrypted = ofb.decrypt(encrypted);
     assert.deepEqual(data, decrypted)
-
+  
     var ofb = new OFBMode(new TreeFish(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(tweak)), null, util.hexStringToBinaryArray(iv));
     var data = util.arrayToBinaryString(zeroedData(1025));
     // Split the data
@@ -315,7 +315,7 @@ suite.addTests({
       
     // ok dokey let's finialize (ensuring we have the last padded block added)    
     decryptedData += ofb.finalDecrypt();
-
+  
     assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
     finished();
   },
