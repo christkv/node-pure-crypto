@@ -33,12 +33,12 @@ suite.addTests({
         var rc5 = new RC5(key, 12);
         var encrypted = rc5.encrypt(pt);
         assert.deepEqual(ct, encrypted);
-
+  
         
         // Decrypt data and verify
         rc5 = new RC5(key, 12);
         var decrypted = rc5.decrypt(encrypted);
-        assert.deepEqual(pt, decrypted);      
+        assert.deepEqual(util.hexStringToBinaryArray(ptsSet1[i]), decrypted);      
     }
     
     // Test vectors decrypting
@@ -51,22 +51,22 @@ suite.addTests({
         rc5 = new RC5(key, 12);
         var decrypted = rc5.decrypt(ct);
         assert.deepEqual(pt, decrypted);      
-
+    
         // Encrypt the data and verify
         var rc5 = new RC5(key, 12);
         var encrypted = rc5.encrypt(pt);
-        assert.deepEqual(ct, encrypted);        
+        assert.deepEqual(util.hexStringToBinaryArray(ctsSet2[i]), encrypted);
     }
-
+  
     finished();
   },  
-
+  
   "Node Compatibility Tests":function(assert, finished) {
     var key = "80000000000000000000000000000000";
     var pt =  "0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF";
     // Encrypt using the pure js library    
     var iv = "0001020304050607";
-
+      
     // OFB Mode
     var cipher = crypto.createCipheriv("rc5-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
     var decipher = crypto.createDecipheriv("rc5-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
@@ -143,13 +143,13 @@ suite.addTests({
     assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
     finished();    
   },
-
+  
   "Streaming api test":function(assert, finished) {
     var key = "80000000000000000000000000000000";
     // Encrypt using the pure js library    
     var iv = "0001020304050607";
     // 5K of random data
-    var data = randomdata(1025);
+    var data = randomdata(33);
     // Blocksize
     var blockSize = 32;
     // Encrypt using the purejs librarie's streaming api in 1024 blocks
@@ -180,7 +180,7 @@ suite.addTests({
     var a = util.binaryStringToArray(nodejsEncrypted);    
     var b = util.binaryStringToArray(encryptedData);    
     assert.deepEqual(b, a);
-  
+      
     // Decrypt the streaming data
     var decipher = crypto.createDecipheriv("rc5-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
     var decryptedNode = decipher.update(encryptedData, 'binary');

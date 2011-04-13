@@ -19,6 +19,12 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
+var zeroedData = function(size) {
+  var data = new Array(size);
+  for(var i = 0; i < size; i++) data[i] = 0;
+  return data;
+}
+
 suite.addTests({  
   "testCBC_AES128":function(assert, finished) {
     var key = util.hexStringToBinaryArray("2b7e151628aed2a6abf7158809cf4f3c");
@@ -32,13 +38,13 @@ suite.addTests({
       "5086cb9b507219ee95db113a917678b2" + 
       "73bed6b8e3c1743b7116e69e22229516" + 
       "3ff1caa1681fac09120eca307586e1a7");
-
+  
     // Encrypt
     var iv = util.hexStringToBinaryArray("000102030405060708090a0b0c0d0e0f");
     var cbc = new CBCMode(new AESKey(key), new NullPad(), iv);
     var src = cbc.encrypt(pt);
     assert.deepEqual(ct, src);
-
+  
     // Decrypt
     cbc = new CBCMode(new AESKey(key), new NullPad(), iv);
     var decrypt = cbc.decrypt(src);    
@@ -97,46 +103,53 @@ suite.addTests({
   },  
   
   "testAES":function(assert, finished) {
-     var keys = [
-     "00010203050607080A0B0C0D0F101112",
-     "14151617191A1B1C1E1F202123242526"];
-     var cts = [
-     "D8F532538289EF7D06B506A4FD5BE9C94894C5508A8D8E29AB600DB0261F0555A8FA287B89E65C0973F1F8283E70C72863FE1C8F1F782084CE05626E961A67B3",
-     "59AB30F4D4EE6E4FF9907EF65B1FB68C96890CE217689B1BE0C93ED51CF21BB5A0101A8C30714EC4F52DBC9C6F4126067D363F67ABE58463005E679B68F0B496"];
-     var pts = [
-     "506812A45F08C889B97F5980038B8359506812A45F08C889B97F5980038B8359506812A45F08C889B97F5980038B8359",
-     "5C6D71CA30DE8B8B00549984D2EC7D4B5C6D71CA30DE8B8B00549984D2EC7D4B5C6D71CA30DE8B8B00549984D2EC7D4B"];
+    var keys = [
+    "00010203050607080A0B0C0D0F101112",
+    "14151617191A1B1C1E1F202123242526"];
+    var cts = [
+    "D8F532538289EF7D06B506A4FD5BE9C94894C5508A8D8E29AB600DB0261F0555A8FA287B89E65C0973F1F8283E70C72863FE1C8F1F782084CE05626E961A67B3",
+    "59AB30F4D4EE6E4FF9907EF65B1FB68C96890CE217689B1BE0C93ED51CF21BB5A0101A8C30714EC4F52DBC9C6F4126067D363F67ABE58463005E679B68F0B496"];
+    var pts = [
+    "506812A45F08C889B97F5980038B8359506812A45F08C889B97F5980038B8359506812A45F08C889B97F5980038B8359",
+    "5C6D71CA30DE8B8B00549984D2EC7D4B5C6D71CA30DE8B8B00549984D2EC7D4B5C6D71CA30DE8B8B00549984D2EC7D4B"];
      
-   for(var i = 0; i < keys.length; i++) {
+    for(var i = 0; i < keys.length; i++) {
      var key = util.hexStringToBinaryArray(keys[i]);
      var pt = util.hexStringToBinaryArray(pts[i]);
      var ct = util.hexStringToBinaryArray(cts[i]);
      var aes = new AESKey(key);
      var iv = util.hexStringToBinaryArray("00000000000000000000000000000000");
      var cbc = new CBCMode(aes, null, iv);
-
+  
      // Encrypt the pt key
      var encrypted = cbc.encrypt(pt);
      assert.deepEqual(ct, encrypted);
-     
+   
      // Decrypt
      var cbc = new CBCMode(aes, null, iv);
      var decrypted = cbc.decrypt(encrypted);
      assert.deepEqual(pt, decrypted);
      finished();
-   }
+    }
   },
   
   "testXTea":function(assert, finished) {
-     var keys = [
-       "2b02056806144976775d0e266c287843",
-     "00000000000000000000000000000000"];
-     var cts = [
-       "790958213819878370eb8251ffdac371081c5a457fc42502c63910306fea150be8674c3b8e675516",
-     "2dc7e8d3695b0538d8f1640d46dca717790af2ab545e11f3b08e798eb3f17b1744299d4d20b534aa"];
-     var pts = [
-       "74657374206d652e74657374206d652e74657374206d652e74657374206d652e",
-     "0000000000000000000000000000000000000000000000000000000000000000"];
+    var keys = [
+     "2b02056806144976775d0e266c287843",
+    "00000000000000000000000000000000"];
+    var cts = [
+     "790958213819878370eb8251ffdac371081c5a457fc42502c63910306fea150be8674c3b8e675516",
+    "2dc7e8d3695b0538d8f1640d46dca717790af2ab545e11f3b08e798eb3f17b1744299d4d20b534aa"];
+    var pts = [
+     "74657374206d652e74657374206d652e74657374206d652e74657374206d652e",
+    "0000000000000000000000000000000000000000000000000000000000000000"];
+  
+    var keys = [
+     "2b02056806144976775d0e266c287843"];
+    var cts = [
+     "790958213819878370eb8251ffdac371081c5a457fc42502c63910306fea150be8674c3b8e675516"];
+    var pts = [
+     "74657374206d652e74657374206d652e74657374206d652e74657374206d652e"];
   
     for(var i = 0; i < keys.length; i++) {
       var key = util.hexStringToBinaryArray(keys[i]);
@@ -148,7 +161,7 @@ suite.addTests({
       // Encrypt the pt key
       var encrypted = cbc.encrypt(pt);
       assert.deepEqual(ct, encrypted);
-
+  
       // Decrypt
       var cbc = new CBCMode(tea, null, iv);
       var decrypted = cbc.decrypt(encrypted);
@@ -176,7 +189,7 @@ suite.addTests({
     var decipher = crypto.createDecipheriv("aes-256-cbc", util.hexStringToBinary(key), util.hexStringToBinary(iv));
     var nodeEncrypted = cipher.update(util.hexStringToBinary(pt), 'binary');
     nodeEncrypted += cipher.final('binary');
-  
+      
     // Compare the two encrypted contents
     assert.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
     
@@ -185,7 +198,7 @@ suite.addTests({
     var decryptedPureJs = cbc.decrypt(util.binaryStringToArray(nodeEncrypted));
     var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
     decryptedNode += decipher.final('binary');
-  
+      
     // Compare the decrypted content
     assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs)
     assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
@@ -197,62 +210,64 @@ suite.addTests({
     var key = "603deb1015ca71be2b73aef0857d7781" + 
        "1f352c073b6108d72d9810a30914dff4";         
     // 5K of random data
-    var data = randomdata(1023);    
+    var data = randomdata(33);    
     // Encrypt using the purejs librarie's streaming api in 1024 blocks
     var iv = "000102030405060708090a0b0c0d0e0f";
     var cbc = new CBCMode(new AESKey(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     // Blocksize
-    var blockSize = 32;
-
+    var blockSize = 16;
+  
     // Split the data
     var numberOfBlocks = Math.floor(data.length / blockSize);
     var leftOverbytes = data.length % blockSize;
     var encryptedData = "";
-
+  
     for(var i = 0; i < numberOfBlocks; i++) {
      encryptedData += cbc.updateEncrypt(data.substr(i * blockSize, blockSize));
     }    
-
+  
     // If we have leftover bytes
     if(leftOverbytes > 0) 
      encryptedData += cbc.updateEncrypt(data.substr(numberOfBlocks*blockSize)); 
     // ok dokey let's finialize (ensuring we have the last padded block added)    
     encryptedData += cbc.finalEncrypt();
-
+  
     // Encrypt using node.js to ensure have have the same
     var cipher = crypto.createCipheriv("aes-256-cbc", util.hexStringToBinary(key), util.hexStringToBinary(iv));    
     var nodejsEncrypted = cipher.update(data, 'binary');
     nodejsEncrypted += cipher.final('binary');
-
+  
     // Verify encrypted streaming data
     var a = util.binaryStringToArray(nodejsEncrypted);    
     var b = util.binaryStringToArray(encryptedData);    
     assert.deepEqual(b, a);
-
+  
     // Decrypt the streaming data
     var decipher = crypto.createDecipheriv("aes-256-cbc", util.hexStringToBinary(key), util.hexStringToBinary(iv));
     var decryptedNode = decipher.update(encryptedData, 'binary');
     decryptedNode += decipher.final('binary');    
     // Decrypted content check for node.js
     assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedNode));    
-
+      
     // Clean cbc instance
     cbc = new CBCMode(new AESKey(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
     // Split the data
     var numberOfBlocks = Math.floor(nodejsEncrypted.length / blockSize);
     var leftOverbytes = nodejsEncrypted.length % blockSize;
     var decryptedData = "";
-
+      
     for(var i = 0; i < numberOfBlocks; i++) {
       decryptedData += cbc.updateDecrypt(nodejsEncrypted.substr(i * blockSize, blockSize));
-    }    
-
+    }
+    
     // Update with leftover bytes
-    if(leftOverbytes > 0) 
-      decryptedData += cbc.updateDecrypt(nodejsEncrypted.substr(numberOfBlocks*blockSize));          
+    if(leftOverbytes > 0) {
+      decryptedData += cbc.updateDecrypt(nodejsEncrypted.substr(numberOfBlocks*blockSize));                
+    }
+
     // ok dokey let's finialize (ensuring we have the last padded block added)    
     decryptedData += cbc.finalDecrypt();
-
+      
     // Verify encryption
     var a = util.binaryStringToArray(decryptedNode);    
     var b = util.binaryStringToArray(decryptedData);    

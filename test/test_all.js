@@ -4,12 +4,12 @@ require.paths.unshift("./lib", "./lib/prng", "./lib/symmetric", "./external-libs
 var debug = require('sys').debug,
   inspect = require('sys').inspect;
 
-// // Tests
-// require('aes_test').suite.runTests(function() {});
-// // Set max emitters (bug if no emitters registered)
-// process.setMaxListeners(100);
-// // Execute rest of tests
-// require('cbc_test').suite.runTests(function() {});
+// Tests
+require('aes_test').suite.runTests(function() {});
+// Set max emitters (bug if no emitters registered)
+process.setMaxListeners(100);
+// Execute rest of tests
+require('cbc_test').suite.runTests(function() {});
 // require('ofb_test').suite.runTests(function() {});
 // require('cfb8_test').suite.runTests(function() {});
 // require('cfb_test').suite.runTests(function() {});
@@ -45,6 +45,6 @@ var debug = require('sys').debug,
 // require('camellia_test').suite.runTests(function() {});
 // require('aesfast_test').suite.runTests(function() {});
 // require('treefish_test').suite.runTests(function() {});
-
-// Hash functions
-require('md5_test').suite.runTests(function() {});
+// 
+// // Hash functions
+// require('md5_test').suite.runTests(function() {});
