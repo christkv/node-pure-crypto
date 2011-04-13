@@ -40,7 +40,7 @@ suite.addTests({
       // Decrypt data and verify
       cast128 = new CAST128(key);
       var decrypted = cast128.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted);
+      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
     finished();
@@ -51,7 +51,7 @@ suite.addTests({
     var pt =  "0123456789ABCDEF0123456789ABCDEF";
     // Encrypt using the pure js library    
     var iv = "0001020304050607";
-
+  
     // OFB Mode
     var cipher = crypto.createCipheriv("cast5-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
     var decipher = crypto.createDecipheriv("cast5-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));

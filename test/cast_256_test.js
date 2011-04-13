@@ -40,7 +40,7 @@ suite.addTests({
       // Decrypt data and verify
       cast256 = new CAST256(key);
       var decrypted = cast256.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted);
+      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
     finished();
@@ -50,7 +50,7 @@ suite.addTests({
     var key = "0123456712345678234567893456789A";
     var pt =  "0123456789ABCDEF0123456789ABCDEF";
     // Encrypt using the pure js library    
-    var iv = "0001020304050607";
+    var iv = "00010203040506070001020304050607";
   
     // OFB Mode
     var ofb = new OFBMode(new CAST256(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
@@ -89,7 +89,7 @@ suite.addTests({
   "Streaming api test":function(assert, finished) {
     var key = "0123456712345678234567893456789A";
     // Encrypt using the pure js library    
-    var iv = "0001020304050607";
+    var iv = "00010203040506070001020304050607";
     // 5K of random data
     var data = randomdata(1025);
     // Blocksize
@@ -135,7 +135,7 @@ suite.addTests({
       
     // ok dokey let's finialize (ensuring we have the last padded block added)    
     decryptedData += ofb.finalDecrypt();
-
+  
     // Compare
     assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
     finished();

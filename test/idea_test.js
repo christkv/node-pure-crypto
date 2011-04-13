@@ -53,7 +53,7 @@ suite.addTests({
       // Decrypt data and verify
       idea = new IDEA(key);
       var decrypted = idea.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted);
+      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
     finished();
@@ -61,26 +61,27 @@ suite.addTests({
   
   "Encrypt a long file":function(assert, finished) {
     // 5K of random data
-    var data = util.binaryStringToArray(randomdata(1024));
+    var pt = util.binaryStringToArray(randomdata(32))
+    var data = pt.slice(0);
     var key = "00010002000300040005000600070008";
     var encryptedData = [];
     var decryptedData = [];
-
+  
     // Encrypt the data and verify
     var idea = new IDEA(key);    
     var numberOfBlocks = data.length / idea.getBlockSize();
     for(var i = 0; i < numberOfBlocks; i++) {
-      encryptedData = encryptedData.concat(idea.encrypt(data, (i * idea.getBlockSize())));
+      idea.encrypt(data, (i * idea.getBlockSize()));
     }
     
     for(var i = 0; i < numberOfBlocks; i++) {
-      decryptedData = decryptedData.concat(idea.decrypt(encryptedData, (i * idea.getBlockSize())));
+      idea.decrypt(data, (i * idea.getBlockSize()));
     }
-    
-    assert.deepEqual(data, decryptedData);
+
+    assert.deepEqual(pt, data);
     finished();
   },
-
+  
   "Streaming api test":function(assert, finished) {
     var key = "00010002000300040005000600070008";
     // Encrypt using the pure js library    
@@ -130,7 +131,7 @@ suite.addTests({
       
     // ok dokey let's finialize (ensuring we have the last padded block added)    
     decryptedData += ofb.finalDecrypt();
-
+  
     // Compare
     assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
     finished();

@@ -67,7 +67,7 @@ suite.addTests({
       // Decrypt data and verify
       seed = new Seed(key);
       var decrypted = seed.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted);
+      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
     finished();

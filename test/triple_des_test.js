@@ -46,7 +46,7 @@ suite.addTests({
       assert.deepEqual(ct, encrypted);
       // Decrypt
       var decrypted = des.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted);
+      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
     
     finished();

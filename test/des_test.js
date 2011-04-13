@@ -69,13 +69,14 @@ suite.addTests({
       var pt = util.hexStringToBinaryArray(pts[i]);
       var ct = util.hexStringToBinaryArray(cts[i]);
       var bf = new DESKey(key);
-      
+
       // Encryp the content
       var encrypted = bf.encrypt(pt);
       assert.deepEqual(ct, encrypted);
+
       // Decrypt
       var decrypted = bf.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted);
+      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
     finished();
   },  
