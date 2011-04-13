@@ -248,68 +248,68 @@ suite.addTests({
       encrypted = salsa.encrypt(pt.slice(0))
       assert.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
       var salsa20 = new XSalsa20(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-      var decrypted = salsa20.decrypt(encrypted);
+      var decrypted = salsa20.decrypt(encrypted);      
       assert.deepEqual(pt, decrypted)      
     }
 
     finished();
   },
   
-  // "Streaming api test":function(assert, finished) {
-  //   var key = "a6a7251c1e72916d11c2cb214d3c252539121d8e234e652d651fa4c8cff88030";
-  //   // Encrypt using the pure js library    
-  //   var iv = "9e645a74e9e0a60d8243acd9177ab51a1beb8d5a2f5d700c";
-  //   // 5K of random data
-  //   var data = randomdata(1025);
-  //   // Blocksize
-  //   var blockSize = 64;
-  //   // Encrypt using the purejs librarie's streaming api in 1024 blocks
-  //   var salsa20 = new XSalsa20(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-  //   // Split the data
-  //   var numberOfBlocks = Math.floor(data.length / blockSize);
-  //   var leftOverbytes = data.length % blockSize;
-  //   var encryptedData = "";
-  // 
-  //   for(var i = 0; i < numberOfBlocks; i++) {
-  //     encryptedData += salsa20.updateEncrypt(data.substr(i * blockSize, blockSize));
-  //   }    
-  // 
-  //   // If we have leftover bytes
-  //   if(leftOverbytes > 0) {
-  //     encryptedData += salsa20.updateEncrypt(data.substr(data.length - leftOverbytes));      
-  //   }
-  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
-  //   encryptedData += salsa20.finalEncrypt();    
-  //   
-  //   var salsa20 = new XSalsa20(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-  //   // One bang encryption
-  //   var oneTimeEncryptedData = salsa20.encrypt(util.binaryStringToArray(data));
-  //   // Ensure stream is compatible with the onetime encryption    
-  //   assert.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
-  //     
-  //   // Convert onetime encrypted data to binary
-  //   oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
-  //     
-  //   // Clean cbc instance
-  //   salsa20 = new XSalsa20(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-  //   // Split the data
-  //   var numberOfBlocks = Math.floor(oneTimeEncryptedData.length / blockSize);
-  //   var leftOverbytes = oneTimeEncryptedData.length % blockSize;
-  //   var decryptedData = "";
-  //     
-  //   for(var i = 0; i < numberOfBlocks; i++) {
-  //     decryptedData += salsa20.updateDecrypt(oneTimeEncryptedData.substr(i * blockSize, blockSize));
-  //   }    
-  //   
-  //   // Update with leftover bytes
-  //   if(leftOverbytes > 0) 
-  //     decryptedData += salsa20.updateDecrypt(oneTimeEncryptedData.substr(numberOfBlocks*blockSize));          
-  //     
-  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
-  //   decryptedData += salsa20.finalDecrypt();
-  //     
-  //   // Ensure stream is compatible with the onetime encryption    
-  //   assert.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-  //   finished();
-  // },      
+  "Streaming api test":function(assert, finished) {
+    var key = "a6a7251c1e72916d11c2cb214d3c252539121d8e234e652d651fa4c8cff88030";
+    // Encrypt using the pure js library    
+    var iv = "9e645a74e9e0a60d8243acd9177ab51a1beb8d5a2f5d700c";
+    // 5K of random data
+    var data = randomdata(1025);
+    // Blocksize
+    var blockSize = 64;
+    // Encrypt using the purejs librarie's streaming api in 1024 blocks
+    var salsa20 = new XSalsa20(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+    // Split the data
+    var numberOfBlocks = Math.floor(data.length / blockSize);
+    var leftOverbytes = data.length % blockSize;
+    var encryptedData = "";
+  
+    for(var i = 0; i < numberOfBlocks; i++) {
+      encryptedData += salsa20.updateEncrypt(data.substr(i * blockSize, blockSize));
+    }    
+  
+    // If we have leftover bytes
+    if(leftOverbytes > 0) {
+      encryptedData += salsa20.updateEncrypt(data.substr(data.length - leftOverbytes));      
+    }
+    // ok dokey let's finialize (ensuring we have the last padded block added)    
+    encryptedData += salsa20.finalEncrypt();    
+    
+    var salsa20 = new XSalsa20(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+    // One bang encryption
+    var oneTimeEncryptedData = salsa20.encrypt(util.binaryStringToArray(data));
+    // Ensure stream is compatible with the onetime encryption    
+    assert.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+      
+    // Convert onetime encrypted data to binary
+    oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
+      
+    // Clean cbc instance
+    salsa20 = new XSalsa20(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+    // Split the data
+    var numberOfBlocks = Math.floor(oneTimeEncryptedData.length / blockSize);
+    var leftOverbytes = oneTimeEncryptedData.length % blockSize;
+    var decryptedData = "";
+      
+    for(var i = 0; i < numberOfBlocks; i++) {
+      decryptedData += salsa20.updateDecrypt(oneTimeEncryptedData.substr(i * blockSize, blockSize));
+    }    
+    
+    // Update with leftover bytes
+    if(leftOverbytes > 0) 
+      decryptedData += salsa20.updateDecrypt(oneTimeEncryptedData.substr(numberOfBlocks*blockSize));          
+      
+    // ok dokey let's finialize (ensuring we have the last padded block added)    
+    decryptedData += salsa20.finalDecrypt();
+      
+    // Ensure stream is compatible with the onetime encryption    
+    assert.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+    finished();
+  },      
 });

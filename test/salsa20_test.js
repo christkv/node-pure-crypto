@@ -85,7 +85,7 @@ suite.addTests({
         k += l;
       }
       // Assert correct decryption
-      assert.deepEqual(pt, decrypted);
+      assert.deepEqual(zeroedData(zero), decrypted);
     }
       
     finished();

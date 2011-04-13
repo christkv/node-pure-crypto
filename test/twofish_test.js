@@ -53,7 +53,7 @@ suite.addTests({
       // Decrypt data and verify
       twofish = new Twofish(key);
       var decrypted = twofish.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted);
+      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
     finished();
@@ -63,7 +63,7 @@ suite.addTests({
     var key = "00112233445566778899AABBCCDDEEFFFFEEDDCCBBAA99887766554433221100";
     var pt =  "02132435465768798a9bacbdcedfe0f1";
     // Encrypt using the pure js library    
-    var iv = "0001020304050607";
+    var iv = "00010203040506070001020304050607";
       
     // OFB Mode
     var ofb = new OFBMode(new Twofish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
@@ -102,7 +102,7 @@ suite.addTests({
   "Streaming api test":function(assert, finished) {
     var key = "FBA167983E7AEF22317CE28C02AAE1A3E8E5CC3CEDBEA82A99DBC39AD65E7227";
     // Encrypt using the pure js library    
-    var iv = "0001020304050607";
+    var iv = "00010203040506070001020304050607";
     // 5K of random data
     var data = randomdata(1025);
     // Blocksize

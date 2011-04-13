@@ -81,7 +81,7 @@ suite.addTests({
       // Decrypt data and verify
       mars = new Mars(key);
       var decrypted = mars.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted);
+      assert.deepEqual(pt = util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
     finished();
