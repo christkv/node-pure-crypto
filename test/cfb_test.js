@@ -197,7 +197,7 @@ suite.addTests({
       
     // ok dokey let's finialize (ensuring we have the last padded block added)    
     decryptedData += cfb.finalDecrypt();
-  
+      
     // Verify encryption
     var a = util.binaryStringToArray(decryptedNode);    
     var b = util.binaryStringToArray(decryptedData);    

@@ -210,7 +210,7 @@ suite.addTests({
     var key = "603deb1015ca71be2b73aef0857d7781" + 
        "1f352c073b6108d72d9810a30914dff4";         
     // 5K of random data
-    var data = randomdata(33);    
+    var data = randomdata(1025);    
     // Encrypt using the purejs librarie's streaming api in 1024 blocks
     var iv = "000102030405060708090a0b0c0d0e0f";
     var cbc = new CBCMode(new AESKey(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
