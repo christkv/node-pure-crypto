@@ -3,11 +3,11 @@ require.paths.unshift("./lib", "./external-libs/node-async-testing");
 var TestSuite = require('async_testing').TestSuite,
   debug = require('sys').debug,
   inspect = require('sys').inspect,
-  MD5 = require('hash/md5').MD5,
+  MD2 = require('hash/md2').MD2,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("MD5 Test");
+var suite = exports.suite = new TestSuite("MD2 Test");
 
 var randomdata = function(size) {
   // 5KB of random, dummy data
@@ -17,42 +17,50 @@ var randomdata = function(size) {
 }
 
 suite.addTests({  
-  "MD5 test vectors":function(assert, finished) {
-    var messages = ["",
+  "MD2 test vectors":function(assert, finished) {
+    var messages = [
+      "",
       "a",
       "abc",
-      "abcdefghijklmnopqrstuvwxyz"
+      "message digest",
+      "abcdefghijklmnopqrstuvwxyz",
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+      "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
     ]
     
-    var digests = ["d41d8cd98f00b204e9800998ecf8427e",
-      "0cc175b9c0f1b6a831c399e269772661",
-      "900150983cd24fb0d6963f7d28e17f72",
-      "c3fcd3d76192e4007dfb496cca67e13b"
+    var digests = [
+      "8350e5a3e24c153df2275c9f80692773",
+      "32ec01ec4a6dac72c0ab96fb34c0b5d1",
+      "da853b0d3f88d99b30283a69e6ded6bb",
+      "ab4f496bfb2a530b219ff33031fe06b0",
+      "4e8ddff3650292ab5a4108c3aa47940b",
+      "da33def2a42df13975352846c30338cd",
+      "d5976f79d83d3a0dc9806c3c66f3efd8" 
     ]
     
     for(var i = 0; i < messages.length; i++) {
       var message = messages[i];
       var digest = util.hexStringToBinaryArray(digests[i]);
       
-      var md5 = new MD5();
-      md5.update(message);
-      var result = md5.digest('array');
+      var md2 = new MD2();
+      md2.update(message);
+      var result = md2.digest('array');
       assert.deepEqual(digest, result);
     }
     
     finished();
   }, 
   
-  "MD5 node compatibility test":function(assert, finished) {
+  "MD2 node compatibility test":function(assert, finished) {
     var data = randomdata(1025);
-    var nodeDigest = crypto.createHash("md5");
-    var pureJsDigest = new MD5();
-
+    var nodeDigest = crypto.createHash("md2");
+    var pureJsDigest = new MD2();
+  
     // Size of blocs
     var blockSize = 64;
     var numberOfBlocks = Math.floor(data.length / blockSize);
     var leftOverbytes = data.length % blockSize;
-
+  
     // Split and hash
     for(var i = 0; i < numberOfBlocks; i++) {
       var split = data.slice(i * blockSize, (i * blockSize) + blockSize);
