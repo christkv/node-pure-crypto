@@ -52,3 +52,19 @@ require('md2_test').suite.runTests(function() {});
 require('md4_test').suite.runTests(function() {});
 require('sha1_test').suite.runTests(function() {});
 require('sha224_test').suite.runTests(function() {});
+require('sha256_test').suite.runTests(function() {});
+require('sha384_test').suite.runTests(function() {});
+require('sha512_test').suite.runTests(function() {});
+
+
+
+
+
+
+
+
+
+
+
+
+
