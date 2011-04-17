@@ -67,30 +67,6 @@ suite.addTests({
     
     finished();
   },   
-  
-  // "RIPEMD128 node compatibility test":function(assert, finished) {
-  //   var data = randomdata(1025);
-  //   var nodeDigest = crypto.createHash("rmd160");
-  //   var pureJsDigest = new RIPEMD128();
-  // 
-  //   // Size of blocs
-  //   var blockSize = 64;
-  //   var numberOfBlocks = Math.floor(data.length / blockSize);
-  //   var leftOverbytes = data.length % blockSize;
-  // 
-  //   // Split and hash
-  //   for(var i = 0; i < numberOfBlocks; i++) {
-  //     var split = data.slice(i * blockSize, (i * blockSize) + blockSize);
-  //     // Update digest
-  //     nodeDigest.update(split);
-  //     pureJsDigest.update(split);
-  //   }
-  //   
-  //   var a = util.binaryStringToArray(nodeDigest.digest());
-  //   var b = util.binaryStringToArray(pureJsDigest.digest());    
-  //   assert.deepEqual(a, b)
-  //   finished();
-  // } 
 });
 
 
