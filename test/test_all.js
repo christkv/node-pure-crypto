@@ -59,6 +59,7 @@ require('ripemd128_test').suite.runTests(function() {});
 require('ripemd160_test').suite.runTests(function() {});
 require('ripemd256_test').suite.runTests(function() {});
 require('ripemd320_test').suite.runTests(function() {});
+require('tiger_test').suite.runTests(function() {});
 
 
 
