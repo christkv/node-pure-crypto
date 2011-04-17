@@ -55,7 +55,8 @@ var debug = require('sys').debug,
 // require('sha256_test').suite.runTests(function() {});
 // require('sha384_test').suite.runTests(function() {});
 // require('sha512_test').suite.runTests(function() {});
-require('ripemd128_test').suite.runTests(function() {});
+// require('ripemd128_test').suite.runTests(function() {});
+require('ripemd160_test').suite.runTests(function() {});
 
 
 
