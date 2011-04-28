@@ -62,11 +62,13 @@ require('ripemd320_test').suite.runTests(function() {});
 require('tiger_test').suite.runTests(function() {});
 require('whirlpool_test').suite.runTests(function() {});
 require('skein_test').suite.runTests(function() {});
+require('gost3411_test').suite.runTests(function() {});
 
 // Mac functions
 require('skeinmac_test').suite.runTests(function() {});
 require('cbcblockciphermac_test').suite.runTests(function() {});
 require('cfbblockciphermac_test').suite.runTests(function() {});
+// require('hmac_test').suite.runTests(function() {});
 
 
 
