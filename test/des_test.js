@@ -96,12 +96,12 @@ suite.addTests({
     var ofb = new OFBMode(new DESKey(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
     assert.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
-  
+      
     var ofb = new OFBMode(new DESKey(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ofb.decrypt(util.binaryStringToArray(nodeEncrypted));
     var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
     decryptedNode += decipher.final('binary');      
-  
+      
     assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
     assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
     assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));

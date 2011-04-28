@@ -65,6 +65,7 @@ require('skein_test').suite.runTests(function() {});
 
 // Mac functions
 require('skeinmac_test').suite.runTests(function() {});
+require('hmac_test').suite.runTests(function() {});
 
 
 
