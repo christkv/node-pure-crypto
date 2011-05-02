@@ -51,13 +51,14 @@ suite.addTests({
     
     for(var i = 0; i < keys.length; i++) {
       var key = util.hexStringToBinaryArray(keys[i]);
-      var message = util.binaryStringToArray(messages[i]);
+      var message = messages[i];
+      message = message.substr(0, 2) == "0x" ?  util.hexStringToBinaryArray(message.substr(2)) : util.binaryStringToArray(messages[i]);
       var digest = util.hexStringToBinaryArray(digests[i]);
 
       var hmac = new HMac(new MD5(), key);
       hmac.update(message);
       var output = hmac.digest('array');
-      // assert.deepEqual(output, digest);          
+      assert.deepEqual(output, digest);          
     }
     
     finished();
