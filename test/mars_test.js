@@ -1,18 +1,17 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  Mars = require('block/mars').Mars,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  Mars = require('symmetric/block/mars').Mars,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("Mars tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -46,8 +45,16 @@ var randomdata = function(size) {
 // Ciphertext: 00000000000000000000000000000000
 // Test: DecryptionMCT
 
-suite.addTests({  
-  "Test Mars Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test Mars Vectors":function(test) {
     var keys = ["80000000000000000000000000000000", "00000000000000000000000000000000",
       "00000000000000000000000000000000", "CB14A1776ABBC1CDAFE7243DEF2CEA02",
       "86EDF4DA31824CABEF6A4637C40B0BAB", "000000000000000000000000000000000000000000000000",
@@ -76,18 +83,18 @@ suite.addTests({
       // Encrypt the data and verify
       var mars = new Mars(key);
       var encrypted = mars.encrypt(pt);
-      assert.deepEqual(ct, encrypted);
+      test.deepEqual(ct, encrypted);
       
       // Decrypt data and verify
       mars = new Mars(key);
       var decrypted = mars.decrypt(encrypted);
-      assert.deepEqual(pt = util.hexStringToBinaryArray(pts[i]), decrypted);
+      test.deepEqual(pt = util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
-    finished();
+    test.done();
   },  
 
-  "Node Compatibility Tests":function(assert, finished) {
+  "Node Compatibility Tests":function(test) {
     var key = "FBA167983E7AEF22317CE28C02AAE1A3E8E5CC3CEDBEA82A99DBC39AD65E7227";
     var pt =  "02132435465768798a9bacbdcedfe0f1";
     // Encrypt using the pure js library    
@@ -99,7 +106,7 @@ suite.addTests({
       
     var ofb = new OFBMode(new Mars(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ofb.decrypt(src);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
     
     // CBC Mode
     var cbc = new CBCMode(new Mars(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
@@ -107,7 +114,7 @@ suite.addTests({
     
     var cbc = new CBCMode(new Mars(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = cbc.decrypt(src);    
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
     
     // ECB Mode
     var ecb = new ECBMode(new Mars(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
@@ -115,7 +122,7 @@ suite.addTests({
     
     var ecb = new ECBMode(new Mars(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ecb.decrypt(src);    
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
     
     // CFB Mode
     var ofb = new CFBMode(new Mars(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
@@ -123,11 +130,11 @@ suite.addTests({
     
     var ofb = new CFBMode(new Mars(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ofb.decrypt(src);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-    finished();    
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.done();    
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "FBA167983E7AEF22317CE28C02AAE1A3E8E5CC3CEDBEA82A99DBC39AD65E7227";
     // Encrypt using the pure js library    
     var iv = "00010203040506070001020304050607";
@@ -157,7 +164,7 @@ suite.addTests({
     // Single pass encryption
     ofb = new OFBMode(new Mars(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     src = ofb.encrypt(util.binaryStringToArray(data));
-    assert.deepEqual(src, util.binaryStringToArray(encryptedData));
+    test.deepEqual(src, util.binaryStringToArray(encryptedData));
         
     // Clean cbc instance
     ofb = new OFBMode(new Mars(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
@@ -178,7 +185,7 @@ suite.addTests({
     decryptedData += ofb.finalDecrypt();
   
     // Compare
-    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
-    finished();
+    test.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+    test.done();
   },
 });

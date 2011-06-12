@@ -1,19 +1,18 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  ISAAC = require('stream/isaac').ISAAC,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  ISAAC = require('symmetric/stream/isaac').ISAAC,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("ISAAC tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -34,8 +33,16 @@ var xorDigest = function(encrypted, out) {
   return out;
 }
 
-suite.addTests({  
-  "Test ISAAC Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test ISAAC Vectors":function(test) {
     var keys = ["00000000", "ffffffff"];    
     var ivs = ["", "", "", ""];
     var cts = ["f650e4c8e448e96d98db2fb4f5fad54f433f1afbedec154ad837048746ca4f9a" +
@@ -178,17 +185,17 @@ suite.addTests({
       var zero = pt.length;
 
       encrypted = isaac.encrypt(pt.slice(0))
-      assert.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
+      test.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
 
       var isaac = new ISAAC(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
       var decrypted = isaac.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted)      
+      test.deepEqual(pt, decrypted)      
     }
 
-    finished();
+    test.done();
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "a6a7251c1e72916d11c2cb214d3c252539121d8e234e652d651fa4c8cff88030";
     // Encrypt using the pure js library    
     var iv = "9e645a74e9e0a60d8243acd9177ab51a1beb8d5a2f5d700c";
@@ -218,7 +225,7 @@ suite.addTests({
     // One bang encryption
     var oneTimeEncryptedData = isaac.encrypt(util.binaryStringToArray(data));
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+    test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
       
     // Convert onetime encrypted data to binary
     oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
@@ -242,7 +249,7 @@ suite.addTests({
     decryptedData += isaac.finalDecrypt();
       
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-    finished();
+    test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+    test.done();
   },      
 });

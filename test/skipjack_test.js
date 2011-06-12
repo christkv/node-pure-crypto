@@ -1,18 +1,17 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  SkipJack = require('block/skipjack').SkipJack,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  SkipJack = require('symmetric/block/skipjack').SkipJack,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("SkipJack tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -20,8 +19,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "Test SkipJack Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test SkipJack Vectors":function(test) {
     var keys = ["00998877665544332211", "e7496e99e4628b7f9ffb", "e7496e99e4628b7f9ffb", "e5caf4dcc70e55f1dd90", "e5caf4dcc70e55f1dd90",
       "cde4bef260d7bcda1635", "7022907dd1dff7dac5c9", "568f86edd1dc9268eeee", "689daaa9060d2d4b6003", "6c160f11896c4794846e"];
     var pts = ["33221100ddccbbaa", "99ccfe2b90fd550b", "60a73d387b517fca", "b71cb0d009af2765", "64f4877ae68a8a62",
@@ -38,18 +45,18 @@ suite.addTests({
       // Encrypt the data and verify
       var skipjack = new SkipJack(key);
       var encrypted = skipjack.encrypt(pt);
-      assert.deepEqual(ct, encrypted);
+      test.deepEqual(ct, encrypted);
       
       // Decrypt data and verify
       skipjack = new SkipJack(key);
       var decrypted = skipjack.decrypt(encrypted);
-      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
+      test.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
-    finished();
+    test.done();
   },  
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "00998877665544332211";
     // Encrypt using the pure js library    
     var iv = "0001020304050607";
@@ -79,7 +86,7 @@ suite.addTests({
     // Single pass encryption
     ofb = new OFBMode(new SkipJack(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     src = ofb.encrypt(util.binaryStringToArray(data));
-    assert.deepEqual(src, util.binaryStringToArray(encryptedData));
+    test.deepEqual(src, util.binaryStringToArray(encryptedData));
         
     // Clean cbc instance
     ofb = new OFBMode(new SkipJack(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
@@ -100,7 +107,7 @@ suite.addTests({
     decryptedData += ofb.finalDecrypt();
 
     // Compare
-    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
-    finished();
+    test.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+    test.done();
   },
 });

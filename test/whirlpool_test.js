@@ -1,14 +1,13 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   Whirlpool = require('hash/whirlpool').Whirlpool,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("Whirlpool Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -16,8 +15,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "Whirlpool test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Whirlpool test vectors":function(test) {
     var messages = [
       "",
       "a",
@@ -47,13 +54,13 @@ suite.addTests({
       var whirlpool = new Whirlpool();
       whirlpool.update(message);
       var result = whirlpool.digest('array');
-      assert.deepEqual(digest, result);
+      test.deepEqual(digest, result);
     }
     
-    finished();
+    test.done();
   }, 
 
-  "Whirlpool million a vector":function(assert, finished) {
+  "Whirlpool million a vector":function(test) {
     var digest = util.hexStringToBinaryArray("0C99005BEB57EFF50A7CF005560DDF5D29057FD86B20BFD62DECA0F1CCEA4AF51FC15490EDDC47AF32BB2B66C34FF9AD8C6008AD677F77126953B226E4ED8B01");
     var numberOfAs = 1000000;
     var whirlpool = new Whirlpool();
@@ -63,12 +70,12 @@ suite.addTests({
     }
   
     var result = whirlpool.digest('array');
-    assert.deepEqual(digest, result);
+    test.deepEqual(digest, result);
     
-    finished();
+    test.done();
   }, 
 
-  "Whirlpool thirtyOneZeros":function(assert, finished) {
+  "Whirlpool thirtyOneZeros":function(test) {
     var digest = util.hexStringToBinaryArray("3E3F188F8FEBBEB17A933FEAF7FE53A4858D80C915AD6A1418F0318E68D49B4E459223CD414E0FBC8A57578FD755D86E827ABEF4070FC1503E25D99E382F72BA");
     var whirlpool = new Whirlpool();
     var data = new Array(31);
@@ -76,9 +83,9 @@ suite.addTests({
     whirlpool.update(data);
   
     var result = whirlpool.digest('array');
-    assert.deepEqual(digest, result);
+    test.deepEqual(digest, result);
     
-    finished();
+    test.done();
   }, 
 });
 

@@ -1,20 +1,19 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  TreeFish = require('block/treeFish').TreeFish,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
-  NullPad = require('padding/null').NullPad,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  TreeFish = require('symmetric/block/treeFish').TreeFish,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
+  NullPad = require('symmetric/padding/null').NullPad,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("TreeFish tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -28,8 +27,16 @@ var zeroedData = function(size) {
   return data;
 }
 
-suite.addTests({  
-  "Test TreeFish 256 Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test TreeFish 256 Vectors":function(test) {
     var keys = ["0000000000000000000000000000000000000000000000000000000000000000",
                 "17161514131211101F1E1D1C1B1A191827262524232221202F2E2D2C2B2A2928"];
     var pts = ["0000000000000000000000000000000000000000000000000000000000000000",
@@ -71,7 +78,7 @@ suite.addTests({
         encrypted[i] = encrypted[i] ^ inputdata[i];
       }
       
-      assert.deepEqual(ctdata, encrypted)
+      test.deepEqual(ctdata, encrypted)
   
       // Decrypt and check
       // plaintext feed backward :-)
@@ -82,13 +89,13 @@ suite.addTests({
       // Decrypt data and verify
       treeFish = new TreeFish(key, tweak);
       var decrypted = treeFish.decrypt(encrypted);      
-      assert.deepEqual(inputdata, decrypted);
+      test.deepEqual(inputdata, decrypted);
     }
       
-    finished();
+    test.done();
   },  
   
-  "Test TreeFish 512 Vectors":function(assert, finished) {
+  "Test TreeFish 512 Vectors":function(test) {
     var keys = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
                 "17161514131211101F1E1D1C1B1A191827262524232221202F2E2D2C2B2A292837363534333231303F3E3D3C3B3A393847464544434241404F4E4D4C4B4A4948"];
     var pts = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -138,7 +145,7 @@ suite.addTests({
         encrypted[i] = encrypted[i] ^ inputdata[i];
       }
       
-      assert.deepEqual(ctdata, encrypted)
+      test.deepEqual(ctdata, encrypted)
   
       // Decrypt and check
       // plaintext feed backward :-)
@@ -149,13 +156,13 @@ suite.addTests({
       // Decrypt data and verify
       treeFish = new TreeFish(key, tweak);
       var decrypted = treeFish.decrypt(encrypted);      
-      assert.deepEqual(inputdata, decrypted);
+      test.deepEqual(inputdata, decrypted);
     }
       
-    finished();
+    test.done();
   },  
   
-  "Test TreeFish 1024 Vectors":function(assert, finished) {
+  "Test TreeFish 1024 Vectors":function(test) {
     var keys = ["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" 
               + "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
                 "17161514131211101F1E1D1C1B1A191827262524232221202F2E2D2C2B2A292837363534333231303F3E3D3C3B3A393847464544434241404F4E4D4C4B4A4948"
@@ -229,7 +236,7 @@ suite.addTests({
         encrypted[i] = encrypted[i] ^ inputdata[i];
       }
       
-      assert.deepEqual(ctdata, encrypted)
+      test.deepEqual(ctdata, encrypted)
   
       // Decrypt and check
       // plaintext feed backward :-)
@@ -240,13 +247,13 @@ suite.addTests({
       // Decrypt data and verify
       treeFish = new TreeFish(key, tweak);
       var decrypted = treeFish.decrypt(encrypted);      
-      assert.deepEqual(inputdata, decrypted);
+      test.deepEqual(inputdata, decrypted);
     }
       
-    finished();
+    test.done();
   },  
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "17161514131211101F1E1D1C1B1A191827262524232221202F2E2D2C2B2A2928";
     var tweak = "07060504030201000F0E0D0C0B0A0908";
     // Encrypt using the pure js library    
@@ -269,7 +276,7 @@ suite.addTests({
     }
     
     // Check that we have a valid decrypted data array
-    assert.deepEqual(data, decrypted);
+    test.deepEqual(data, decrypted);
     var data = zeroedData(1025);
   
     // Encrypt using the purejs librarie's streaming api in 1024 blocks
@@ -278,7 +285,7 @@ suite.addTests({
   
     var ofb = new OFBMode(new TreeFish(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(tweak)), null, util.hexStringToBinaryArray(iv));
     decrypted = ofb.decrypt(encrypted);
-    assert.deepEqual(data, decrypted)
+    test.deepEqual(data, decrypted)
   
     var ofb = new OFBMode(new TreeFish(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(tweak)), null, util.hexStringToBinaryArray(iv));
     var data = util.arrayToBinaryString(zeroedData(1025));
@@ -316,7 +323,7 @@ suite.addTests({
     // ok dokey let's finialize (ensuring we have the last padded block added)    
     decryptedData += ofb.finalDecrypt();
   
-    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
-    finished();
+    test.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+    test.done();
   },
 });

@@ -1,14 +1,13 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   RIPEMD320 = require('hash/ripemd320').RIPEMD320,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("RIPEMD320 Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -16,8 +15,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "RIPEMD320 test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "RIPEMD320 test vectors":function(test) {
     var messages = [
       "",
       "a",
@@ -47,13 +54,13 @@ suite.addTests({
       var ripemd320 = new RIPEMD320();
       ripemd320.update(message);
       var result = ripemd320.digest('array');
-      assert.deepEqual(digest, result);
+      test.deepEqual(digest, result);
     }
     
-    finished();
+    test.done();
   }, 
   
-  "RIPEMD320 million a vector":function(assert, finished) {
+  "RIPEMD320 million a vector":function(test) {
     var digest = util.hexStringToBinaryArray("bdee37f4371e20646b8b0d862dda16292ae36f40965e8c8509e63d1dbddecc503e2b63eb9245bb66");
     var numberOfAs = 1000000;
     var ripemd320 = new RIPEMD320();
@@ -63,9 +70,9 @@ suite.addTests({
     }
   
     var result = ripemd320.digest('array');
-    assert.deepEqual(digest, result);
+    test.deepEqual(digest, result);
     
-    finished();
+    test.done();
   },     
 });
 

@@ -1,14 +1,13 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   SHA224 = require('hash/sha224').SHA224,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("SHA224 Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -16,8 +15,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "SHA224 test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "SHA224 test vectors":function(test) {
     var messages = [
       "",
       "a",
@@ -39,13 +46,13 @@ suite.addTests({
       var sha224 = new SHA224();
       sha224.update(message);
       var result = sha224.digest('array');
-      assert.deepEqual(digest, result);
+      test.deepEqual(digest, result);
     }
     
-    finished();
+    test.done();
   }, 
 
-  "SHA224 million a vector":function(assert, finished) {
+  "SHA224 million a vector":function(test) {
     var digest = util.hexStringToBinaryArray("20794655980c91d8bbb4c1ea97618a4bf03f42581948b2ee4ee7ad67");
     var numberOfAs = 1000000;
     var sha224 = new SHA224();
@@ -55,12 +62,12 @@ suite.addTests({
     }
 
     var result = sha224.digest('array');
-    assert.deepEqual(digest, result);
+    test.deepEqual(digest, result);
     
-    finished();
+    test.done();
   }, 
   
-  "SHA224 node compatibility test":function(assert, finished) {
+  "SHA224 node compatibility test":function(test) {
     var data = randomdata(1025);
     var nodeDigest = crypto.createHash("sha224");
     var pureJsDigest = new SHA224();
@@ -80,8 +87,8 @@ suite.addTests({
     
     var a = util.binaryStringToArray(nodeDigest.digest());
     var b = util.binaryStringToArray(pureJsDigest.digest());    
-    assert.deepEqual(a, b)
-    finished();
+    test.deepEqual(a, b)
+    test.done();
   } 
 });
 

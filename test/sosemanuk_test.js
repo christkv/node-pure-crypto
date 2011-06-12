@@ -1,19 +1,18 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  Sosemanuk = require('stream/sosemanuk').Sosemanuk,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  Sosemanuk = require('symmetric/stream/sosemanuk').Sosemanuk,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("Sosemanuk tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -34,8 +33,16 @@ var xorDigest = function(encrypted, out) {
   return out;
 }
 
-suite.addTests({  
-  "Test Simple Sosemanuk Vector":function(assert, finished) {      
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test Simple Sosemanuk Vector":function(test) {      
     var testCases = testCases6432.concat(testCases6464).concat(testCases6480).concat(testCases64128)
       .concat(testCases8032).concat(testCases8064).concat(testCases8080).concat(testCases80128)
       .concat(testCases12832).concat(testCases12880).concat(testCases128128)
@@ -53,19 +60,19 @@ suite.addTests({
       // Encrypt the data and verify
       var sosemanuk = new Sosemanuk(key, iv);
       var encrypted = sosemanuk.encrypt(pt);
-      assert.deepEqual(ct, encrypted);
+      test.deepEqual(ct, encrypted);
 
       // Encrypt the data and verify
       var sosemanuk = new Sosemanuk(key, iv);
       var decrypted = sosemanuk.decrypt(encrypted);            
-      assert.deepEqual(zeroedData(zero), decrypted);
+      test.deepEqual(zeroedData(zero), decrypted);
     }
       
-    finished();
+    test.done();
   },  
   
   
-  // "Test Sosemanuk Vectors":function(assert, finished) {      
+  // "Test Sosemanuk Vectors":function(test) {      
   //   // Test vectors
   //   for(var ij = 0; ij < testCases.length; ij++) {
   //     var zero = testCases[ij].zero;
@@ -90,19 +97,19 @@ suite.addTests({
   //       k += l;
   //     }
   //     
-  //     // // Assert correctness of encryption
+  //     // // test correctness of encryption
   //     // for(var i = 0; i < stream.length; i++) {
   //     //   var chunk = util.hexStringToBinaryArray(stream[i].chunk);
   //     //   var start = stream[i].start;
   //     //   var len = stream[i].len;
-  //     //   assert.deepEqual(chunk, encrypted.slice(start, start + len));
+  //     //   test.deepEqual(chunk, encrypted.slice(start, start + len));
   //     // }
   //     // 
   //     // // var bx = new Array(encrypted.length);
   //     // var out = new Array(xor.length);
   //     // for(var i = 0; i < xor.length; i++) out[i] = 0;
   //     // var bx = xorDigest(encrypted, out);
-  //     // assert.deepEqual(xor, bx);
+  //     // test.deepEqual(xor, bx);
   //     // 
   //     // // Decrypt the data and verify
   //     // var sosemanuk = new Sosemanuk(key, iv);
@@ -118,14 +125,14 @@ suite.addTests({
   //     //   decrypted = decrypted.concat(uncrypted);
   //     //   k += l;
   //     // }
-  //     // // Assert correct decryption
-  //     // assert.deepEqual(pt, decrypted);
+  //     // // test correct decryption
+  //     // test.deepEqual(pt, decrypted);
   //   }
   //     
-  //   finished();
+  //   test.done();
   // },  
 
-  // "Streaming api test":function(assert, finished) {
+  // "Streaming api test":function(test) {
   //   var key = "DC51C3AC3BFC62F12E3D36FE91281329";
   //   // Encrypt using the pure js library    
   //   var iv = "0001020304050607";
@@ -155,7 +162,7 @@ suite.addTests({
   //   // One bang encryption
   //   var oneTimeEncryptedData = sosemanuk.encrypt(util.binaryStringToArray(data));
   //   // Ensure stream is compatible with the onetime encryption    
-  //   assert.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+  //   test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
   //     
   //   // Convert onetime encrypted data to binary
   //   oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
@@ -179,8 +186,8 @@ suite.addTests({
   //   decryptedData += sosemanuk.finalDecrypt();
   //     
   //   // Ensure stream is compatible with the onetime encryption    
-  //   assert.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-  //   finished();
+  //   test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+  //   test.done();
   // },    
 });
 

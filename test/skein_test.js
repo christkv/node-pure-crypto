@@ -1,14 +1,13 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   Skein = require('hash/skein').Skein,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("Skein Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -16,8 +15,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "Skein test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Skein test vectors":function(test) {
     // var messages = [
     //   "D3090C72167517F7C7AD82A70C2FD3F6443F608301591E598EADB195E8357135BA26FEDE2EE187417F816048D00FC23512737A2113709A77E4170C49A94B7FDFF45FF579A72287743102E7766C35CA5ABC5DFE2F63A1E726CE5FBD2926DB03A2DD18B03FC1508A9AAC45EB362440203A323E09EDEE6324EE2E37B4432C1867ED696E6C9DB1E6ABEA026288954A9C2D5758D7C5DB7C9E48AA3D21CAE3D977A7C3926066AA393DBD538DD0C30DA8916C8757F24C18488014668A2627163A37B261833DC2F8C3C56B1B2E0BE21FD3FBDB507B2950B77A6CC02EFB393E57419383A920767BCA2C972107AA61384542D47CBFB82CFE5C415389D1B0A2D74E2C5DA851FD"
     // ]
@@ -68,13 +75,13 @@ suite.addTests({
       var skein = new Skein(stateSize, stateSize);
       skein.updateBits(message, outputSize, outputSize);
       var result = skein.digest('array');
-      assert.deepEqual(digest, result);
+      test.deepEqual(digest, result);
     }
     
-    finished();
+    test.done();
   }, 
 
-  // "Skein million a vector":function(assert, finished) {
+  // "Skein million a vector":function(test) {
   //   var digest = util.hexStringToBinaryArray("0C99005BEB57EFF50A7CF005560DDF5D29057FD86B20BFD62DECA0F1CCEA4AF51FC15490EDDC47AF32BB2B66C34FF9AD8C6008AD677F77126953B226E4ED8B01");
   //   var numberOfAs = 1000000;
   //   var skein = new Skein();
@@ -84,12 +91,12 @@ suite.addTests({
   //   }
   // 
   //   var result = skein.digest('array');
-  //   assert.deepEqual(digest, result);
+  //   test.deepEqual(digest, result);
   //   
-  //   finished();
+  //   test.done();
   // }, 
   // 
-  // "Skein thirtyOneZeros":function(assert, finished) {
+  // "Skein thirtyOneZeros":function(test) {
   //   var digest = util.hexStringToBinaryArray("3E3F188F8FEBBEB17A933FEAF7FE53A4858D80C915AD6A1418F0318E68D49B4E459223CD414E0FBC8A57578FD755D86E827ABEF4070FC1503E25D99E382F72BA");
   //   var skein = new Skein();
   //   var data = new Array(31);
@@ -97,12 +104,12 @@ suite.addTests({
   //   skein.update(data);
   // 
   //   var result = skein.digest('array');
-  //   assert.deepEqual(digest, result);
+  //   test.deepEqual(digest, result);
   //   
-  //   finished();
+  //   test.done();
   // }, 
   
-  "Skein test vectors":function(assert, finished) {
+  "Skein test vectors":function(test) {
     var vectors = parseNonMac(nonMacString);
     
     for(var i = 0; i < vectors.length; i++) {
@@ -128,7 +135,7 @@ suite.addTests({
       // debug(result)
       // debug(digest)
       
-      assert.deepEqual(digest, result);      
+      test.deepEqual(digest, result);      
       // debug("--------------------------------------------------------------")
       // debug("--------------------------------------------------------------")
       // debug("--------------------------------------------------------------")
@@ -136,7 +143,7 @@ suite.addTests({
       // debug("--------------------------------------------------------------")
     }
     
-    finished();
+    test.done();
   }  
 });
 

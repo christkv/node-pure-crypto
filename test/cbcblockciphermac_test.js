@@ -1,16 +1,15 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   crypto = require('crypto'),
-  DESKey = require('block/des').DESKey,
+  DESKey = require('symmetric/block/des').DESKey,
   PKCS7 = require('prng/pkcs7').PKCS7,
   CBCBlockCipherMac = require('mac/cbcblockciphermac').CBCBlockCipherMac,
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("CBCBlockCipherMac Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -18,8 +17,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "CBCBlockCipherMac test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "CBCBlockCipherMac test vectors":function(test) {
     var keys = ["0123456789abcdef", "0123456789abcdef"];
     var ivs = [null, util.hexStringToBinaryArray("1234567890abcdef")];
     var messages = ["37363534333231204e6f77206973207468652074696d6520666f7220",
@@ -36,13 +43,13 @@ suite.addTests({
       var blockCipher = new CBCBlockCipherMac(cipher, iv);
       blockCipher.update(message);
       var digest = blockCipher.digest('array');
-      assert.deepEqual(output, digest);          
+      test.deepEqual(output, digest);          
     }
     
-    finished();
+    test.done();
   }, 
 
-  "CBCBlockCipherMac padding test vectors":function(assert, finished) {
+  "CBCBlockCipherMac padding test vectors":function(test) {
     var keys = ["0123456789abcdef", "0123456789abcdef"];
     var ivs = [null, null];
     var messages = ["3736353433323120",
@@ -59,9 +66,9 @@ suite.addTests({
       var blockCipher = new CBCBlockCipherMac(cipher, iv, null, new PKCS7());
       blockCipher.update(message);
       var digest = blockCipher.digest('array');
-      assert.deepEqual(output, digest);          
+      test.deepEqual(output, digest);          
     }
     
-    finished();
+    test.done();
   }, 
 });

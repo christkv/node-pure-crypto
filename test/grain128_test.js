@@ -1,19 +1,18 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  Grain128 = require('stream/grain128').Grain128,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  Grain128 = require('symmetric/stream/grain128').Grain128,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("Grain128 tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -34,8 +33,16 @@ var xorDigest = function(encrypted, out) {
   return out;
 }
 
-suite.addTests({  
-  "Test Grain128 Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test Grain128 Vectors":function(test) {
     var keys = ["00000000000000000000000000000000", "0123456789abcdef123456789abcdef0"];
     var ivs = ["000000000000000000000000", "0123456789abcdef12345678"];
     var cts = ["f09b7bf7d7f6b5c2de2ffc73ac21397f", "afb5babfa8de896b4b9c6acaf7c4fbfd"];
@@ -55,17 +62,17 @@ suite.addTests({
       var zero = pt.length;
 
       encrypted = grain128.encrypt(pt.slice(0))
-      assert.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
+      test.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
 
       var grain128 = new Grain128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
       var decrypted = grain128.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted)      
+      test.deepEqual(pt, decrypted)      
     }
 
-    finished();
+    test.done();
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "a6a7251c1e72916d11c2cb214d3c252539121d8e234e652d651fa4c8cff88030";
     // Encrypt using the pure js library    
     var iv = "9e645a74e9e0a60d12341345";
@@ -95,7 +102,7 @@ suite.addTests({
     // One bang encryption
     var oneTimeEncryptedData = grain128.encrypt(util.binaryStringToArray(data));
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+    test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
       
     // Convert onetime encrypted data to binary
     oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
@@ -119,11 +126,11 @@ suite.addTests({
     decryptedData += grain128.finalDecrypt();
       
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-    finished();
+    test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+    test.done();
   },      
   
-  "Test Grain128 Official Vectors":function(assert, finished) {      
+  "Test Grain128 Official Vectors":function(test) {      
     // Test vectors
     for(var ij = 0; ij < testCases.length; ij++) {
       var zero = testCases[ij].zero;
@@ -148,18 +155,18 @@ suite.addTests({
         k += l;
       }
       
-      // Assert correctness of encryption
+      // test correctness of encryption
       for(var i = 0; i < stream.length; i++) {
         var chunk = util.hexStringToBinaryArray(stream[i].chunk);
         var start = stream[i].start;
         var len = stream[i].len;
-        assert.deepEqual(chunk, encrypted.slice(start, start + len));
+        test.deepEqual(chunk, encrypted.slice(start, start + len));
       }
       
       var out = new Array(xor.length);
       for(var i = 0; i < xor.length; i++) out[i] = 0;
       var bx = xorDigest(encrypted, out);
-      assert.deepEqual(xor, bx);
+      test.deepEqual(xor, bx);
       
       // Decrypt the data and verify
       var grainv1 = new Grain128(key, iv);
@@ -175,11 +182,11 @@ suite.addTests({
         decrypted = decrypted.concat(uncrypted);
         k += l;
       }
-      // Assert correct decryption
-      assert.deepEqual(pt, decrypted);
+      // test correct decryption
+      test.deepEqual(pt, decrypted);
     }
       
-    finished();
+    test.done();
   },    
 });
 

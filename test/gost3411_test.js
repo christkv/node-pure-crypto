@@ -1,14 +1,13 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   GOST3411 = require('hash/gost3411').GOST3411,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("GOST3411 Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -16,8 +15,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "GOST3411 test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "GOST3411 test vectors":function(test) {
     var messages = [
       "",
       "This is message, length=32 bytes",
@@ -43,13 +50,13 @@ suite.addTests({
       // debug(result)
       // debug("----------------------------------------------------------- digest")
       // debug(digest)      
-      assert.deepEqual(digest, result);
+      test.deepEqual(digest, result);
     }
     
-    finished();
+    test.done();
   }, 
 
-  "GOST3411 million a vector":function(assert, finished) {
+  "GOST3411 million a vector":function(test) {
     var digest = util.hexStringToBinaryArray("8693287aa62f9478f7cb312ec0866b6c4e4a0f11160441e8f4ffcd2715dd554f");
     var numberOfAs = 1000000;
     var gost3411 = new GOST3411();
@@ -59,8 +66,8 @@ suite.addTests({
     }
   
     var result = gost3411.digest('array');
-    assert.deepEqual(digest, result);
-    finished();
+    test.deepEqual(digest, result);
+    test.done();
   },   
 });
 

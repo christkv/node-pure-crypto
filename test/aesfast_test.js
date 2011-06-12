@@ -1,13 +1,12 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  AESKey = require('block/aesfast').AESKey,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  AESKey = require('symmetric/block/aesfast').AESKey,
   crypto = require('crypto');
     
-var suite = exports.suite = new TestSuite("AES Fast official known-answer tests");
-
 var hexStringToBinaryArray = function(string) {
   var numberofValues = string.length / 2;
   var array = new Array(numberofValues);
@@ -19,8 +18,16 @@ var hexStringToBinaryArray = function(string) {
   return array;
 }
 
-suite.addTests({  
-  "AES official known-answer tests":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "AES Fast official known-answer tests":function(test) {
     for(var i = 0; i < keys.length; i++) {
       var key = hexStringToBinaryArray(keys[i]);
       var pt = hexStringToBinaryArray(pts[i]);
@@ -28,13 +35,13 @@ suite.addTests({
       var aes = new AESKey(key);
       var encrypted = aes.encrypt(pt);  // Destructive to save memory
       
-      assert.deepEqual(ct, encrypted);
+      test.deepEqual(ct, encrypted);
       // Decrypt the encrypted data and compare
       var decrypted = aes.decrypt(encrypted); // Destructive to save memory
-      assert.deepEqual(hexStringToBinaryArray(pts[i]), decrypted);
+      test.deepEqual(hexStringToBinaryArray(pts[i]), decrypted);
     }
 
-    finished();
+    test.done();
   },      
 });
 

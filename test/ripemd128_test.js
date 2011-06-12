@@ -1,14 +1,13 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   RIPEMD128 = require('hash/ripemd128').RIPEMD128,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("RIPEMD128 Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -16,8 +15,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "RIPEMD128 test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "RIPEMD128 test vectors":function(test) {
     var messages = [
       "",
       "a",
@@ -47,13 +54,13 @@ suite.addTests({
       var ripemd128 = new RIPEMD128();
       ripemd128.update(message);
       var result = ripemd128.digest('array');
-      assert.deepEqual(digest, result);
+      test.deepEqual(digest, result);
     }
     
-    finished();
+    test.done();
   }, 
   
-  "RIPEMD128 million a vector":function(assert, finished) {
+  "RIPEMD128 million a vector":function(test) {
     var digest = util.hexStringToBinaryArray("4a7f5723f954eba1216c9d8f6320431f");
     var numberOfAs = 1000000;
     var ripemd128 = new RIPEMD128();
@@ -63,9 +70,9 @@ suite.addTests({
     }
   
     var result = ripemd128.digest('array');
-    assert.deepEqual(digest, result);
+    test.deepEqual(digest, result);
     
-    finished();
+    test.done();
   },   
 });
 

@@ -1,21 +1,20 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  Gost28147 = require('block/gost28147').Gost28147,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
-  CFB8Mode = require('block/cfb8').CFB8Mode,
-  NullPad = require('padding/null').NullPad,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  Gost28147 = require('symmetric/block/gost28147').Gost28147,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
+  CFB8Mode = require('symmetric/block/cfb8').CFB8Mode,
+  NullPad = require('symmetric/padding/null').NullPad,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("Gost28147 tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -36,8 +35,16 @@ var xorDigest = function(encrypted, out) {
   return out;
 }
 
-suite.addTests({  
-  "Test Gost28147 Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test Gost28147 Vectors":function(test) {
     var keys = ["546d203368656c326973652073736e62206167796967747473656865202c3d73",
       "546d203368656c326973652073736e62206167796967747473656865202c3d73",
       "546d203368656c326973652073736e62206167796967747473656865202c3d73"];
@@ -59,17 +66,17 @@ suite.addTests({
       var zero = pt.length;
       
       encrypted = gost28147.encrypt(pt.slice(0))
-      assert.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
+      test.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
 
       var gost28147 = new Gost28147(util.hexStringToBinaryArray(key), sbox);
       var decrypted = gost28147.decrypt(encrypted);
-      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted)      
+      test.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted)      
     }
 
-    finished();
+    test.done();
   },
 
-  "Test Gost28147 Vectors Padding":function(assert, finished) {
+  "Test Gost28147 Vectors Padding":function(test) {
     var keys = ["00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF",
       "aafd12f659cae63489b479e5076ddec2f06cb58faafd12f659cae63489b479e5", 
       "546d203368656c326973652073736e62206167796967747473656865202c3d73", 
@@ -126,7 +133,7 @@ suite.addTests({
       var zero = pt.length;
   
       encrypted = mode.encrypt(pt.slice(0));
-      assert.deepEqual(util.hexStringToBinaryArray(ct), encrypted);
+      test.deepEqual(util.hexStringToBinaryArray(ct), encrypted);
   
       var gost28147 = new Gost28147(util.hexStringToBinaryArray(key), sbox);
       if(wrapper == "cbc") {
@@ -138,13 +145,13 @@ suite.addTests({
       }
       
       var decrypted = mode.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted)      
+      test.deepEqual(pt, decrypted)      
     }
   
-    finished();
+    test.done();
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "546d203368656c326973652073736e62206167796967747473656865202c3d73";
     // Encrypt using the pure js library    
     var iv = "0001020304050607";
@@ -174,7 +181,7 @@ suite.addTests({
     // Single pass encryption
     ofb = new OFBMode(new Gost28147(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     src = ofb.encrypt(util.binaryStringToArray(data));
-    assert.deepEqual(src, util.binaryStringToArray(encryptedData));
+    test.deepEqual(src, util.binaryStringToArray(encryptedData));
         
     // Clean cbc instance
     ofb = new OFBMode(new Gost28147(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
@@ -195,8 +202,8 @@ suite.addTests({
     decryptedData += ofb.finalDecrypt();
   
     // Compare
-    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
-    finished();
+    test.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+    test.done();
   },
 });
 

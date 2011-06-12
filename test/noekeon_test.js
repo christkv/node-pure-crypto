@@ -1,18 +1,17 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  Noekeon = require('block/noekeon').Noekeon,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  Noekeon = require('symmetric/block/noekeon').Noekeon,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("Noekeon tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -26,8 +25,16 @@ var zeroedData = function(size) {
   return data;
 }
 
-suite.addTests({  
-  "Test Noekeon Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test Noekeon Vectors":function(test) {
     var keys = ["00000000000000000000000000000000", "ffffffffffffffffffffffffffffffff", "b1656851699e29fa24b70148503d2dfc"];
     var pts = ["00000000000000000000000000000000", "ffffffffffffffffffffffffffffffff", "2a78421b87c7d0924f26113f1d1349b2"];
     var cts = ["b1656851699e29fa24b70148503d2dfc", "2a78421b87c7d0924f26113f1d1349b2", "e2f687e07b75660ffc372233bc47532c"];
@@ -41,18 +48,18 @@ suite.addTests({
       // Encrypt the data and verify
       var noekeon = new Noekeon(key);
       var encrypted = noekeon.encrypt(pt);
-      assert.deepEqual(ct, encrypted);
+      test.deepEqual(ct, encrypted);
       
       // Decrypt data and verify
       noekeon = new Noekeon(key);
       var decrypted = noekeon.decrypt(encrypted);
-      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
+      test.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
-    finished();
+    test.done();
   },  
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "b1656851699e29fa24b70148503d2dfc";
     // Encrypt using the pure js library    
     var iv = "00010203040506070001020304050607";
@@ -82,7 +89,7 @@ suite.addTests({
     // Single pass encryption
     ofb = new OFBMode(new Noekeon(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     src = ofb.encrypt(util.binaryStringToArray(data));
-    assert.deepEqual(src, util.binaryStringToArray(encryptedData));
+    test.deepEqual(src, util.binaryStringToArray(encryptedData));
         
     // Clean cbc instance
     ofb = new OFBMode(new Noekeon(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
@@ -103,11 +110,11 @@ suite.addTests({
     decryptedData += ofb.finalDecrypt();
 
     // Compare
-    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
-    finished();
+    test.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+    test.done();
   },  
   
-  // "Streaming api test":function(assert, finished) {
+  // "Streaming api test":function(test) {
   //   var key = "b1656851699e29fa24b70148503d2dfc";
   //   // Encrypt using the pure js library    
   //   var iv = "00010203040506070001020304050607";
@@ -137,7 +144,7 @@ suite.addTests({
   //   // Single pass encryption
   //   ofb = new OFBMode(new Noekeon(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
   //   src = ofb.encrypt(util.binaryStringToArray(data));
-  //   assert.deepEqual(src, util.binaryStringToArray(encryptedData));
+  //   test.deepEqual(src, util.binaryStringToArray(encryptedData));
   //       
   //   // var src = encryptedData;
   //   // // Clean cbc instance
@@ -159,7 +166,7 @@ suite.addTests({
   //   // decryptedData += ofb.finalDecrypt();
   //   //   
   //   // // Compare
-  //   // assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
-  //   finished();
+  //   // test.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+  //   test.done();
   // },
 });

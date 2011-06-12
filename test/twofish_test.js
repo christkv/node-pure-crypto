@@ -1,18 +1,17 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  Twofish = require('block/twofish').Twofish,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  Twofish = require('symmetric/block/twofish').Twofish,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("Twofish tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -20,8 +19,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "Test Twofish Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test Twofish Vectors":function(test) {
     var keys = ["00000000000000000000000000000000", "00000000000000000000000000000000",
       "9F589F5CF6122C32B6BFEC2F2AE8C35A", "D491DB16E7B1C39E86CB086B789F5419",
       "000000000000000000000000000000000000000000000000", "EFA71F788965BD4453F860178FC191010000000000000000",
@@ -48,18 +55,18 @@ suite.addTests({
       // Encrypt the data and verify
       var twofish = new Twofish(key);
       var encrypted = twofish.encrypt(pt);
-      assert.deepEqual(ct, encrypted);
+      test.deepEqual(ct, encrypted);
       
       // Decrypt data and verify
       twofish = new Twofish(key);
       var decrypted = twofish.decrypt(encrypted);
-      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
+      test.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
-    finished();
+    test.done();
   },  
 
-  "Node Compatibility Tests":function(assert, finished) {
+  "Node Compatibility Tests":function(test) {
     var key = "00112233445566778899AABBCCDDEEFFFFEEDDCCBBAA99887766554433221100";
     var pt =  "02132435465768798a9bacbdcedfe0f1";
     // Encrypt using the pure js library    
@@ -71,7 +78,7 @@ suite.addTests({
       
     var ofb = new OFBMode(new Twofish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ofb.decrypt(src);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
     
     // CBC Mode
     var cbc = new CBCMode(new Twofish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
@@ -79,7 +86,7 @@ suite.addTests({
     
     var cbc = new CBCMode(new Twofish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = cbc.decrypt(src);    
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
     
     // ECB Mode
     var ecb = new ECBMode(new Twofish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
@@ -87,7 +94,7 @@ suite.addTests({
     
     var ecb = new ECBMode(new Twofish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ecb.decrypt(src);    
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
     
     // CFB Mode
     var ofb = new CFBMode(new Twofish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
@@ -95,11 +102,11 @@ suite.addTests({
     
     var ofb = new CFBMode(new Twofish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ofb.decrypt(src);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-    finished();    
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.done();    
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "FBA167983E7AEF22317CE28C02AAE1A3E8E5CC3CEDBEA82A99DBC39AD65E7227";
     // Encrypt using the pure js library    
     var iv = "00010203040506070001020304050607";
@@ -129,7 +136,7 @@ suite.addTests({
     // Single pass encryption
     ofb = new OFBMode(new Twofish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     src = ofb.encrypt(util.binaryStringToArray(data));
-    assert.deepEqual(src, util.binaryStringToArray(encryptedData));
+    test.deepEqual(src, util.binaryStringToArray(encryptedData));
         
     // Clean cbc instance
     ofb = new OFBMode(new Twofish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
@@ -150,7 +157,7 @@ suite.addTests({
     decryptedData += ofb.finalDecrypt();
   
     // Compare
-    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
-    finished();
+    test.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+    test.done();
   },
 });

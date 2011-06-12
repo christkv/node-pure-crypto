@@ -1,14 +1,13 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   SHA384 = require('hash/sha384').SHA384,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("SHA384 Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -16,8 +15,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "SHA384 test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "SHA384 test vectors":function(test) {
     var messages = [
       "",
       "a",
@@ -39,13 +46,13 @@ suite.addTests({
       var sha384 = new SHA384();
       sha384.update(message);
       var result = sha384.digest('array');
-      assert.deepEqual(digest, result);
+      test.deepEqual(digest, result);
     }
     
-    finished();
+    test.done();
   }, 
 
-  "SHA384 million a vector":function(assert, finished) {
+  "SHA384 million a vector":function(test) {
     var digest = util.hexStringToBinaryArray("9d0e1809716474cb086e834e310a4a1ced149e9c00f248527972cec5704c2a5b07b8b3dc38ecc4ebae97ddd87f3d8985");
     var numberOfAs = 1000000;
     var sha384 = new SHA384();
@@ -55,12 +62,12 @@ suite.addTests({
     }
   
     var result = sha384.digest('array');
-    assert.deepEqual(digest, result);
+    test.deepEqual(digest, result);
     
-    finished();
+    test.done();
   }, 
   
-  "SHA384 node compatibility test":function(assert, finished) {
+  "SHA384 node compatibility test":function(test) {
     var data = randomdata(1025);
     var nodeDigest = crypto.createHash("sha384");
     var pureJsDigest = new SHA384();
@@ -80,8 +87,8 @@ suite.addTests({
     
     var a = util.binaryStringToArray(nodeDigest.digest());
     var b = util.binaryStringToArray(pureJsDigest.digest());    
-    assert.deepEqual(a, b)
-    finished();
+    test.deepEqual(a, b)
+    test.done();
   } 
 });
 

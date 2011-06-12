@@ -1,14 +1,13 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   SHA512 = require('hash/sha512').SHA512,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("SHA512 Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -16,8 +15,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "SHA512 test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "SHA512 test vectors":function(test) {
     var messages = [
       "",
       "a",
@@ -39,13 +46,13 @@ suite.addTests({
       var sha512 = new SHA512();
       sha512.update(message);
       var result = sha512.digest('array');
-      assert.deepEqual(digest, result);
+      test.deepEqual(digest, result);
     }
     
-    finished();
+    test.done();
   }, 
 
-  "SHA512 million a vector":function(assert, finished) {
+  "SHA512 million a vector":function(test) {
     var digest = util.hexStringToBinaryArray("e718483d0ce769644e2e42c7bc15b4638e1f98b13b2044285632a803afa973ebde0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b");
     var numberOfAs = 1000000;
     var sha512 = new SHA512();
@@ -55,12 +62,12 @@ suite.addTests({
     }
   
     var result = sha512.digest('array');
-    assert.deepEqual(digest, result);
+    test.deepEqual(digest, result);
     
-    finished();
+    test.done();
   }, 
   
-  "SHA512 node compatibility test":function(assert, finished) {
+  "SHA512 node compatibility test":function(test) {
     var data = randomdata(1025);
     var nodeDigest = crypto.createHash("sha512");
     var pureJsDigest = new SHA512();
@@ -80,8 +87,8 @@ suite.addTests({
     
     var a = util.binaryStringToArray(nodeDigest.digest());
     var b = util.binaryStringToArray(pureJsDigest.digest());    
-    assert.deepEqual(a, b)
-    finished();
+    test.deepEqual(a, b)
+    test.done();
   } 
 });
 

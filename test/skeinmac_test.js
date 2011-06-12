@@ -1,15 +1,14 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   SkeinMac = require('mac/skeinmac').SkeinMac,
   // Skein = require('hash/skein').Skein,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("SkeinMac Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -17,8 +16,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "SkeinMac test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "SkeinMac test vectors":function(test) {
     var messages = [
       "D3090C72167517F7C7AD82A70C2FD3F6443F608301591E598EADB195E8357135BA26FEDE2EE187417F816048D00FC23512737A2113709A77E4170C49A94B7FDFF45FF579A72287743102E7766C35CA5ABC5DFE2F63A1E726CE5FBD2926DB03A2DD18B03FC1508A9AAC45EB362440203A323E09EDEE6324EE2E37B4432C1867ED696E6C9DB1E6ABEA026288954A9C2D5758D7C5DB7C9E48AA3D21CAE3D977A7C3926066AA393DBD538DD0C30DA8916C8757F24C18488014668A2627163A37B261833DC2F8C3C56B1B2E0BE21FD3FBDB507B2950B77A6CC02EFB393E57419383A920767BCA2C972107AA61384542D47CBFB82CFE5C415389D1B0A2D74E2C5DA851",
       "D3090C72167517F7C7AD82A70C2FD3F6443F608301591E598EADB195E8357135BA26FEDE2EE187417F816048D00FC23512737A2113709A77E4170C49A94B7FDFF45FF579A72287743102E7766C35CA5ABC5DFE2F63A1E726CE5FBD2926DB03A2DD18B03FC1508A9AAC45EB362440203A323E09EDEE6324EE2E37B4432C1867ED",
@@ -55,13 +62,13 @@ suite.addTests({
       var skeinmac = new SkeinMac(state, output, mac);
       skeinmac.updateBits(message, msgLen);
       var result = skeinmac.digest('array');
-      assert.deepEqual(digest, result);
+      test.deepEqual(digest, result);
     }
     
-    finished();
+    test.done();
   }, 
 
-  "SkeinMac test vectors":function(assert, finished) {
+  "SkeinMac test vectors":function(test) {
     var vectors = parseMac(macString);
     
     for(var i = 0; i < vectors.length; i++) {
@@ -79,11 +86,11 @@ suite.addTests({
         var skeinmac = new SkeinMac(stateSize, hashBitLength, mac);
         skeinmac.updateBits(message, msgLength);
         var result = skeinmac.digest('array');
-        assert.deepEqual(digest, result);      
+        test.deepEqual(digest, result);      
       }
     }
     
-    finished();
+    test.done();
   }  
 });
 

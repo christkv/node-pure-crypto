@@ -1,18 +1,17 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   crypto = require('crypto'),
-  BlowFish = require('block/blowfish').BlowFish,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  ECBMode = require('block/ecb').ECBMode,
-  CFBMode = require('block/cfb').CFBMode,
+  BlowFish = require('symmetric/block/blowfish').BlowFish,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("BlowFishKey Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -20,8 +19,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "BlowFish ECB Test Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "BlowFish ECB Test Vectors":function(test) {
     var keys = ["0000000000000000", "FFFFFFFFFFFFFFFF", "3000000000000000", "1111111111111111", "0123456789ABCDEF", 
       "1111111111111111", "0000000000000000", "FEDCBA9876543210", "7CA110454A1A6E57", "0131D9619DC1376E", 
       "07A1133E4A0B2686", "3849674C2602319E", "04B915BA43FEB5B6", "0113B970FD34F2CE", "0170F175468FB5E6", 
@@ -52,15 +59,15 @@ suite.addTests({
       
       // Encryp the content
       var encrypted = bf.encrypt(pt);
-      assert.deepEqual(ct, encrypted);
+      test.deepEqual(ct, encrypted);
       // Decrypt
       var decrypted = bf.decrypt(encrypted);
-      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
+      test.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
-    finished();
+    test.done();
   },  
   
-  "Node Compatibility Tests":function(assert, finished) {
+  "Node Compatibility Tests":function(test) {
     var key = "018310DC409B26D6018310DC409B26D6";
     var pt =  "6bc1bee22e409f96";
     // Encrypt using the pure js library    
@@ -74,16 +81,16 @@ suite.addTests({
     
     var ofb = new OFBMode(new BlowFish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
-    assert.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
+    test.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
   
     var ofb = new OFBMode(new BlowFish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ofb.decrypt(util.binaryStringToArray(nodeEncrypted));
     var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
     decryptedNode += decipher.final('binary');      
   
-    assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
+    test.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
     
     // CBC Mode
     var cipher = crypto.createCipheriv("bf-cbc", util.hexStringToBinary(key), util.hexStringToBinary(iv));
@@ -93,16 +100,16 @@ suite.addTests({
   
     var ofb = new CBCMode(new BlowFish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
-    assert.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
+    test.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
   
     var ofb = new CBCMode(new BlowFish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ofb.decrypt(util.binaryStringToArray(nodeEncrypted));
     var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
     decryptedNode += decipher.final('binary');      
   
-    assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
+    test.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
   
     // ECB Mode
     var cipher = crypto.createCipheriv("bf-ecb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
@@ -112,16 +119,16 @@ suite.addTests({
     
     var ofb = new ECBMode(new BlowFish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var src = ofb.encrypt(util.hexStringToBinaryArray(pt));
-    assert.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
+    test.deepEqual(util.binaryStringToArray(nodeEncrypted), src);
     
     var ofb = new ECBMode(new BlowFish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ofb.decrypt(util.binaryStringToArray(nodeEncrypted));
     var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
     decryptedNode += decipher.final('binary');      
   
-    assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
+    test.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
     
     // CFB Mode
     var cipher = crypto.createCipheriv("bf-cfb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
@@ -137,13 +144,13 @@ suite.addTests({
     var decryptedNode = decipher.update(util.arrayToBinaryString(src), 'binary');
     decryptedNode += decipher.final('binary');      
   
-    assert.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
-    finished();    
+    test.deepEqual(util.binaryStringToArray(decryptedNode), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), util.binaryStringToArray(decryptedNode));
+    test.done();    
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "018310DC409B26D6018310DC409B26D6";
     // Encrypt using the pure js library    
     var iv = "0001020304050607";
@@ -178,14 +185,14 @@ suite.addTests({
     // Verify encrypted streaming data
     var a = util.binaryStringToArray(nodejsEncrypted);    
     var b = util.binaryStringToArray(encryptedData);    
-    assert.deepEqual(b, a);
+    test.deepEqual(b, a);
   
     // Decrypt the streaming data
     var decipher = crypto.createDecipheriv("bf-ofb", util.hexStringToBinary(key), util.hexStringToBinary(iv));
     var decryptedNode = decipher.update(encryptedData, 'binary');
     decryptedNode += decipher.final('binary');    
     // Decrypted content check for node.js
-    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedNode));    
+    test.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedNode));    
       
     // Clean cbc instance
     ofb = new OFBMode(new BlowFish(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
@@ -209,8 +216,8 @@ suite.addTests({
     var a = util.binaryStringToArray(decryptedNode);    
     var b = util.binaryStringToArray(decryptedData);    
     // Verify the decryption against node.js
-    assert.deepEqual(b, a);    
-    finished();
+    test.deepEqual(b, a);    
+    test.done();
   },  
 });
 

@@ -1,19 +1,18 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  VMPCKSA3 = require('stream/vmpcksa3').VMPCKSA3,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  VMPCKSA3 = require('symmetric/stream/vmpcksa3').VMPCKSA3,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("VMPCKSA3 tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -34,8 +33,16 @@ var xorDigest = function(encrypted, out) {
   return out;
 }
 
-suite.addTests({  
-  "Test Xstream":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test Xstream":function(test) {
     var key = "9661410AB797D8A9EB767C21172DF6C7";
     var iv = "4B5C2F003E67F39557A8D26F3DA2B155";
     var pt = new Array(1000000);
@@ -47,33 +54,33 @@ suite.addTests({
     var pt = util.hexStringToBinaryArray(pt);
     var zero = pt.length;
 
-    // Asserts
+    // tests
     encrypted = vmpcksa3.encrypt(pt.slice(0))
-    assert.equal(0xb6, encrypted[0])
-    assert.equal(0xeb, encrypted[1])
-    assert.equal(0xae, encrypted[2])
-    assert.equal(0xfe, encrypted[3])
-    assert.equal(0x48, encrypted[252])
-    assert.equal(0x17, encrypted[253])
-    assert.equal(0x24, encrypted[254])
-    assert.equal(0x73, encrypted[255])
-    assert.equal(0x1d, encrypted[1020])
-    assert.equal(0xae, encrypted[1021])
-    assert.equal(0xc3, encrypted[1022])
-    assert.equal(0x5a, encrypted[1023])
-    assert.equal(0x1d, encrypted[102396])
-    assert.equal(0xa7, encrypted[102397])
-    assert.equal(0xe1, encrypted[102398])
-    assert.equal(0xdc, encrypted[102399])
+    test.equal(0xb6, encrypted[0])
+    test.equal(0xeb, encrypted[1])
+    test.equal(0xae, encrypted[2])
+    test.equal(0xfe, encrypted[3])
+    test.equal(0x48, encrypted[252])
+    test.equal(0x17, encrypted[253])
+    test.equal(0x24, encrypted[254])
+    test.equal(0x73, encrypted[255])
+    test.equal(0x1d, encrypted[1020])
+    test.equal(0xae, encrypted[1021])
+    test.equal(0xc3, encrypted[1022])
+    test.equal(0x5a, encrypted[1023])
+    test.equal(0x1d, encrypted[102396])
+    test.equal(0xa7, encrypted[102397])
+    test.equal(0xe1, encrypted[102398])
+    test.equal(0xdc, encrypted[102399])
     
     // Decrypt
     var vmpcksa3 = new VMPCKSA3(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
     var decrypted = vmpcksa3.decrypt(encrypted);
-    assert.deepEqual(pt, decrypted)
-    finished();
+    test.deepEqual(pt, decrypted)
+    test.done();
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "a6a7251c1e72916d11c2cb214d3c252539121d8e234e652d651fa4c8cff88030";
     // Encrypt using the pure js library    
     var iv = "9e645a74e9e0a60d8243acd9177ab51a1beb8d5a2f5d700c";
@@ -103,7 +110,7 @@ suite.addTests({
     // One bang encryption
     var oneTimeEncryptedData = vmpcksa3.encrypt(util.binaryStringToArray(data));
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+    test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
       
     // Convert onetime encrypted data to binary
     oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
@@ -127,7 +134,7 @@ suite.addTests({
     decryptedData += vmpcksa3.finalDecrypt();
       
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-    finished();
+    test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+    test.done();
   },      
 });

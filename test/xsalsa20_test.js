@@ -1,19 +1,18 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  XSalsa20 = require('stream/xsalsa20').XSalsa20,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  XSalsa20 = require('symmetric/stream/xsalsa20').XSalsa20,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("XSalsa20 tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -34,8 +33,16 @@ var xorDigest = function(encrypted, out) {
   return out;
 }
 
-suite.addTests({  
-  "Test Xstream":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test Xstream":function(test) {
     var keys = ["a6a7251c1e72916d11c2cb214d3c252539121d8e234e652d651fa4c8cff88030",
       "9e1da239d155f52ad37f75c7368a536668b051952923ad44f57e75ab588e475a",
       "d5c7f6797b7e7e9c1d7fd2610b2abf2bc5a7885fb3ff78092fb3abe8986d35e2",
@@ -246,16 +253,16 @@ suite.addTests({
       var zero = pt.length;
 
       encrypted = salsa.encrypt(pt.slice(0))
-      assert.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
+      test.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
       var salsa20 = new XSalsa20(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
       var decrypted = salsa20.decrypt(encrypted);      
-      assert.deepEqual(pt, decrypted)      
+      test.deepEqual(pt, decrypted)      
     }
 
-    finished();
+    test.done();
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "a6a7251c1e72916d11c2cb214d3c252539121d8e234e652d651fa4c8cff88030";
     // Encrypt using the pure js library    
     var iv = "9e645a74e9e0a60d8243acd9177ab51a1beb8d5a2f5d700c";
@@ -285,7 +292,7 @@ suite.addTests({
     // One bang encryption
     var oneTimeEncryptedData = salsa20.encrypt(util.binaryStringToArray(data));
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+    test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
       
     // Convert onetime encrypted data to binary
     oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
@@ -309,7 +316,7 @@ suite.addTests({
     decryptedData += salsa20.finalDecrypt();
       
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-    finished();
+    test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+    test.done();
   },      
 });

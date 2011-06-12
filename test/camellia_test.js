@@ -1,21 +1,20 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  Camellia = require('block/camellia').Camellia,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
-  CFB8Mode = require('block/cfb8').CFB8Mode,
-  NullPad = require('padding/null').NullPad,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  Camellia = require('symmetric/block/camellia').Camellia,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
+  CFB8Mode = require('symmetric/block/cfb8').CFB8Mode,
+  NullPad = require('symmetric/padding/null').NullPad,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("Camellia tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -36,8 +35,16 @@ var xorDigest = function(encrypted, out) {
   return out;
 }
 
-suite.addTests({  
-  "Test Camellia Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test Camellia Vectors":function(test) {
     var keys = ["00000000000000000000000000000000", "80000000000000000000000000000000", "0123456789abcdeffedcba9876543210",
       "0123456789abcdeffedcba98765432100011223344556677", "000000000000000000000000000000000000000000000000",
       "949494949494949494949494949494949494949494949494",
@@ -73,17 +80,17 @@ suite.addTests({
       var zero = pt.length;
       
       encrypted = camellia.encrypt(pt.slice(0))
-      assert.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
+      test.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
 
       var camellia = new Camellia(util.hexStringToBinaryArray(key));
       var decrypted = camellia.decrypt(encrypted);
-      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted)      
+      test.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted)      
     }
 
-    finished();
+    test.done();
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "546d203368656c326973652073736e62206167796967747473656865202c3d73";
     // Encrypt using the pure js library    
     var iv = "00010203040506070001020304050607";
@@ -113,7 +120,7 @@ suite.addTests({
     // Single pass encryption
     ofb = new OFBMode(new Camellia(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     src = ofb.encrypt(util.binaryStringToArray(data));
-    assert.deepEqual(src, util.binaryStringToArray(encryptedData));
+    test.deepEqual(src, util.binaryStringToArray(encryptedData));
         
     // Clean cbc instance
     ofb = new OFBMode(new Camellia(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
@@ -134,7 +141,8 @@ suite.addTests({
     decryptedData += ofb.finalDecrypt();
   
     // Compare
-    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
-    finished();
+    test.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+    test.done();
   },
 });
+

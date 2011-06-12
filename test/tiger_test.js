@@ -1,13 +1,14 @@
 require.paths.unshift("./lib", "./external-libs/node-async-testing");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   Tiger = require('hash/tiger').Tiger,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("Tiger Test");
+// var suite = exports.suite = new TestSuite("Tiger Test");
 
 var randomdata = function(size) {
   // 5KB of random, dummy data
@@ -16,8 +17,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "Tiger test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+  
+  "Tiger test vectors":function(test) {
     var messages = [
       "",
       "abc",
@@ -48,13 +57,13 @@ suite.addTests({
       var tiger = new Tiger();
       tiger.update(message);
       var result = tiger.digest('array');
-      assert.deepEqual(digest, result);
+      test.deepEqual(digest, result);
     }
     
-    finished();
-  }, 
-  
-  "Tiger 64K vector":function(assert, finished) {
+    test.done();
+  },
+
+  "Tiger 64K vector":function(test) {
     var digest = util.hexStringToBinaryArray("FDF4F5B35139F48E710E421BE5AF411DE1A8AAC333F26204");
     var numberOfAs = 65536;
     var tiger = new Tiger();
@@ -64,11 +73,12 @@ suite.addTests({
     }
   
     var result = tiger.digest('array');
-    assert.deepEqual(digest, result);
+    test.deepEqual(digest, result);
     
-    finished();
+    test.done();
   },   
 });
+
 
 
 

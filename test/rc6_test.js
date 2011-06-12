@@ -1,19 +1,18 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  RC6 = require('block/rc6').RC6,
-  ECBMode = require('block/ecb').ECBMode,
-  OFBMode = require('block/ofb').OFBMode,
-  CBCMode = require('block/cbc').CBCMode,
-  CFBMode = require('block/cfb').CFBMode,
-  NullPad = require('padding/null').NullPad,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  RC6 = require('symmetric/block/rc6').RC6,
+  ECBMode = require('symmetric/block/ecb').ECBMode,
+  OFBMode = require('symmetric/block/ofb').OFBMode,
+  CBCMode = require('symmetric/block/cbc').CBCMode,
+  CFBMode = require('symmetric/block/cfb').CFBMode,
+  NullPad = require('symmetric/padding/null').NullPad,
   util = require('utils'),
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("RC6 tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -21,8 +20,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "Test RC6 Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test RC6 Vectors":function(test) {
     var keys = ["0123456789abcdef0112233445566778899aabbccddeeff01032547698badcfe", "0000000000000000000000000000000000000000000000000000000000000000",
       "0123456789abcdef0112233445566778899aabbccddeeff0", "000000000000000000000000000000000000000000000000",
       "0123456789ABCDEF0112233445566778", "00000000000000000000000000000000"];
@@ -42,18 +49,18 @@ suite.addTests({
       // Encrypt the data and verify
       var rc6 = new RC6(key);
       var encrypted = rc6.encrypt(pt);
-      assert.deepEqual(ct, encrypted);
+      test.deepEqual(ct, encrypted);
       
       // Decrypt data and verify
       rc6 = new RC6(key);
       var decrypted = rc6.decrypt(encrypted);
-      assert.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
+      test.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
-    finished();
+    test.done();
   },  
 
-  "Node Compatibility Tests":function(assert, finished) {
+  "Node Compatibility Tests":function(test) {
     var key = "0123456789abcdef0112233445566778899aabbccddeeff01032547698badcfe";
     var pt =  "02132435465768798a9bacbdcedfe0f1";
     // Encrypt using the pure js library    
@@ -65,7 +72,7 @@ suite.addTests({
       
     var ofb = new OFBMode(new RC6(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ofb.decrypt(src);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
     
     // CBC Mode
     var cbc = new CBCMode(new RC6(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
@@ -73,7 +80,7 @@ suite.addTests({
     
     var cbc = new CBCMode(new RC6(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = cbc.decrypt(src);    
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
     
     // ECB Mode
     var ecb = new ECBMode(new RC6(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
@@ -81,7 +88,7 @@ suite.addTests({
     
     var ecb = new ECBMode(new RC6(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ecb.decrypt(src);    
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
     
     // CFB Mode
     var ofb = new CFBMode(new RC6(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
@@ -89,11 +96,11 @@ suite.addTests({
     
     var ofb = new CFBMode(new RC6(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     var decryptedPureJs = ofb.decrypt(src);
-    assert.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
-    finished();    
+    test.deepEqual(util.hexStringToBinaryArray(pt), decryptedPureJs);
+    test.done();    
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "0123456789abcdef0112233445566778899aabbccddeeff01032547698badcfe";
     // Encrypt using the pure js library    
     var iv = "00010203040506070001020304050607";
@@ -123,7 +130,7 @@ suite.addTests({
     // Single pass encryption
     ofb = new OFBMode(new RC6(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));
     src = ofb.encrypt(util.binaryStringToArray(data));
-    assert.deepEqual(src, util.binaryStringToArray(encryptedData));
+    test.deepEqual(src, util.binaryStringToArray(encryptedData));
         
     // Clean cbc instance
     ofb = new OFBMode(new RC6(util.hexStringToBinaryArray(key)), null, util.hexStringToBinaryArray(iv));    
@@ -144,7 +151,7 @@ suite.addTests({
     decryptedData += ofb.finalDecrypt();
   
     // Compare
-    assert.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
-    finished();
+    test.deepEqual(util.binaryStringToArray(data), util.binaryStringToArray(decryptedData))    
+    test.done();
   },
 });

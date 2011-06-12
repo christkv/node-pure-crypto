@@ -1,14 +1,13 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
   MD2 = require('hash/md2').MD2,
   crypto = require('crypto'),
   util = require('utils');
     
-var suite = exports.suite = new TestSuite("MD2 Test");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -16,8 +15,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "MD2 test vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "MD2 test vectors":function(test) {
     var messages = [
       "",
       "a",
@@ -45,13 +52,13 @@ suite.addTests({
       var md2 = new MD2();
       md2.update(message);
       var result = md2.digest('array');
-      assert.deepEqual(digest, result);
+      test.deepEqual(digest, result);
     }
     
-    finished();
+    test.done();
   }, 
   
-  "MD2 node compatibility test":function(assert, finished) {
+  "MD2 node compatibility test":function(test) {
     var data = randomdata(1025);
     var nodeDigest = crypto.createHash("md2");
     var pureJsDigest = new MD2();
@@ -71,8 +78,8 @@ suite.addTests({
     
     var a = util.binaryStringToArray(nodeDigest.digest());
     var b = util.binaryStringToArray(pureJsDigest.digest());    
-    assert.deepEqual(a, b)
-    finished();
+    test.deepEqual(a, b)
+    test.done();
   } 
 });
 

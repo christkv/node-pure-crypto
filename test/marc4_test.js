@@ -1,14 +1,13 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  MARC4 = require('block/marc4').MARC4,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  MARC4 = require('symmetric/block/marc4').MARC4,
   util = require('utils'),
   crypto = require('crypto');
   
-var suite = exports.suite = new TestSuite("MARC4 tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -16,8 +15,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "Test MARC4 Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test MARC4 Vectors":function(test) {
     var keys = ["0123456789ABCDEF", "618A63D2FB"];
     var pts = ["0000000000000000", "DCEE4CF92C"];
     var cts = ["7494C2E7104B0879", "F13829C9DE"];
@@ -33,43 +40,43 @@ suite.addTests({
       // Encrypt the data and verify
       var marc4 = new MARC4(key, drop);
       var encrypted = marc4.encrypt(pt);
-      assert.deepEqual(ct, encrypted);
+      test.deepEqual(ct, encrypted);
       
       // Decrypt data and verify
       marc4 = new MARC4(key, drop);
       var decrypted = marc4.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted);
+      test.deepEqual(pt, decrypted);
     }
       
-    finished();
+    test.done();
   },
   
-  "More Arc4 tests - Arc4 is MARC 4 with drop = 0":function(assert, finished) {
+  "More Arc4 tests - Arc4 is MARC 4 with drop = 0":function(test) {
     var key = "Key";
     var pt = "Plaintext";
 
     var marc4 = new MARC4(util.binaryStringToArray(key), 0);
     var src = marc4.encrypt(util.binaryStringToArray(pt));
-    assert.deepEqual(util.hexStringToBinaryArray("BBF316E8D940AF0AD3"), src)
+    test.deepEqual(util.hexStringToBinaryArray("BBF316E8D940AF0AD3"), src)
 
     var key = "Wiki";
     var pt = "pedia";
 
     var marc4 = new MARC4(util.binaryStringToArray(key), 0);
     var src = marc4.encrypt(util.binaryStringToArray(pt));
-    assert.deepEqual(util.hexStringToBinaryArray("1021BF0420"), src)
+    test.deepEqual(util.hexStringToBinaryArray("1021BF0420"), src)
 
     var key = "Secret";
     var pt = "Attack at dawn";
 
     var marc4 = new MARC4(util.binaryStringToArray(key), 0);
     var src = marc4.encrypt(util.binaryStringToArray(pt));
-    assert.deepEqual(util.hexStringToBinaryArray("45A01F645FC35B383552544B9BF5"), src)
+    test.deepEqual(util.hexStringToBinaryArray("45A01F645FC35B383552544B9BF5"), src)
 
-    finished();
+    test.done();
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "DC51C3AC3BFC62F12E3D36FE91281329";
     // var key = [0xDC, 0x51, 0xC3, 0xAC, 0x3B, 0xFC, 0x62, 0xF1, 0x2E, 0x3D, 0x36, 0xFE, 0x91, 0x28, 0x13, 0x29];    
     // Encrypt using the pure js library    
@@ -102,7 +109,7 @@ suite.addTests({
     // One bang encryption
     var oneTimeEncryptedData = marc4.encrypt(util.binaryStringToArray(data));
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+    test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
       
     // Convert onetime encrypted data to binary
     oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
@@ -126,7 +133,7 @@ suite.addTests({
     decryptedData += marc4.finalDecrypt();
       
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-    finished();
+    test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+    test.done();
   },    
 });

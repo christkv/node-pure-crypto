@@ -1,13 +1,12 @@
-require.paths.unshift("./lib", "./external-libs/node-async-testing");
+require.paths.unshift("./lib");
 
-var TestSuite = require('async_testing').TestSuite,
-  debug = require('sys').debug,
-  inspect = require('sys').inspect,
-  Rabbit = require('stream/rabbit').Rabbit,
+var TestSuite = testCase = require('../deps/nodeunit').testCase,
+  debug = require('util').debug
+  inspect = require('util').inspect,
+  nodeunit = require('../deps/nodeunit'),
+  Rabbit = require('symmetric/stream/rabbit').Rabbit,
   util = require('utils');  
   
-var suite = exports.suite = new TestSuite("Rabbit tests");
-
 var randomdata = function(size) {
   // 5KB of random, dummy data
   var data = [];
@@ -15,8 +14,16 @@ var randomdata = function(size) {
   return data.join("");  
 }
 
-suite.addTests({  
-  "Test Rabbit Vectors":function(assert, finished) {
+module.exports = testCase({
+  setUp: function(callback) {
+    callback();        
+  },
+  
+  tearDown: function(callback) {
+    callback();        
+  },
+
+  "Test Rabbit Vectors":function(test) {
     var keys = ["00000000", "DC51C3AC3BFC62F12E3D36FE91281329", "C09B0043E9E9AB0187E0C73383957415",
       "00000000", "00000000", "00000000"];
     var pts = ["00000000000000000000000000000000", "00000000000000000000000000000000",
@@ -40,18 +47,18 @@ suite.addTests({
       // Encrypt the data and verify
       var rabbit = new Rabbit(key, iv);
       var encrypted = rabbit.encrypt(pt);
-      assert.deepEqual(ct, encrypted);
+      test.deepEqual(ct, encrypted);
       
       // Decrypt data and verify
       rabbit = new Rabbit(key, iv);
       var decrypted = rabbit.decrypt(encrypted);
-      assert.deepEqual(pt, decrypted);
+      test.deepEqual(pt, decrypted);
     }
   
-    finished();
+    test.done();
   },
   
-  "Streaming api test":function(assert, finished) {
+  "Streaming api test":function(test) {
     var key = "DC51C3AC3BFC62F12E3D36FE91281329";
     // Encrypt using the pure js library    
     var iv = "0001020304050607";
@@ -80,7 +87,7 @@ suite.addTests({
     // One bang encryption
     var oneTimeEncryptedData = rabbit.encrypt(util.binaryStringToArray(data));
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+    test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
   
     // Convert onetime encrypted data to binary
     oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
@@ -104,8 +111,8 @@ suite.addTests({
     decryptedData += rabbit.finalDecrypt();
       
     // Ensure stream is compatible with the onetime encryption    
-    assert.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-    finished();
+    test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+    test.done();
   },    
 });
 
