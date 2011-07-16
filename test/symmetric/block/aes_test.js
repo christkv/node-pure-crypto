@@ -1,10 +1,10 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
-  AESKey = require('symmetric/block/aes').AESKey,
+  nodeunit = require('../../../deps/nodeunit'),
+  AES = require('symmetric/block/aes').AES,
   crypto = require('crypto');
     
 var hexStringToBinaryArray = function(string) {
@@ -30,14 +30,20 @@ module.exports = testCase({
   "AES official known-answer tests": function(test) {
     for(var i = 0; i < keys.length; i++) {
       var key = hexStringToBinaryArray(keys[i]);
-      var pt = hexStringToBinaryArray(pts[i]);
-      var ct = hexStringToBinaryArray(cts[i]);
-      var aes = new AESKey(key);
-      var encrypted = aes.encrypt(pt);  // Destructive to save memory
-      test.deepEqual(ct, encrypted);
+      var data = hexStringToBinaryArray(pts[i]);
+      var ct = hexStringToBinaryArray(cts[i]);      
+      // Encrypt data
+      var aes = new AES();
+      aes.init(true, key);
+      aes.processBlock(data, 0);  // Destructive to save memory      
+      test.deepEqual(ct, data);
+      
+      // Initialize cipher for decryption
+      aes.init(false, key);
       // Decrypt the encrypted data and compare
-      var decrypted = aes.decrypt(encrypted); // Destructive to save memory
-      test.deepEqual(pt, decrypted);
+      aes.processBlock(data, 0);
+      // Check valid decrypted data
+      test.deepEqual(hexStringToBinaryArray(pts[i]), data);
     }
 
     test.done();
