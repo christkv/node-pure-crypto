@@ -35,6 +35,7 @@ module.exports = testCase({
         // Initialize a object
         var object = new classDefinition;
         
+        console.log("  = " + files[i])
         // Assert method existence
         // debug(inspect(// object['getAlgorithmName']))
         test.ok(typeof object['getAlgorithmName'] == 'function');
