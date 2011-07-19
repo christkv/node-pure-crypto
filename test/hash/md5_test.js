@@ -41,10 +41,10 @@ module.exports = testCase({
       var message = messages[i];
       var digest = util.hexStringToBinaryArray(digests[i]);
       
-      var md5 = new MD5();
-      md5.update(message);
-      var finalDigest = new Array(md5.getDigestSize());
-      test.equal(md5.getDigestSize(), md5.doFinal(finalDigest, 0));
+      var hash = new MD5();
+      hash.update(message);
+      var finalDigest = new Array(hash.getDigestSize());
+      test.equal(hash.getDigestSize(), hash.doFinal(finalDigest, 0));
       test.deepEqual(digest, finalDigest);
     }
     
