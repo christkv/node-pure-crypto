@@ -6,10 +6,6 @@ var TestSuite = testCase = require('../../../deps/nodeunit').testCase,
   nodeunit = require('../../../deps/nodeunit'),
   crypto = require('crypto'),
   BlowFish = require('symmetric/block/blowfish').BlowFish,
-  OFBMode = require('symmetric/block/ofb').OFBMode,
-  CBCMode = require('symmetric/block/cbc').CBCMode,
-  ECBMode = require('symmetric/block/ecb').ECBMode,
-  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils');
     
 var randomdata = function(size) {

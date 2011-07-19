@@ -1,9 +1,9 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../deps/nodeunit'),
   GOST3411 = require('hash/gost3411').GOST3411,
   crypto = require('crypto'),
   util = require('utils');
@@ -42,15 +42,12 @@ module.exports = testCase({
     for(var i = 0; i < messages.length; i++) {
       var message = messages[i];
       var digest = util.hexStringToBinaryArray(digests[i]);
-      
-      var gost3411 = new GOST3411();
-      gost3411.update(message);
-      var result = gost3411.digest('array');
-      // debug("----------------------------------------------------------- result")
-      // debug(result)
-      // debug("----------------------------------------------------------- digest")
-      // debug(digest)      
-      test.deepEqual(digest, result);
+
+      var hash = new GOST3411();
+      hash.update(message);
+      var finalDigest = new Array(hash.getDigestSize());
+      test.equal(hash.getDigestSize(), hash.doFinal(finalDigest, 0));
+      test.deepEqual(digest, finalDigest);
     }
     
     test.done();
@@ -59,14 +56,15 @@ module.exports = testCase({
   "GOST3411 million a vector":function(test) {
     var digest = util.hexStringToBinaryArray("8693287aa62f9478f7cb312ec0866b6c4e4a0f11160441e8f4ffcd2715dd554f");
     var numberOfAs = 1000000;
-    var gost3411 = new GOST3411();
+    var hash = new GOST3411();
     
     for(var i = 0; i < numberOfAs; i++) {
-      gost3411.update('a');
+      hash.update('a');
     }
   
-    var result = gost3411.digest('array');
-    test.deepEqual(digest, result);
+    var finalDigest = new Array(hash.getDigestSize());
+    test.equal(hash.getDigestSize(), hash.doFinal(finalDigest, 0));
+    test.deepEqual(digest, finalDigest);
     test.done();
   },   
 });

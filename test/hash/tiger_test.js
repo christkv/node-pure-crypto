@@ -1,9 +1,9 @@
 require.paths.unshift("./lib", "./external-libs/node-async-testing");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../deps/nodeunit'),
   Tiger = require('hash/tiger').Tiger,
   crypto = require('crypto'),
   util = require('utils');
@@ -54,10 +54,11 @@ module.exports = testCase({
       var message = messages[i];
       var digest = util.hexStringToBinaryArray(digests[i]);
       
-      var tiger = new Tiger();
-      tiger.update(message);
-      var result = tiger.digest('array');
-      test.deepEqual(digest, result);
+      var hash = new Tiger();
+      hash.update(message);
+      var finalDigest = new Array(hash.getDigestSize());
+      test.equal(hash.getDigestSize(), hash.doFinal(finalDigest, 0));
+      test.deepEqual(digest, finalDigest);
     }
     
     test.done();
@@ -66,15 +67,15 @@ module.exports = testCase({
   "Tiger 64K vector":function(test) {
     var digest = util.hexStringToBinaryArray("FDF4F5B35139F48E710E421BE5AF411DE1A8AAC333F26204");
     var numberOfAs = 65536;
-    var tiger = new Tiger();
+    var hash = new Tiger();
     
     for(var i = 0; i < numberOfAs; i++) {
-      tiger.update([i & 0xff]);
+      hash.update([i & 0xff]);
     }
   
-    var result = tiger.digest('array');
-    test.deepEqual(digest, result);
-    
+    var finalDigest = new Array(hash.getDigestSize());
+    test.equal(hash.getDigestSize(), hash.doFinal(finalDigest, 0));
+    test.deepEqual(digest, finalDigest);
     test.done();
   },   
 });

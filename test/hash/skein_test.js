@@ -1,9 +1,9 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../deps/nodeunit'),
   Skein = require('hash/skein').Skein,
   crypto = require('crypto'),
   util = require('utils');
@@ -25,122 +25,33 @@ module.exports = testCase({
   },
 
   "Skein test vectors":function(test) {
-    // var messages = [
-    //   "D3090C72167517F7C7AD82A70C2FD3F6443F608301591E598EADB195E8357135BA26FEDE2EE187417F816048D00FC23512737A2113709A77E4170C49A94B7FDFF45FF579A72287743102E7766C35CA5ABC5DFE2F63A1E726CE5FBD2926DB03A2DD18B03FC1508A9AAC45EB362440203A323E09EDEE6324EE2E37B4432C1867ED696E6C9DB1E6ABEA026288954A9C2D5758D7C5DB7C9E48AA3D21CAE3D977A7C3926066AA393DBD538DD0C30DA8916C8757F24C18488014668A2627163A37B261833DC2F8C3C56B1B2E0BE21FD3FBDB507B2950B77A6CC02EFB393E57419383A920767BCA2C972107AA61384542D47CBFB82CFE5C415389D1B0A2D74E2C5DA851FD"
-    // ]
-    // 
-    // var macs = [
-    //   "CB41F1706CDE09651203C2D0EFBADDF847A0D315CB2E53FF8BAC41DA0002672E920244C66E02D5F0DAD3E94C42BB65F0D14157DECF4105EF5609D5B0984457C1935DF3061FF06E9F204192BA11E5BB2CAC0430C1C370CB3D113FEA5EC1021EB875E5946D7A96AC69A1626C6206B7252736F24253C9EE9B85EB852DFC814631346C042EB4187AA1C015A4767032C0BB28F076B66485F51531C12E948F47DBC2CB904A4B75D1E8A6D931DAB4A07E0A54D1BB5B55E602141746BD09FB15E8F01A8D74E9E63959CB37336BC1B896EC78DA734C15E362DB04368FBBA280F20A043E0D0941E9F5193E1B360A33C43B266524880125222E648F05F28BE34BA3CABFC9C544"
-    // ]
-    // 
-    // var stateSizes = [
-    //   1024
-    // ]
-    // 
-    // var outputSizes = [
-    //   1024
-    // ]
-    // 
-    // var digests = [
-    //   "ED9DC9D70C149D79644DB453D8AAA5B0229B4EF93DA37F268C14350D6C2A42F5EADCFC10A947BEC97AC505760CDA750A7EECD9C9002473B98FB1CEF70E4D6824FA8FCFA3206D30EEB42A29D46389FEB589E8E051A56FAE2E741DF08C17A412C2975CDBBF8A4D7BBE392A3822578E56D02769CF73F41454997477C950C9127315"
-    // ]
-
-    var messages = [
-      "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-    ]
-    
-    var macs = [
-      "CB41F1706CDE09651203C2D0EFBADDF847A0D315CB2E53FF8BAC41DA0002672E920244C66E02D5F0DAD3E94C42BB65F0D14157DECF4105EF5609D5B0984457C1935DF3061FF06E9F204192BA11E5BB2CAC0430C1C370CB3D113FEA5EC1021EB875E5946D7A96AC69A1626C6206B7252736F24253C9EE9B85EB852DFC814631346C042EB4187AA1C015A4767032C0BB28F076B66485F51531C12E948F47DBC2CB904A4B75D1E8A6D931DAB4A07E0A54D1BB5B55E602141746BD09FB15E8F01A8D74E9E63959CB37336BC1B896EC78DA734C15E362DB04368FBBA280F20A043E0D0941E9F5193E1B360A33C43B266524880125222E648F05F28BE34BA3CABFC9C544"
-    ]
-    
-    var stateSizes = [
-      1024
-    ]
-    
-    var outputSizes = [
-      1023
-    ]
-    
-    var digests = [
-      "B3C62C7B923E67BE496F8E6DD47EA4E004329F9663E6354B14D73AE8E9CD29014D062D6444EF0E8952563C214A468996C88D2018C3B9FAB4848448571B55853DD5125A599B442ACF00755D911326FD62CB49D64E13D220D144CF29C4246ECD52E7C42A4F991DDADDDD5ADFB103329EF5022B69873F5AE9CB4B2C1EF9E88FF4F8"
-    ]
-        
-    for(var i = 0; i < messages.length; i++) {
-      var message = util.hexStringToBinaryArray(messages[i]);
-      var mac = macs[i];
-      var stateSize = stateSizes[i];
-      var outputSize = outputSizes[i];
-      var digest = util.hexStringToBinaryArray(digests[i]);
-      
-      var skein = new Skein(stateSize, stateSize);
-      skein.updateBits(message, outputSize, outputSize);
-      var result = skein.digest('array');
-      test.deepEqual(digest, result);
-    }
-    
-    test.done();
-  }, 
-
-  // "Skein million a vector":function(test) {
-  //   var digest = util.hexStringToBinaryArray("0C99005BEB57EFF50A7CF005560DDF5D29057FD86B20BFD62DECA0F1CCEA4AF51FC15490EDDC47AF32BB2B66C34FF9AD8C6008AD677F77126953B226E4ED8B01");
-  //   var numberOfAs = 1000000;
-  //   var skein = new Skein();
-  //   
-  //   for(var i = 0; i < numberOfAs; i++) {
-  //     skein.update('a');
-  //   }
-  // 
-  //   var result = skein.digest('array');
-  //   test.deepEqual(digest, result);
-  //   
-  //   test.done();
-  // }, 
-  // 
-  // "Skein thirtyOneZeros":function(test) {
-  //   var digest = util.hexStringToBinaryArray("3E3F188F8FEBBEB17A933FEAF7FE53A4858D80C915AD6A1418F0318E68D49B4E459223CD414E0FBC8A57578FD755D86E827ABEF4070FC1503E25D99E382F72BA");
-  //   var skein = new Skein();
-  //   var data = new Array(31);
-  //   for(var i = 0; i < data.length; i++) data[i] = 0;
-  //   skein.update(data);
-  // 
-  //   var result = skein.digest('array');
-  //   test.deepEqual(digest, result);
-  //   
-  //   test.done();
-  // }, 
-  
-  "Skein test vectors":function(test) {
     var vectors = parseNonMac(nonMacString);
     
+    // for(var i = 0; i < 1; i++) {
     for(var i = 0; i < vectors.length; i++) {
       var vector = vectors[i];
-      
-      // debug("------------------------------------------------------------------------------------")
-      // debug(inspect(vector))
-      
       // Unpack test vector
       var stateSize = vector.stateSize;
       var hashBitLength = vector.hashBitLength;
       var msgLength = vector.msgLength;
       var message = vector.message.length >= 2 ? util.hexStringToBinaryArray(vector.message) : [];
       var digest = util.hexStringToBinaryArray(vector.result);
+  
+      if(msgLength % 8 == 0) {
+        var skein = new Skein(stateSize, hashBitLength);
+        skein.update(message);        
 
-      // debug(vector.message)
-      // debug(vector.result)
+        var finalDigest = new Array(skein.getDigestSize());
+        test.equal(skein.getDigestSize(), skein.doFinal(finalDigest, 0));
+        test.deepEqual(digest, finalDigest);
+      } else {
+        var skein = new Skein(stateSize, hashBitLength);
+        skein.updateBits(message, msgLength);
 
-      var skein = new Skein(stateSize, hashBitLength);
-      skein.updateBits(message, msgLength);
-      var result = skein.digest('array');
-      // debug("------------------------------------------------ check")
-      // debug(result)
-      // debug(digest)
-      
-      test.deepEqual(digest, result);      
-      // debug("--------------------------------------------------------------")
-      // debug("--------------------------------------------------------------")
-      // debug("--------------------------------------------------------------")
-      // debug("--------------------------------------------------------------")
-      // debug("--------------------------------------------------------------")
+        var finalDigest = new Array(skein.getDigestSize());
+        test.equal(skein.getDigestSize(), skein.doFinal(finalDigest, 0));
+        test.deepEqual(digest, finalDigest);        
+      }
     }
     
     test.done();

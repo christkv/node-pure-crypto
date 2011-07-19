@@ -1,9 +1,9 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../deps/nodeunit'),
   Whirlpool = require('hash/whirlpool').Whirlpool,
   crypto = require('crypto'),
   util = require('utils');
@@ -51,10 +51,11 @@ module.exports = testCase({
       var message = messages[i];
       var digest = util.hexStringToBinaryArray(digests[i]);
       
-      var whirlpool = new Whirlpool();
-      whirlpool.update(message);
-      var result = whirlpool.digest('array');
-      test.deepEqual(digest, result);
+      var hash = new Whirlpool();
+      hash.update(message);
+      var finalDigest = new Array(hash.getDigestSize());
+      test.equal(hash.getDigestSize(), hash.doFinal(finalDigest, 0));
+      test.deepEqual(digest, finalDigest);
     }
     
     test.done();
@@ -63,28 +64,28 @@ module.exports = testCase({
   "Whirlpool million a vector":function(test) {
     var digest = util.hexStringToBinaryArray("0C99005BEB57EFF50A7CF005560DDF5D29057FD86B20BFD62DECA0F1CCEA4AF51FC15490EDDC47AF32BB2B66C34FF9AD8C6008AD677F77126953B226E4ED8B01");
     var numberOfAs = 1000000;
-    var whirlpool = new Whirlpool();
+    var hash = new Whirlpool();
     
     for(var i = 0; i < numberOfAs; i++) {
-      whirlpool.update('a');
+      hash.update('a');
     }
   
-    var result = whirlpool.digest('array');
-    test.deepEqual(digest, result);
-    
+    var finalDigest = new Array(hash.getDigestSize());
+    test.equal(hash.getDigestSize(), hash.doFinal(finalDigest, 0));
+    test.deepEqual(digest, finalDigest);
     test.done();
   }, 
-
+  
   "Whirlpool thirtyOneZeros":function(test) {
     var digest = util.hexStringToBinaryArray("3E3F188F8FEBBEB17A933FEAF7FE53A4858D80C915AD6A1418F0318E68D49B4E459223CD414E0FBC8A57578FD755D86E827ABEF4070FC1503E25D99E382F72BA");
-    var whirlpool = new Whirlpool();
+    var hash = new Whirlpool();
     var data = new Array(31);
     for(var i = 0; i < data.length; i++) data[i] = 0;
-    whirlpool.update(data);
+    hash.update(data);
   
-    var result = whirlpool.digest('array');
-    test.deepEqual(digest, result);
-    
+    var finalDigest = new Array(hash.getDigestSize());
+    test.equal(hash.getDigestSize(), hash.doFinal(finalDigest, 0));
+    test.deepEqual(digest, finalDigest);
     test.done();
   }, 
 });

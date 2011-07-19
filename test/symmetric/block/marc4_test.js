@@ -71,7 +71,8 @@ module.exports = testCase({
   
     var marc4 = new MARC4();
     marc4.init(true, util.binaryStringToArray(key), 0);
-    var src = marc4.encrypt(util.binaryStringToArray(pt));
+    var src = util.binaryStringToArray(pt);
+    marc4.processBlock(src, 0);
     test.deepEqual(util.hexStringToBinaryArray("BBF316E8D940AF0AD3"), src)
   
     var key = "Wiki";
@@ -79,7 +80,8 @@ module.exports = testCase({
       
     var marc4 = new MARC4();
     marc4.init(true, util.binaryStringToArray(key), 0);
-    var src = marc4.encrypt(util.binaryStringToArray(pt));
+    var src = util.binaryStringToArray(pt);
+    marc4.processBlock(src, 0);
     test.deepEqual(util.hexStringToBinaryArray("1021BF0420"), src)
       
     var key = "Secret";
@@ -87,9 +89,9 @@ module.exports = testCase({
       
     var marc4 = new MARC4();
     marc4.init(true, util.binaryStringToArray(key), 0);
-    var src = marc4.encrypt(util.binaryStringToArray(pt));
-    test.deepEqual(util.hexStringToBinaryArray("45A01F645FC35B383552544B9BF5"), src)
-  
+    var src = util.binaryStringToArray(pt);
+    marc4.processBlock(src, 0);
+    test.deepEqual(util.hexStringToBinaryArray("45A01F645FC35B383552544B9BF5"), src)  
     test.done();
   },
   

@@ -1,9 +1,9 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../deps/nodeunit'),
   RIPEMD256 = require('hash/ripemd256').RIPEMD256,
   crypto = require('crypto'),
   util = require('utils');
@@ -51,10 +51,11 @@ module.exports = testCase({
       var message = messages[i];
       var digest = util.hexStringToBinaryArray(digests[i]);
       
-      var ripemd256 = new RIPEMD256();
-      ripemd256.update(message);
-      var result = ripemd256.digest('array');
-      test.deepEqual(digest, result);
+      var hash = new RIPEMD256();
+      hash.update(message);
+      var finalDigest = new Array(hash.getDigestSize());
+      test.equal(hash.getDigestSize(), hash.doFinal(finalDigest, 0));
+      test.deepEqual(digest, finalDigest);
     }
     
     test.done();
@@ -63,15 +64,15 @@ module.exports = testCase({
   "RIPEMD256 million a vector":function(test) {
     var digest = util.hexStringToBinaryArray("ac953744e10e31514c150d4d8d7b677342e33399788296e43ae4850ce4f97978");
     var numberOfAs = 1000000;
-    var ripemd256 = new RIPEMD256();
+    var hash = new RIPEMD256();
     
     for(var i = 0; i < numberOfAs; i++) {
-      ripemd256.update('a');
+      hash.update('a');
     }
   
-    var result = ripemd256.digest('array');
-    test.deepEqual(digest, result);
-    
+    var finalDigest = new Array(hash.getDigestSize());
+    test.equal(hash.getDigestSize(), hash.doFinal(finalDigest, 0));
+    test.deepEqual(digest, finalDigest);
     test.done();
   },   
 });
