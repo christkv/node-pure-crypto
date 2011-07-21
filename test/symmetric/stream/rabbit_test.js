@@ -1,9 +1,9 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../../deps/nodeunit'),
   Rabbit = require('symmetric/stream/rabbit').Rabbit,
   util = require('utils');  
   
@@ -40,80 +40,97 @@ module.exports = testCase({
     // Test vectors
     for(var i = 0; i < keys.length; i++) {
       var key = util.hexStringToBinaryArray(keys[i]);
-      var pt = util.hexStringToBinaryArray(pts[i]);
+      var data = util.hexStringToBinaryArray(pts[i]);
       var ct = util.hexStringToBinaryArray(cts[i]);
       var iv = ivs[i] != null ? util.hexStringToBinaryArray(ivs[i]) : null;
       
       // Encrypt the data and verify
       var rabbit = new Rabbit(key, iv);
-      var encrypted = rabbit.encrypt(pt);
-      test.deepEqual(ct, encrypted);
+      rabbit.init(true, key, iv);
+      // Encrypt bytes
+      rabbit.processBytes(data, 0);
+      // Compare
+      test.deepEqual(ct, data);
+      
+      // Clean data
+      data = util.hexStringToBinaryArray(pts[i]);
+      // Parse single bytes
+      rabbit.init(true, key, iv);
+      // Encrypt each byte
+      for(var j = 0; j < data.length; j++) {
+        data[j] = rabbit.returnByte(data[j]);
+      }
+      // Compare
+      test.deepEqual(ct, data);
       
       // Decrypt data and verify
-      rabbit = new Rabbit(key, iv);
-      var decrypted = rabbit.decrypt(encrypted);
-      test.deepEqual(pt, decrypted);
+      rabbit = new Rabbit();
+      rabbit.init(false, key, iv);
+      // Decrypt bytes
+      rabbit.processBytes(data, 0);
+      // Compare
+      test.deepEqual(util.hexStringToBinaryArray(pts[i]), data);
     }
   
     test.done();
   },
   
-  "Streaming api test":function(test) {
-    var key = "DC51C3AC3BFC62F12E3D36FE91281329";
-    // Encrypt using the pure js library    
-    var iv = "0001020304050607";
-    // 5K of random data
-    var data = randomdata(1025);
-    // Blocksize
-    var blockSize = 32;
-    // Encrypt using the purejs librarie's streaming api in 1024 blocks
-    var rabbit = new Rabbit(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-  
-    // Split the data
-    var numberOfBlocks = Math.floor(data.length / blockSize);
-    var leftOverbytes = data.length % blockSize;
-    var encryptedData = "";
-  
-    for(var i = 0; i < numberOfBlocks; i++) {
-      encryptedData += rabbit.updateEncrypt(data.substr(i * blockSize, blockSize));
-    }    
-  
-    // If we have leftover bytes
-    if(leftOverbytes > 0) {
-      encryptedData += rabbit.updateEncrypt(data.substr(data.length - leftOverbytes));      
-    }
-    // ok dokey let's finialize (ensuring we have the last padded block added)    
-    encryptedData += rabbit.finalEncrypt();    
-    // One bang encryption
-    var oneTimeEncryptedData = rabbit.encrypt(util.binaryStringToArray(data));
-    // Ensure stream is compatible with the onetime encryption    
-    test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
-  
-    // Convert onetime encrypted data to binary
-    oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
-  
-    // Clean cbc instance
-    rabbit = new Rabbit(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-    // Split the data
-    var numberOfBlocks = Math.floor(oneTimeEncryptedData.length / blockSize);
-    var leftOverbytes = oneTimeEncryptedData.length % blockSize;
-    var decryptedData = "";
-      
-    for(var i = 0; i < numberOfBlocks; i++) {
-      decryptedData += rabbit.updateDecrypt(oneTimeEncryptedData.substr(i * blockSize, blockSize));
-    }    
-    
-    // Update with leftover bytes
-    if(leftOverbytes > 0) 
-      decryptedData += rabbit.updateDecrypt(oneTimeEncryptedData.substr(numberOfBlocks*blockSize));          
-      
-    // ok dokey let's finialize (ensuring we have the last padded block added)    
-    decryptedData += rabbit.finalDecrypt();
-      
-    // Ensure stream is compatible with the onetime encryption    
-    test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-    test.done();
-  },    
+  // "Streaming api test":function(test) {
+  //   var key = "DC51C3AC3BFC62F12E3D36FE91281329";
+  //   // Encrypt using the pure js library    
+  //   var iv = "0001020304050607";
+  //   // 5K of random data
+  //   var data = randomdata(1025);
+  //   // Blocksize
+  //   var blockSize = 32;
+  //   // Encrypt using the purejs librarie's streaming api in 1024 blocks
+  //   var rabbit = new Rabbit(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  // 
+  //   // Split the data
+  //   var numberOfBlocks = Math.floor(data.length / blockSize);
+  //   var leftOverbytes = data.length % blockSize;
+  //   var encryptedData = "";
+  // 
+  //   for(var i = 0; i < numberOfBlocks; i++) {
+  //     encryptedData += rabbit.updateEncrypt(data.substr(i * blockSize, blockSize));
+  //   }    
+  // 
+  //   // If we have leftover bytes
+  //   if(leftOverbytes > 0) {
+  //     encryptedData += rabbit.updateEncrypt(data.substr(data.length - leftOverbytes));      
+  //   }
+  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
+  //   encryptedData += rabbit.finalEncrypt();    
+  //   // One bang encryption
+  //   var oneTimeEncryptedData = rabbit.encrypt(util.binaryStringToArray(data));
+  //   // Ensure stream is compatible with the onetime encryption    
+  //   test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+  // 
+  //   // Convert onetime encrypted data to binary
+  //   oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
+  // 
+  //   // Clean cbc instance
+  //   rabbit = new Rabbit(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  //   // Split the data
+  //   var numberOfBlocks = Math.floor(oneTimeEncryptedData.length / blockSize);
+  //   var leftOverbytes = oneTimeEncryptedData.length % blockSize;
+  //   var decryptedData = "";
+  //     
+  //   for(var i = 0; i < numberOfBlocks; i++) {
+  //     decryptedData += rabbit.updateDecrypt(oneTimeEncryptedData.substr(i * blockSize, blockSize));
+  //   }    
+  //   
+  //   // Update with leftover bytes
+  //   if(leftOverbytes > 0) 
+  //     decryptedData += rabbit.updateDecrypt(oneTimeEncryptedData.substr(numberOfBlocks*blockSize));          
+  //     
+  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
+  //   decryptedData += rabbit.finalDecrypt();
+  //     
+  //   // Ensure stream is compatible with the onetime encryption    
+  //   test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+  //   test.done();
+  // },    
 });
 
 // Test 1: Key setup and encryption/decryption/prng 

@@ -37,7 +37,6 @@ module.exports = testCase({
         
         console.log("  = " + files[i])
         // Assert method existence
-        // debug(inspect(// object['getAlgorithmName']))
         test.ok(typeof object['getAlgorithmName'] == 'function');
         test.ok(typeof object['getBlockSize'] == 'function');
         test.ok(typeof object['reset'] == 'function');
@@ -80,7 +79,39 @@ module.exports = testCase({
     }
     
     test.done();    
-  }  
+  },
+  
+  "Verify all stream cipher implementations":function(test) {
+    var filePath = "./lib/symmetric/stream";
+    // Read all the block cipher names
+    var files = fs.readdirSync(filePath)
+    // Iterate over each file
+    for(var i = 0; i < files.length; i++) {
+      var stat = fs.statSync(filePath + "/" + files[i]);
+      if(stat.isFile() && path.extname(files[i]) == '.js') {
+        var module = require(filePath.replace('./', '') + "/" + files[i]);
+        
+        // Check that we have only one key in the module
+        test.equal(1, Object.keys(module).length);
+        // Extract class for key
+        var classDefinition = module[Object.keys(module)[0]];
+        // Initialize a object
+        var object = new classDefinition;
+        
+        if(files[i] != 'base.js') {
+          console.log("  = " + files[i])
+          // Assert method existence
+          test.ok(typeof object['init'] == 'function');        
+          test.ok(typeof object['getAlgorithmName'] == 'function');
+          test.ok(typeof object['returnByte'] == 'function');
+          test.ok(typeof object['processBytes'] == 'function');
+          test.ok(typeof object['reset'] == 'function');
+        }
+      }
+    }
+    
+    test.done();    
+  }    
 });
 
 
