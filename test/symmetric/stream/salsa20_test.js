@@ -61,120 +61,116 @@ module.exports = testCase({
 
   "Test Salsa20 Vectors":function(test) {      
     // Test vectors
-    for(var ij = 0; ij < 1; ij++) {
-      // var key = util.hexStringToBinaryArray("80000000000000000000000000000000");
-      // var iv = util.hexStringToBinaryArray("0000000000000000");
-      // var data = zeroedData(64);
-      // 
-      // var salsa = new Salsa20();
-      // salsa.init(true, key, iv);
-      // salsa.processBytes(data, 0);
-      // 
-      // var data2 = zeroedData(64);
-      // salsa.init(true, key, iv);
-      // for(var i = 0; i < data2.length; i++) {
-      //   data2[i] = salsa.returnByte(data2[i]);
-      // }
-      // 
-      // test
-      // 
-      // debug("----------------------------------------------------")
-      // debug(data)
-      // debug(data2)
+    for(var ij = 0; ij < testCases.length; ij++) {
+      var key = util.hexStringToBinaryArray(testCases[ij].key);
+      var iv = util.hexStringToBinaryArray(testCases[ij].iv);
+      var data = zeroedData(64);
       
-    // for(var ij = 0; ij < testCases.length; ij++) {
-      // var zero = testCases[ij].zero;
-      // var key = util.hexStringToBinaryArray(testCases[ij].key);
-      // var iv = util.hexStringToBinaryArray(testCases[ij].iv);
-      // var stream = testCases[ij].stream;
-      // var xor = util.hexStringToBinaryArray(testCases[ij].xor);
-      // var pt = zeroedData(zero);
-      //       
-      // // Encrypt the data and verify
-      // var salsa = new Salsa20();
-      // salsa.init(true, key, iv);
-      // var encrypted = [];
-      // 
-      // //
-      // // Encrypt in chunks of data
-      // //
-      // for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
-      //   l += j;
-      //   if((k + l) > m) {
-      //     l = m - k;
-      //   }
-      //   
-      //   var crypted = pt.slice(k, k+l);
-      //   salsa.processBytes(crypted, 0);        
-      //   encrypted = encrypted.concat(crypted);
-      //   k += l;
-      // }
-      // 
-      // // test correctness of encryption
-      // for(var i = 0; i < stream.length; i++) {
-      //   var chunk = util.hexStringToBinaryArray(stream[i].chunk);
-      //   var start = stream[i].start;
-      //   var len = stream[i].len;        
-      //   test.deepEqual(chunk, encrypted.slice(start, start + len));
-      // }
+      var salsa = new Salsa20();
+      salsa.init(true, key, iv);
+      salsa.processBytes(data, 0);
       
-      // // Reset
-      // salsa.init(true, key, iv);
-      // encrypted = [];
-      // 
-      // //
-      // // Encrypt using the returnByte
-      // //
-      // // Encrypt in chunks of data
-      // for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
-      //   l += j;
-      //   if((k + l) > m) {
-      //     l = m - k;
-      //   }
-      //   
-      //   var crypted = pt.slice(k, k + l);
-      //   for(var d = 0; d < crypted.length; d++) {
-      //     crypted[d] = salsa.returnByte(crypted[d]);
-      //   }
-      // 
-      //   debug("======================= 1")
-      //   debug(chunk)
-      //   debug(crypted)
-      //   
-      //   // salsa.processBytes(crypted, 0);
-      //   encrypted = encrypted.concat(crypted);
-      //   k += l;
-      // }
-      // 
-      // // test correctness of encryption
-      // for(var i = 0; i < stream.length; i++) {
-      //   var chunk = util.hexStringToBinaryArray(stream[i].chunk);
-      //   var start = stream[i].start;
-      //   var len = stream[i].len;
-      //   test.deepEqual(chunk, encrypted.slice(start, start + len));
-      // }
+      var data2 = zeroedData(64);
+      salsa.init(true, key, iv);
+      for(var i = 0; i < data2.length; i++) {
+        data2[i] = salsa.returnByte(data2[i]);
+      }
       
-      // var out = new Array(xor.length);
-      // for(var i = 0; i < xor.length; i++) out[i] = 0;
-      // var bx = xorDigest(encrypted, out);
-      // test.deepEqual(xor, bx);
-      // 
-      // // Decrypt the data and verify
-      // var salsa = new Salsa20(key, iv);
-      // var decrypted = [];
-      // 
-      // // Decrypt in chunks of data
-      // for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
-      //   l += j;
-      //   if((k + l) > m) {
-      //     l = m - k;
-      //   }
-      //   var uncrypted = salsa.decrypt(encrypted.slice(k, k+l));
-      //   decrypted = decrypted.concat(uncrypted);
-      //   k += l;
-      // }
-      // // test correct decryption
-      // test.deepEqual(zeroedData(zero), decrypted);
+      // Validate same encryption using both
+      test.deepEqual(data, data2);
+      // Fetch documents
+      var zero = testCases[ij].zero;
+      var key = util.hexStringToBinaryArray(testCases[ij].key);
+      var iv = util.hexStringToBinaryArray(testCases[ij].iv);
+      var stream = testCases[ij].stream;
+      var xor = util.hexStringToBinaryArray(testCases[ij].xor);
+      var pt = zeroedData(zero);
+            
+      // Encrypt the data and verify
+      var salsa = new Salsa20();
+      salsa.init(true, key, iv);
+      var encrypted = [];
+      
+      //
+      // Encrypt in chunks of data
+      //
+      for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
+        l += j;
+        if((k + l) > m) {
+          l = m - k;
+        }
+        
+        var crypted = pt.slice(k, k+l);
+        salsa.processBytes(crypted, 0);        
+        encrypted = encrypted.concat(crypted);
+        k += l;
+      }
+      
+      // test correctness of encryption
+      for(var i = 0; i < stream.length; i++) {
+        var chunk = util.hexStringToBinaryArray(stream[i].chunk);
+        var start = stream[i].start;
+        var len = stream[i].len;        
+        test.deepEqual(chunk, encrypted.slice(start, start + len));
+      }
+      
+      // Reset
+      salsa.init(true, key, iv);
+      encrypted = [];
+      
+      //
+      // Encrypt using the returnByte
+      //
+
+      // Encrypt in chunks of data
+      for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
+        l += j;
+        if((k + l) > m) {
+          l = m - k;
+        }
+        
+        var crypted = pt.slice(k, k + l);
+        for(var d = 0; d < crypted.length; d++) {
+          crypted[d] = salsa.returnByte(crypted[d]);
+        }
+      
+        encrypted = encrypted.concat(crypted);
+        k += l;
+      }
+      
+      // test correctness of encryption
+      for(var i = 0; i < stream.length; i++) {
+        var chunk = util.hexStringToBinaryArray(stream[i].chunk);
+        var start = stream[i].start;
+        var len = stream[i].len;
+        test.deepEqual(chunk, encrypted.slice(start, start + len));
+      }
+      
+      var out = new Array(xor.length);
+      for(var i = 0; i < xor.length; i++) out[i] = 0;
+      var bx = xorDigest(encrypted, out);
+      test.deepEqual(xor, bx);
+      
+      // Decrypt the data and verify
+      var salsa = new Salsa20();
+      salsa.init(false, key, iv);
+      var decrypted = [];
+      
+      // Decrypt in chunks of data
+      for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
+        l += j;
+        if((k + l) > m) {
+          l = m - k;
+        }
+
+        var unencrypted = encrypted.slice(k, k+l);
+        salsa.processBytes(unencrypted, 0);        
+        decrypted = decrypted.concat(unencrypted);
+        k += l;
+      }
+
+      // test correct decryption
+      test.deepEqual(zeroedData(zero), decrypted);
     }
       
     test.done();
