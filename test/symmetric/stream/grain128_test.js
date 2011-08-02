@@ -1,14 +1,10 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../../deps/nodeunit'),
   Grain128 = require('symmetric/stream/grain128').Grain128,
-  ECBMode = require('symmetric/block/ecb').ECBMode,
-  OFBMode = require('symmetric/block/ofb').OFBMode,
-  CBCMode = require('symmetric/block/cbc').CBCMode,
-  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
@@ -55,81 +51,36 @@ module.exports = testCase({
       var pt = pts[i];
       var ct = cts[i];
       // Encrypt using the purejs librarie's streaming api in 1024 blocks
-      var grain128 = new Grain128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+      var grain128 = new Grain128();
+      grain128.init(true, util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
       // Encrypt the data and verify
       var encrypted = [];
       var pt = util.hexStringToBinaryArray(pt);
       var zero = pt.length;
 
-      encrypted = grain128.encrypt(pt.slice(0))
+      var encrypted = pt.slice(0);
+      // Encrypt
+      grain128.processBytes(encrypted, 0);          
       test.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
 
-      var grain128 = new Grain128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-      var decrypted = grain128.decrypt(encrypted);
-      test.deepEqual(pt, decrypted)      
+      // Encrypt byte by byte
+      var encrypted = pt.slice(0);
+      grain128.init(true, util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+      
+      for(var j = 0; j < encrypted.length; j++) {
+        encrypted[j] = grain128.returnByte(encrypted[j]);
+      }
+      test.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
+
+      // Decrypt      
+      grain128.init(true, util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+      grain128.processBytes(encrypted, 0);
+      test.deepEqual(pt, encrypted)      
     }
 
     test.done();
   },
-  
-  "Streaming api test":function(test) {
-    var key = "a6a7251c1e72916d11c2cb214d3c252539121d8e234e652d651fa4c8cff88030";
-    // Encrypt using the pure js library    
-    var iv = "9e645a74e9e0a60d12341345";
-    // 5K of random data
-    var data = randomdata(1025);
-    // Blocksize
-    var blockSize = 64;
-    // Encrypt using the purejs librarie's streaming api in 1024 blocks
-    var grain128 = new Grain128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-    // Split the data
-    var numberOfBlocks = Math.floor(data.length / blockSize);
-    var leftOverbytes = data.length % blockSize;
-    var encryptedData = "";
-  
-    for(var i = 0; i < numberOfBlocks; i++) {
-      encryptedData += grain128.updateEncrypt(data.substr(i * blockSize, blockSize));
-    }    
-  
-    // If we have leftover bytes
-    if(leftOverbytes > 0) {
-      encryptedData += grain128.updateEncrypt(data.substr(data.length - leftOverbytes));      
-    }
-    // ok dokey let's finialize (ensuring we have the last padded block added)    
-    encryptedData += grain128.finalEncrypt();    
     
-    var grain128 = new Grain128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-    // One bang encryption
-    var oneTimeEncryptedData = grain128.encrypt(util.binaryStringToArray(data));
-    // Ensure stream is compatible with the onetime encryption    
-    test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
-      
-    // Convert onetime encrypted data to binary
-    oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
-      
-    // Clean cbc instance
-    grain128 = new Grain128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-    // Split the data
-    var numberOfBlocks = Math.floor(oneTimeEncryptedData.length / blockSize);
-    var leftOverbytes = oneTimeEncryptedData.length % blockSize;
-    var decryptedData = "";
-      
-    for(var i = 0; i < numberOfBlocks; i++) {
-      decryptedData += grain128.updateDecrypt(oneTimeEncryptedData.substr(i * blockSize, blockSize));
-    }    
-    
-    // Update with leftover bytes
-    if(leftOverbytes > 0) 
-      decryptedData += grain128.updateDecrypt(oneTimeEncryptedData.substr(numberOfBlocks*blockSize));          
-      
-    // ok dokey let's finialize (ensuring we have the last padded block added)    
-    decryptedData += grain128.finalDecrypt();
-      
-    // Ensure stream is compatible with the onetime encryption    
-    test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-    test.done();
-  },      
-  
   "Test Grain128 Official Vectors":function(test) {      
     // Test vectors
     for(var ij = 0; ij < testCases.length; ij++) {
@@ -141,7 +92,8 @@ module.exports = testCase({
       var pt = zeroedData(zero);
             
       // Encrypt the data and verify
-      var grainv1 = new Grain128(key, iv);
+      var grainv1 = new Grain128();
+      grainv1.init(true, key, iv);
       var encrypted = [];
       
       // Encrypt in chunks of data
@@ -150,7 +102,8 @@ module.exports = testCase({
         if((k + l) > m) {
           l = m - k;
         }
-        var crypted = grainv1.encrypt(pt.slice(k, k+l));
+        var crypted = pt.slice(k, k+l);
+        grainv1.processBytes(crypted, 0);        
         encrypted = encrypted.concat(crypted);
         k += l;
       }
@@ -163,13 +116,42 @@ module.exports = testCase({
         test.deepEqual(chunk, encrypted.slice(start, start + len));
       }
       
+      // Encrypt using the returnByte value
+      var encrypted = [];
+      grainv1.init(true, key, iv);
+
+      // Encrypt in chunks of data
+      for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
+        l += j;
+        if((k + l) > m) {
+          l = m - k;
+        }
+
+        var crypted = pt.slice(k, k+l);        
+        for(var jj = 0; jj < crypted.length; jj++) {
+          crypted[jj] = grainv1.returnByte(crypted[jj]);
+        }
+        
+        encrypted = encrypted.concat(crypted);
+        k += l;
+      }
+      
+      // test correctness of encryption
+      for(var i = 0; i < stream.length; i++) {
+        var chunk = util.hexStringToBinaryArray(stream[i].chunk);
+        var start = stream[i].start;
+        var len = stream[i].len;
+        test.deepEqual(chunk, encrypted.slice(start, start + len));
+      }      
+      
       var out = new Array(xor.length);
       for(var i = 0; i < xor.length; i++) out[i] = 0;
       var bx = xorDigest(encrypted, out);
       test.deepEqual(xor, bx);
       
       // Decrypt the data and verify
-      var grainv1 = new Grain128(key, iv);
+      var grainv1 = new Grain128();
+      grainv1.init(false, key, iv);
       var decrypted = [];
       
       // Decrypt in chunks of data
@@ -178,7 +160,8 @@ module.exports = testCase({
         if((k + l) > m) {
           l = m - k;
         }
-        var uncrypted = grainv1.decrypt(encrypted.slice(k, k+l));
+        var uncrypted = encrypted.slice(k, k+l);
+        grainv1.processBytes(uncrypted);
         decrypted = decrypted.concat(uncrypted);
         k += l;
       }
@@ -187,7 +170,65 @@ module.exports = testCase({
     }
       
     test.done();
-  },    
+  },  
+  
+  // "Streaming api test":function(test) {
+  //   var key = "a6a7251c1e72916d11c2cb214d3c252539121d8e234e652d651fa4c8cff88030";
+  //   // Encrypt using the pure js library    
+  //   var iv = "9e645a74e9e0a60d12341345";
+  //   // 5K of random data
+  //   var data = randomdata(1025);
+  //   // Blocksize
+  //   var blockSize = 64;
+  //   // Encrypt using the purejs librarie's streaming api in 1024 blocks
+  //   var grain128 = new Grain128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  //   // Split the data
+  //   var numberOfBlocks = Math.floor(data.length / blockSize);
+  //   var leftOverbytes = data.length % blockSize;
+  //   var encryptedData = "";
+  // 
+  //   for(var i = 0; i < numberOfBlocks; i++) {
+  //     encryptedData += grain128.updateEncrypt(data.substr(i * blockSize, blockSize));
+  //   }    
+  // 
+  //   // If we have leftover bytes
+  //   if(leftOverbytes > 0) {
+  //     encryptedData += grain128.updateEncrypt(data.substr(data.length - leftOverbytes));      
+  //   }
+  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
+  //   encryptedData += grain128.finalEncrypt();    
+  //   
+  //   var grain128 = new Grain128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  //   // One bang encryption
+  //   var oneTimeEncryptedData = grain128.encrypt(util.binaryStringToArray(data));
+  //   // Ensure stream is compatible with the onetime encryption    
+  //   test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+  //     
+  //   // Convert onetime encrypted data to binary
+  //   oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
+  //     
+  //   // Clean cbc instance
+  //   grain128 = new Grain128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  //   // Split the data
+  //   var numberOfBlocks = Math.floor(oneTimeEncryptedData.length / blockSize);
+  //   var leftOverbytes = oneTimeEncryptedData.length % blockSize;
+  //   var decryptedData = "";
+  //     
+  //   for(var i = 0; i < numberOfBlocks; i++) {
+  //     decryptedData += grain128.updateDecrypt(oneTimeEncryptedData.substr(i * blockSize, blockSize));
+  //   }    
+  //   
+  //   // Update with leftover bytes
+  //   if(leftOverbytes > 0) 
+  //     decryptedData += grain128.updateDecrypt(oneTimeEncryptedData.substr(numberOfBlocks*blockSize));          
+  //     
+  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
+  //   decryptedData += grain128.finalDecrypt();
+  //     
+  //   // Ensure stream is compatible with the onetime encryption    
+  //   test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+  //   test.done();
+  // },          
 });
 
 var testCases = [
