@@ -74,6 +74,35 @@ module.exports = testCase({
         test.deepEqual(chunk, encrypted.slice(start, start + len));
       }
       
+      // Encrypt using the returnByte value
+      var encrypted = [];
+      hc128.init(true, key, iv);
+
+      // Encrypt in chunks of data
+      for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
+        l += j;
+        if((k + l) > m) {
+          l = m - k;
+        }
+
+        var crypted = pt.slice(k, k+l);        
+        for(var jj = 0; jj < crypted.length; jj++) {
+          crypted[jj] = hc128.returnByte(crypted[jj]);
+        }
+        
+        encrypted = encrypted.concat(crypted);
+        k += l;
+      }
+      
+      // test correctness of encryption
+      for(var i = 0; i < stream.length; i++) {
+        var chunk = util.hexStringToBinaryArray(stream[i].chunk);
+        var start = stream[i].start;
+        var len = stream[i].len;
+        test.deepEqual(chunk, encrypted.slice(start, start + len));
+      }
+            
+      // Decrypt
       var out = new Array(xor.length);
       for(var i = 0; i < xor.length; i++) out[i] = 0;
       var bx = xorDigest(encrypted, out);

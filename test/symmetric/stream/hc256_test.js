@@ -1,14 +1,10 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../../deps/nodeunit'),
   HC256 = require('symmetric/stream/hc256').HC256,
-  ECBMode = require('symmetric/block/ecb').ECBMode,
-  OFBMode = require('symmetric/block/ofb').OFBMode,
-  CBCMode = require('symmetric/block/cbc').CBCMode,
-  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
@@ -54,7 +50,8 @@ module.exports = testCase({
       var pt = zeroedData(zero);
             
       // Encrypt the data and verify
-      var hc256 = new HC256(key, iv);
+      var hc256 = new HC256();
+      hc256.init(true, key, iv);
       var encrypted = [];
       
       // Encrypt in chunks of data
@@ -63,7 +60,9 @@ module.exports = testCase({
         if((k + l) > m) {
           l = m - k;
         }
-        var crypted = hc256.encrypt(pt.slice(k, k+l));
+
+        var crypted = pt.slice(k, k+l);
+        hc256.processBytes(crypted, 0);        
         encrypted = encrypted.concat(crypted);
         k += l;
       }
@@ -76,13 +75,42 @@ module.exports = testCase({
         test.deepEqual(chunk, encrypted.slice(start, start + len));
       }
       
+      // Encrypt using the returnByte value
+      var encrypted = [];
+      hc256.init(true, key, iv);
+
+      // Encrypt in chunks of data
+      for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
+        l += j;
+        if((k + l) > m) {
+          l = m - k;
+        }
+
+        var crypted = pt.slice(k, k+l);        
+        for(var jj = 0; jj < crypted.length; jj++) {
+          crypted[jj] = hc256.returnByte(crypted[jj]);
+        }
+        
+        encrypted = encrypted.concat(crypted);
+        k += l;
+      }
+      
+      // test correctness of encryption
+      for(var i = 0; i < stream.length; i++) {
+        var chunk = util.hexStringToBinaryArray(stream[i].chunk);
+        var start = stream[i].start;
+        var len = stream[i].len;
+        test.deepEqual(chunk, encrypted.slice(start, start + len));
+      }      
+      
       var out = new Array(xor.length);
       for(var i = 0; i < xor.length; i++) out[i] = 0;
       var bx = xorDigest(encrypted, out);
       test.deepEqual(xor, bx);
       
       // Decrypt the data and verify
-      var hc256 = new HC256(key, iv);
+      var hc256 = new HC256();
+      hc256.init(false, key, iv);
       var decrypted = [];
       
       // Decrypt in chunks of data
@@ -91,7 +119,8 @@ module.exports = testCase({
         if((k + l) > m) {
           l = m - k;
         }
-        var uncrypted = hc256.decrypt(encrypted.slice(k, k+l));
+        var uncrypted = encrypted.slice(k, k+l);
+        hc256.processBytes(uncrypted);
         decrypted = decrypted.concat(uncrypted);
         k += l;
       }
@@ -102,63 +131,63 @@ module.exports = testCase({
     test.done();
   },  
   
-  "Streaming api test":function(test) {
-    var key = "00002000000000000000000000000000";
-    // Encrypt using the pure js library    
-    var iv = "00002000000000000000000000000000";
-    // 5K of random data
-    var data = randomdata(1025);
-    // Blocksize
-    var blockSize = 64;
-    // Encrypt using the purejs librarie's streaming api in 1024 blocks
-    var hc256 = new HC256(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-    // Split the data
-    var numberOfBlocks = Math.floor(data.length / blockSize);
-    var leftOverbytes = data.length % blockSize;
-    var encryptedData = "";
-  
-    for(var i = 0; i < numberOfBlocks; i++) {
-      encryptedData += hc256.updateEncrypt(data.substr(i * blockSize, blockSize));
-    }    
-  
-    // If we have leftover bytes
-    if(leftOverbytes > 0) {
-      encryptedData += hc256.updateEncrypt(data.substr(data.length - leftOverbytes));      
-    }
-    // ok dokey let's finialize (ensuring we have the last padded block added)    
-    encryptedData += hc256.finalEncrypt();    
-    
-    var hc256 = new HC256(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-    // One bang encryption
-    var oneTimeEncryptedData = hc256.encrypt(util.binaryStringToArray(data));
-    // Ensure stream is compatible with the onetime encryption    
-    test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
-      
-    // Convert onetime encrypted data to binary
-    oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
-      
-    // Clean cbc instance
-    hc256 = new HC256(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-    // Split the data
-    var numberOfBlocks = Math.floor(oneTimeEncryptedData.length / blockSize);
-    var leftOverbytes = oneTimeEncryptedData.length % blockSize;
-    var decryptedData = "";
-      
-    for(var i = 0; i < numberOfBlocks; i++) {
-      decryptedData += hc256.updateDecrypt(oneTimeEncryptedData.substr(i * blockSize, blockSize));
-    }    
-    
-    // Update with leftover bytes
-    if(leftOverbytes > 0) 
-      decryptedData += hc256.updateDecrypt(oneTimeEncryptedData.substr(numberOfBlocks*blockSize));          
-      
-    // ok dokey let's finialize (ensuring we have the last padded block added)    
-    decryptedData += hc256.finalDecrypt();
-      
-    // Ensure stream is compatible with the onetime encryption    
-    test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-    test.done();
-  },      
+  // "Streaming api test":function(test) {
+  //   var key = "00002000000000000000000000000000";
+  //   // Encrypt using the pure js library    
+  //   var iv = "00002000000000000000000000000000";
+  //   // 5K of random data
+  //   var data = randomdata(1025);
+  //   // Blocksize
+  //   var blockSize = 64;
+  //   // Encrypt using the purejs librarie's streaming api in 1024 blocks
+  //   var hc256 = new HC256(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  //   // Split the data
+  //   var numberOfBlocks = Math.floor(data.length / blockSize);
+  //   var leftOverbytes = data.length % blockSize;
+  //   var encryptedData = "";
+  // 
+  //   for(var i = 0; i < numberOfBlocks; i++) {
+  //     encryptedData += hc256.updateEncrypt(data.substr(i * blockSize, blockSize));
+  //   }    
+  // 
+  //   // If we have leftover bytes
+  //   if(leftOverbytes > 0) {
+  //     encryptedData += hc256.updateEncrypt(data.substr(data.length - leftOverbytes));      
+  //   }
+  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
+  //   encryptedData += hc256.finalEncrypt();    
+  //   
+  //   var hc256 = new HC256(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  //   // One bang encryption
+  //   var oneTimeEncryptedData = hc256.encrypt(util.binaryStringToArray(data));
+  //   // Ensure stream is compatible with the onetime encryption    
+  //   test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+  //     
+  //   // Convert onetime encrypted data to binary
+  //   oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
+  //     
+  //   // Clean cbc instance
+  //   hc256 = new HC256(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  //   // Split the data
+  //   var numberOfBlocks = Math.floor(oneTimeEncryptedData.length / blockSize);
+  //   var leftOverbytes = oneTimeEncryptedData.length % blockSize;
+  //   var decryptedData = "";
+  //     
+  //   for(var i = 0; i < numberOfBlocks; i++) {
+  //     decryptedData += hc256.updateDecrypt(oneTimeEncryptedData.substr(i * blockSize, blockSize));
+  //   }    
+  //   
+  //   // Update with leftover bytes
+  //   if(leftOverbytes > 0) 
+  //     decryptedData += hc256.updateDecrypt(oneTimeEncryptedData.substr(numberOfBlocks*blockSize));          
+  //     
+  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
+  //   decryptedData += hc256.finalDecrypt();
+  //     
+  //   // Ensure stream is compatible with the onetime encryption    
+  //   test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+  //   test.done();
+  // },      
 });
 
 var testCases1 = [
