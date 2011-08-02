@@ -1,14 +1,10 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../../deps/nodeunit'),
   HC128 = require('symmetric/stream/hc128').HC128,
-  ECBMode = require('symmetric/block/ecb').ECBMode,
-  OFBMode = require('symmetric/block/ofb').OFBMode,
-  CBCMode = require('symmetric/block/cbc').CBCMode,
-  CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
@@ -41,7 +37,7 @@ module.exports = testCase({
   tearDown: function(callback) {
     callback();        
   },
-
+  
   "Test HC128 Vectors":function(test) {      
     // Test vectors
     for(var ij = 0; ij < testCases.length; ij++) {
@@ -53,7 +49,8 @@ module.exports = testCase({
       var pt = zeroedData(zero);
             
       // Encrypt the data and verify
-      var hc128 = new HC128(key, iv);
+      var hc128 = new HC128();
+      hc128.init(true, key, iv);
       var encrypted = [];
       
       // Encrypt in chunks of data
@@ -62,7 +59,9 @@ module.exports = testCase({
         if((k + l) > m) {
           l = m - k;
         }
-        var crypted = hc128.encrypt(pt.slice(k, k+l));
+
+        var crypted = pt.slice(k, k+l);
+        hc128.processBytes(crypted, 0);        
         encrypted = encrypted.concat(crypted);
         k += l;
       }
@@ -81,7 +80,8 @@ module.exports = testCase({
       test.deepEqual(xor, bx);
       
       // Decrypt the data and verify
-      var hc128 = new HC128(key, iv);
+      var hc128 = new HC128();
+      hc128.init(false, key, iv);
       var decrypted = [];
       
       // Decrypt in chunks of data
@@ -90,7 +90,8 @@ module.exports = testCase({
         if((k + l) > m) {
           l = m - k;
         }
-        var uncrypted = hc128.decrypt(encrypted.slice(k, k+l));
+        var uncrypted = encrypted.slice(k, k+l);
+        hc128.processBytes(uncrypted);
         decrypted = decrypted.concat(uncrypted);
         k += l;
       }
@@ -101,63 +102,64 @@ module.exports = testCase({
     test.done();
   },  
   
-  "Streaming api test":function(test) {
-    var key = "DC51C3AC3BFC62F12E3D36FE91281329";
-    // Encrypt using the pure js library    
-    var iv = "0001020304050607";
-    // 5K of random data
-    var data = randomdata(1025);
-    // Blocksize
-    var blockSize = 64;
-    // Encrypt using the purejs librarie's streaming api in 1024 blocks
-    var hc128 = new HC128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-    // Split the data
-    var numberOfBlocks = Math.floor(data.length / blockSize);
-    var leftOverbytes = data.length % blockSize;
-    var encryptedData = "";
   
-    for(var i = 0; i < numberOfBlocks; i++) {
-      encryptedData += hc128.updateEncrypt(data.substr(i * blockSize, blockSize));
-    }    
-  
-    // If we have leftover bytes
-    if(leftOverbytes > 0) {
-      encryptedData += hc128.updateEncrypt(data.substr(data.length - leftOverbytes));      
-    }
-    // ok dokey let's finialize (ensuring we have the last padded block added)    
-    encryptedData += hc128.finalEncrypt();    
-    
-    var hc128 = new HC128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-    // One bang encryption
-    var oneTimeEncryptedData = hc128.encrypt(util.binaryStringToArray(data));
-    // Ensure stream is compatible with the onetime encryption    
-    test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
-      
-    // Convert onetime encrypted data to binary
-    oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
-      
-    // Clean cbc instance
-    hc128 = new HC128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-    // Split the data
-    var numberOfBlocks = Math.floor(oneTimeEncryptedData.length / blockSize);
-    var leftOverbytes = oneTimeEncryptedData.length % blockSize;
-    var decryptedData = "";
-      
-    for(var i = 0; i < numberOfBlocks; i++) {
-      decryptedData += hc128.updateDecrypt(oneTimeEncryptedData.substr(i * blockSize, blockSize));
-    }    
-    
-    // Update with leftover bytes
-    if(leftOverbytes > 0) 
-      decryptedData += hc128.updateDecrypt(oneTimeEncryptedData.substr(numberOfBlocks*blockSize));          
-      
-    // ok dokey let's finialize (ensuring we have the last padded block added)    
-    decryptedData += hc128.finalDecrypt();
-      
-    // Ensure stream is compatible with the onetime encryption    
-    test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
-    test.done();
-  },      
+  // "Streaming api test":function(test) {
+  //   var key = "DC51C3AC3BFC62F12E3D36FE91281329";
+  //   // Encrypt using the pure js library    
+  //   var iv = "0001020304050607";
+  //   // 5K of random data
+  //   var data = randomdata(1025);
+  //   // Blocksize
+  //   var blockSize = 64;
+  //   // Encrypt using the purejs librarie's streaming api in 1024 blocks
+  //   var hc128 = new HC128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  //   // Split the data
+  //   var numberOfBlocks = Math.floor(data.length / blockSize);
+  //   var leftOverbytes = data.length % blockSize;
+  //   var encryptedData = "";
+  // 
+  //   for(var i = 0; i < numberOfBlocks; i++) {
+  //     encryptedData += hc128.updateEncrypt(data.substr(i * blockSize, blockSize));
+  //   }    
+  // 
+  //   // If we have leftover bytes
+  //   if(leftOverbytes > 0) {
+  //     encryptedData += hc128.updateEncrypt(data.substr(data.length - leftOverbytes));      
+  //   }
+  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
+  //   encryptedData += hc128.finalEncrypt();    
+  //   
+  //   var hc128 = new HC128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  //   // One bang encryption
+  //   var oneTimeEncryptedData = hc128.encrypt(util.binaryStringToArray(data));
+  //   // Ensure stream is compatible with the onetime encryption    
+  //   test.deepEqual(oneTimeEncryptedData, util.binaryStringToArray(encryptedData));
+  //     
+  //   // Convert onetime encrypted data to binary
+  //   oneTimeEncryptedData = util.arrayToBinaryString(oneTimeEncryptedData);
+  //     
+  //   // Clean cbc instance
+  //   hc128 = new HC128(util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
+  //   // Split the data
+  //   var numberOfBlocks = Math.floor(oneTimeEncryptedData.length / blockSize);
+  //   var leftOverbytes = oneTimeEncryptedData.length % blockSize;
+  //   var decryptedData = "";
+  //     
+  //   for(var i = 0; i < numberOfBlocks; i++) {
+  //     decryptedData += hc128.updateDecrypt(oneTimeEncryptedData.substr(i * blockSize, blockSize));
+  //   }    
+  //   
+  //   // Update with leftover bytes
+  //   if(leftOverbytes > 0) 
+  //     decryptedData += hc128.updateDecrypt(oneTimeEncryptedData.substr(numberOfBlocks*blockSize));          
+  //     
+  //   // ok dokey let's finialize (ensuring we have the last padded block added)    
+  //   decryptedData += hc128.finalDecrypt();
+  //     
+  //   // Ensure stream is compatible with the onetime encryption    
+  //   test.deepEqual(util.binaryStringToArray(decryptedData), util.binaryStringToArray(data));
+  //   test.done();
+  // },      
 });
 
 var testCases = [
