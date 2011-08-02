@@ -1,14 +1,14 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../../deps/nodeunit'),
   Sosemanuk = require('symmetric/stream/sosemanuk').Sosemanuk,
-  ECBMode = require('symmetric/block/ecb').ECBMode,
-  OFBMode = require('symmetric/block/ofb').OFBMode,
-  CBCMode = require('symmetric/block/cbc').CBCMode,
-  CFBMode = require('symmetric/block/cfb').CFBMode,
+  // ECBMode = require('symmetric/block/ecb').ECBMode,
+  // OFBMode = require('symmetric/block/ofb').OFBMode,
+  // CBCMode = require('symmetric/block/cbc').CBCMode,
+  // CFBMode = require('symmetric/block/cfb').CFBMode,
   util = require('utils'),
   Long = require('long').Long,
   crypto = require('crypto');
@@ -42,15 +42,9 @@ module.exports = testCase({
     callback();        
   },
 
-  "Test Simple Sosemanuk Vector":function(test) {      
-    var testCases = testCases6432.concat(testCases6464).concat(testCases6480).concat(testCases64128)
-      .concat(testCases8032).concat(testCases8064).concat(testCases8080).concat(testCases80128)
-      .concat(testCases12832).concat(testCases12880).concat(testCases128128)
-      .concat(testCases24032).concat(testCases24064).concat(testCases24080).concat(testCases240128)
-      .concat(testCases25632).concat(testCases25664).concat(testCases25680).concat(testCases256128);
-    
+  "Test Simple Sosemanuk Vector":function(test) {          
     // Test vectors
-    for(var ij = 0; ij < testCases.length; ij++) {
+    for(var ij = 0; ij < 1; ij++) {
       var zero = 160;
       var key = util.hexStringToBinaryArray("A7C083FEB7");
       var iv = util.hexStringToBinaryArray("00112233445566778899AABBCCDDEEFF");
@@ -58,23 +52,47 @@ module.exports = testCase({
       var ct = util.hexStringToBinaryArray("FE81D2162C9A100D04895C454A77515BBE6A431A935CB90E2221EBB7EF502328943539492EFF6310C871054C2889CC728F82E86B1AFFF4334B6127A13A155C75151630BD482EB673FF5DB477FA6C53EBE1A4EC38C23C5400C315455D93A2ACED9598604727FA340D5F2A8BD757B77833F74BD2BC049313C80616B4A06268AE350DB92EEC4FA56C171374A67A80C006D0EAD048CE7B640F17D3D5A62D1F251C21");
             
       // Encrypt the data and verify
-      var sosemanuk = new Sosemanuk(key, iv);
-      var encrypted = sosemanuk.encrypt(pt);
+      var sosemanuk = new Sosemanuk();
+      sosemanuk.init(true, key, iv);
+      
+      var encrypted = pt.slice(0);
+      sosemanuk.processBytes(encrypted, 0);
       test.deepEqual(ct, encrypted);
 
-      // Encrypt the data and verify
-      var sosemanuk = new Sosemanuk(key, iv);
-      var decrypted = sosemanuk.decrypt(encrypted);            
-      test.deepEqual(zeroedData(zero), decrypted);
+      var sosemanuk = new Sosemanuk();
+      sosemanuk.init(true, key, iv);
+      // Encrypt by single byte
+      var encrypted = pt.slice(0);
+      for(var i = 0; i < encrypted.length; i++) {
+        encrypted[i] = sosemanuk.returnByte(encrypted[i]);
+      }
+
+      test.deepEqual(ct, encrypted);
+
+      // Decrypt the data
+      var sosemanuk = new Sosemanuk();
+      sosemanuk.init(false, key, iv);
+      
+      var decrypted = encrypted.slice(0);
+      sosemanuk.processBytes(decrypted);    
+      test.deepEqual(pt, decrypted)    
     }
       
     test.done();
   },  
   
-  
   // "Test Sosemanuk Vectors":function(test) {      
+  //   var testCases = testCases6432;
+  //   var testCases = testCases6432.concat(testCases6464).concat(testCases6480).concat(testCases64128)
+  //     .concat(testCases8032).concat(testCases8064).concat(testCases8080).concat(testCases80128)
+  //     .concat(testCases12832).concat(testCases12880).concat(testCases128128)
+  //     .concat(testCases24032).concat(testCases24064).concat(testCases24080).concat(testCases240128)
+  //     .concat(testCases25632).concat(testCases25664).concat(testCases25680).concat(testCases256128);
+  //   
   //   // Test vectors
-  //   for(var ij = 0; ij < testCases.length; ij++) {
+  //   for(var ij = 0; ij < testCases.length; ij++) {      
+  //     debug(" testing vector [" + ij + "] of [" + testCases.length + "]");
+  //     
   //     var zero = testCases[ij].zero;
   //     var key = util.hexStringToBinaryArray(testCases[ij].key);
   //     var iv = util.hexStringToBinaryArray(testCases[ij].iv);
@@ -83,7 +101,8 @@ module.exports = testCase({
   //     var pt = zeroedData(zero);
   //           
   //     // Encrypt the data and verify
-  //     var sosemanuk = new Sosemanuk(key, iv);
+  //     var sosemanuk = new Sosemanuk();
+  //     sosemanuk.init(true, key, iv);
   //     var encrypted = [];
   //     
   //     // Encrypt in chunks of data
@@ -92,45 +111,52 @@ module.exports = testCase({
   //       if((k + l) > m) {
   //         l = m - k;
   //       }
-  //       var crypted = sosemanuk.encrypt(pt.slice(k, k+l));
+  //       
+  //       var crypted = pt.slice(k, k+l);
+  //       sosemanuk.processBytes(crypted, 0);        
   //       encrypted = encrypted.concat(crypted);
   //       k += l;
   //     }
   //     
-  //     // // test correctness of encryption
-  //     // for(var i = 0; i < stream.length; i++) {
-  //     //   var chunk = util.hexStringToBinaryArray(stream[i].chunk);
-  //     //   var start = stream[i].start;
-  //     //   var len = stream[i].len;
-  //     //   test.deepEqual(chunk, encrypted.slice(start, start + len));
-  //     // }
-  //     // 
-  //     // // var bx = new Array(encrypted.length);
-  //     // var out = new Array(xor.length);
-  //     // for(var i = 0; i < xor.length; i++) out[i] = 0;
-  //     // var bx = xorDigest(encrypted, out);
-  //     // test.deepEqual(xor, bx);
-  //     // 
-  //     // // Decrypt the data and verify
-  //     // var sosemanuk = new Sosemanuk(key, iv);
-  //     // var decrypted = [];
-  //     // 
-  //     // // Decrypt in chunks of data
-  //     // for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
-  //     //   l += j;
-  //     //   if((k + l) > m) {
-  //     //     l = m - k;
-  //     //   }
-  //     //   var uncrypted = sosemanuk.decrypt(encrypted.slice(k, k+l));
-  //     //   decrypted = decrypted.concat(uncrypted);
-  //     //   k += l;
-  //     // }
-  //     // // test correct decryption
-  //     // test.deepEqual(pt, decrypted);
+  //     // test correctness of encryption
+  //     for(var i = 0; i < stream.length; i++) {
+  //       var chunk = util.hexStringToBinaryArray(stream[i].chunk);
+  //       var start = stream[i].start;
+  //       var len = stream[i].len;
+  //       test.deepEqual(chunk, encrypted.slice(start, start + len));
+  //     }
+  //     
+  //     var out = new Array(xor.length);
+  //     for(var i = 0; i < xor.length; i++) out[i] = 0;
+  //     var bx = xorDigest(encrypted, out);
+  //     test.deepEqual(xor, bx);
+  //     
+  //     // Decrypt the data and verify
+  //     var sosemanuk = new Sosemanuk();
+  //     sosemanuk.init(false, key, iv);
+  //     var decrypted = [];
+  //     
+  //     // Decrypt in chunks of data
+  //     for(var j = 0, k = 0, l = 64, m = zero; k < m; j++) {
+  //       l += j;
+  //       if((k + l) > m) {
+  //         l = m - k;
+  //       }
+  //       
+  //       var uncrypted = encrypted.slice(k, k+l);
+  //       sosemanuk.processBytes(uncrypted);
+  //       decrypted = decrypted.concat(uncrypted);
+  //       k += l;
+  //     }
+  // 
+  //     // test correct decryption
+  //     test.deepEqual(pt, decrypted);
   //   }
   //     
   //   test.done();
   // },  
+
+
 
   // "Streaming api test":function(test) {
   //   var key = "DC51C3AC3BFC62F12E3D36FE91281329";
