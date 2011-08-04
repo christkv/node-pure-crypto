@@ -46,13 +46,13 @@ module.exports = testCase({
       // Encrypt data
       var cipher = new RC5();
       cipher.init(true, key, 12);
-      cipher.processBlock(data, 0);  // Destructive to save memory      
+      test.equal(8, cipher.processBlock(data, 0, data, 0));  // Destructive to save memory      
       test.deepEqual(ct, data);
       
       // Initialize cipher for decryption
       cipher.init(false, key, 12);
       // Decrypt the encrypted data and compare
-      cipher.processBlock(data, 0);
+      test.equal(8, cipher.processBlock(data, 0, data, 0));
       // Check valid decrypted data
       test.deepEqual(hexStringToBinaryArray(ptsSet1[i]), data);
     }
@@ -66,13 +66,13 @@ module.exports = testCase({
       // Encrypt data
       var cipher = new RC5();
       cipher.init(true, key, 12);
-      cipher.processBlock(data, 0);  // Destructive to save memory      
+      test.equal(8, cipher.processBlock(data, 0, data, 0));  // Destructive to save memory      
       test.deepEqual(ct, data);
       
       // Initialize cipher for decryption
       cipher.init(false, key, 12);
       // Decrypt the encrypted data and compare
-      cipher.processBlock(data, 0);
+      test.equal(8, cipher.processBlock(data, 0, data, 0));
       // Check valid decrypted data
       test.deepEqual(hexStringToBinaryArray(ptsSet2[i]), data);
     }

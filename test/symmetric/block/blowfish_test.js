@@ -66,13 +66,13 @@ module.exports = testCase({
       // Encrypt data
       var bf = new BlowFish();
       bf.init(true, key);
-      bf.processBlock(data, 0);  // Destructive to save memory      
+      test.equal(8, bf.processBlock(data, 0, data, 0));  // Destructive to save memory      
       test.deepEqual(ct, data);
       
       // Initialize cipher for decryption
       bf.init(false, key);
       // Decrypt the encrypted data and compare
-      bf.processBlock(data, 0);
+      test.equal(8, bf.processBlock(data, 0, data, 0));
       // Check valid decrypted data
       test.deepEqual(hexStringToBinaryArray(pts[i]), data);
     }

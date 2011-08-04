@@ -67,13 +67,13 @@ module.exports = testCase({
       // Encrypt data
       var cipher = new Gost28147();
       cipher.init(true, key, sbox);
-      cipher.processBlock(data, 0);  // Destructive to save memory            
+      test.equal(8, cipher.processBlock(data, 0, data, 0));  // Destructive to save memory            
       test.deepEqual(ct, data);
       
       // Initialize cipher for decryption
       cipher.init(false, key, sbox);
       // Decrypt the encrypted data and compare
-      cipher.processBlock(data, 0);
+      test.equal(8, cipher.processBlock(data, 0, data, 0));
       // Check valid decrypted data
       test.deepEqual(hexStringToBinaryArray(pts[i]), data);
     }

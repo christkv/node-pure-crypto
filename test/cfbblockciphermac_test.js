@@ -1,9 +1,9 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../deps/nodeunit'),
   // CFBBlockCipherMac = require('mac/hmac').CFBBlockCipherMac,
   crypto = require('crypto'),
   DESKey = require('symmetric/block/des').DESKey,
@@ -41,8 +41,9 @@ module.exports = testCase({
       var message = util.hexStringToBinaryArray(messages[i]);
       var output = util.hexStringToBinaryArray(outputs[i]);
 
-      var cipher = new DESKey(key);
+      var cipher = new DESKey();
       var blockCipher = new CFBBlockCipherMac(cipher, iv);
+      blockCipher.init(key);
       blockCipher.update(message);
       var digest = blockCipher.digest('array');
       test.deepEqual(output, digest);          

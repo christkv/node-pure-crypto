@@ -55,7 +55,7 @@ module.exports = testCase({
     var encrypted = pt.slice(0);
     
     for(var i = 0; i < pt.length; i+=16) {
-      cbc.processBlock(encrypted, i);
+      cbc.processBlock(encrypted, i, encrypted, i);
     }
     
     test.deepEqual(ct, encrypted);
@@ -66,7 +66,7 @@ module.exports = testCase({
     cbc.init(false, iv, key);
 
     for(var i = 0; i < encrypted.length; i+=16) {
-      cbc.processBlock(encrypted, i);
+      cbc.processBlock(encrypted, i, encrypted, i);
     }
 
     test.deepEqual(pt, encrypted);      
@@ -94,7 +94,7 @@ module.exports = testCase({
     var encrypted = pt.slice(0);
     
     for(var i = 0; i < pt.length; i+=16) {
-      cbc.processBlock(encrypted, i);
+      cbc.processBlock(encrypted, i, encrypted, i);
     }
     
     test.deepEqual(ct, encrypted);
@@ -105,7 +105,7 @@ module.exports = testCase({
     cbc.init(false, iv, key);
 
     for(var i = 0; i < encrypted.length; i+=16) {
-      cbc.processBlock(encrypted, i);
+      cbc.processBlock(encrypted, i, encrypted, i);
     }
 
     test.deepEqual(pt, encrypted);      
@@ -135,7 +135,7 @@ module.exports = testCase({
     var encrypted = pt.slice(0);
     
     for(var i = 0; i < pt.length; i+=16) {
-      cbc.processBlock(encrypted, i);
+      cbc.processBlock(encrypted, i, encrypted, i);
     }
     
     test.deepEqual(ct, encrypted);
@@ -146,7 +146,7 @@ module.exports = testCase({
     cbc.init(false, iv, key);
 
     for(var i = 0; i < encrypted.length; i+=16) {
-      cbc.processBlock(encrypted, i);
+      cbc.processBlock(encrypted, i, encrypted, i);
     }
 
     test.deepEqual(pt, encrypted);      
@@ -177,7 +177,7 @@ module.exports = testCase({
       var encrypted = pt.slice(0);
 
       for(var j = 0; j < encrypted.length; j+=16) {
-       cbc.processBlock(encrypted, j);       
+       cbc.processBlock(encrypted, j, encrypted, j);       
       }      
       test.deepEqual(ct.slice(0, encrypted.length), encrypted)
 
@@ -186,7 +186,7 @@ module.exports = testCase({
       cbc.init(false, iv, key)
 
       for(var j = 0; j < encrypted.length; j+=16) {
-       cbc.processBlock(encrypted, j);       
+       cbc.processBlock(encrypted, j, encrypted, j);       
       }
       test.deepEqual(pt, encrypted);
     }
@@ -225,7 +225,7 @@ module.exports = testCase({
       var encrypted = pt.slice(0);
 
       for(var j = 0; j < encrypted.length; j+=8) {
-       cbc.processBlock(encrypted, j);       
+       cbc.processBlock(encrypted, j, encrypted, j);       
       }      
 
       // Decrypt
@@ -233,7 +233,7 @@ module.exports = testCase({
       cbc.init(false, iv, key)
 
       for(var j = 0; j < encrypted.length; j+=8) {
-       cbc.processBlock(encrypted, j);       
+       cbc.processBlock(encrypted, j, encrypted, j);       
       }
       test.deepEqual(pt, encrypted);
       test.done();

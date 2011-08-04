@@ -64,7 +64,7 @@ module.exports = testCase({
       var treeFish = new TreeFish();
       treeFish.init(true, key, tweak);
       // Encrypt data
-      treeFish.processBlock(data, 0);
+      test.equal(32, treeFish.processBlock(data, 0, data, 0));
       
       // Create inputdata
       var b0 = Long.fromString(pts[i].slice(0, 16), 16);
@@ -96,7 +96,7 @@ module.exports = testCase({
       // Decrypt data and verify
       treeFish = new TreeFish();
       treeFish.init(false, key, tweak);      
-      treeFish.processBlock(data, 0);     
+      test.equal(32, treeFish.processBlock(data, 0, data, 0));     
       // Equal 
       test.deepEqual(inputdata, data);
     }
@@ -124,7 +124,7 @@ module.exports = testCase({
       // Encrypt the data and verify
       var treeFish = new TreeFish();
       treeFish.init(true, key, tweak);
-      treeFish.processBlock(data, 0);
+      test.equal(64, treeFish.processBlock(data, 0, data, 0));
   
       // Create inputdata
       var b0 = Long.fromString(pts[i].slice(0, 16), 16);
@@ -164,7 +164,7 @@ module.exports = testCase({
       // Decrypt data and verify
       treeFish = new TreeFish();
       treeFish.init(false, key, tweak);
-      treeFish.processBlock(data, 0);
+      test.equal(64, treeFish.processBlock(data, 0, data, 0));
       test.deepEqual(inputdata, data);
     }
       
@@ -199,7 +199,7 @@ module.exports = testCase({
       // Encrypt the data and verify
       var treeFish = new TreeFish();
       treeFish.init(true, key, tweak);
-      treeFish.processBlock(data, 0);
+      test.equal(128, treeFish.processBlock(data, 0, data, 0));
   
       // Create inputdata
       var b0 = Long.fromString(pts[i].slice(0, 16), 16);
@@ -255,7 +255,7 @@ module.exports = testCase({
       // Decrypt data and verify
       treeFish = new TreeFish();
       treeFish.init(false, key, tweak);
-      treeFish.processBlock(data, 0);
+      test.equal(128, treeFish.processBlock(data, 0, data, 0));
       test.deepEqual(inputdata, data);
     }
       

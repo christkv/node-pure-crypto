@@ -35,13 +35,13 @@ module.exports = testCase({
       // Encrypt data
       var aes = new AES();
       aes.init(true, key);
-      aes.processBlock(data, 0);  // Destructive to save memory      
+      test.equal(16, aes.processBlock(data, 0, data, 0));  // Destructive to save memory      
       test.deepEqual(ct, data);
       
       // Initialize cipher for decryption
       aes.init(false, key);
       // Decrypt the encrypted data and compare
-      aes.processBlock(data, 0);
+      test.equal(16, aes.processBlock(data, 0, data, 0));
       // Check valid decrypted data
       test.deepEqual(hexStringToBinaryArray(pts[i]), data);
     }

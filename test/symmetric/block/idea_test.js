@@ -62,13 +62,13 @@ module.exports = testCase({
       // Encrypt data
       var cipher = new IDEA();
       cipher.init(true, key);
-      cipher.processBlock(data, 0);  // Destructive to save memory      
+      test.equal(8, cipher.processBlock(data, 0, data, 0));  // Destructive to save memory      
       test.deepEqual(ct, data);
       
       // Initialize cipher for decryption
       cipher.init(false, key);
       // Decrypt the encrypted data and compare
-      cipher.processBlock(data, 0);
+      test.equal(8, cipher.processBlock(data, 0, data, 0));
       // Check valid decrypted data
       test.deepEqual(hexStringToBinaryArray(pts[i]), data);
     }
@@ -89,14 +89,14 @@ module.exports = testCase({
     idea.init(true, key);
     var numberOfBlocks = data.length / idea.getBlockSize();
     for(var i = 0; i < numberOfBlocks; i++) {
-      idea.processBlock(data, (i * idea.getBlockSize()));
+      idea.processBlock(data, (i * idea.getBlockSize()), data, (i * idea.getBlockSize()));
     }
     
     // Decrypt
     idea.init(false, key);
     
     for(var i = 0; i < numberOfBlocks; i++) {
-      idea.processBlock(data, (i * idea.getBlockSize()));
+      idea.processBlock(data, (i * idea.getBlockSize()), data, (i * idea.getBlockSize()));
     }
   
     test.deepEqual(pt, data);

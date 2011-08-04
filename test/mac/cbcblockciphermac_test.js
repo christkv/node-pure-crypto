@@ -1,11 +1,11 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../deps/nodeunit'),
   crypto = require('crypto'),
-  DESKey = require('symmetric/block/des').DESKey,
+  DES = require('symmetric/block/des').DES,
   PKCS7 = require('prng/pkcs7').PKCS7,
   CBCBlockCipherMac = require('mac/cbcblockciphermac').CBCBlockCipherMac,
   util = require('utils');
@@ -39,11 +39,13 @@ module.exports = testCase({
       var message = util.hexStringToBinaryArray(messages[i]);
       var output = util.hexStringToBinaryArray(outputs[i]);
 
-      var cipher = new DESKey(key);
-      var blockCipher = new CBCBlockCipherMac(cipher, iv);
+      var cipher = new DES();
+      var blockCipher = new CBCBlockCipherMac(cipher);
+      blockCipher.init(iv, key);
       blockCipher.update(message);
-      var digest = blockCipher.digest('array');
-      test.deepEqual(output, digest);          
+      var out = new Array(4);
+      blockCipher.doFinal(out, 0);
+      test.deepEqual(output, out);
     }
     
     test.done();
@@ -61,12 +63,14 @@ module.exports = testCase({
       var iv = ivs[i];
       var message = util.hexStringToBinaryArray(messages[i]);
       var output = util.hexStringToBinaryArray(outputs[i]);
-
-      var cipher = new DESKey(key);
-      var blockCipher = new CBCBlockCipherMac(cipher, iv, null, new PKCS7());
+  
+      var cipher = new DES();
+      var blockCipher = new CBCBlockCipherMac(cipher, null, new PKCS7());
+      blockCipher.init(iv, key);
       blockCipher.update(message);
-      var digest = blockCipher.digest('array');
-      test.deepEqual(output, digest);          
+      var out = new Array(4);
+      blockCipher.doFinal(out, 0);
+      test.deepEqual(output, out);
     }
     
     test.done();

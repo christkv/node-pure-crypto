@@ -56,25 +56,15 @@ module.exports = testCase({
       // Encrypt data
       var cipher = new Noekeon();
       cipher.init(true, key);
-      cipher.processBlock(data, 0);  // Destructive to save memory      
+      test.equal(16, cipher.processBlock(data, 0, data, 0));  // Destructive to save memory      
       test.deepEqual(ct, data);
 
       // Initialize cipher for decryption
       cipher.init(false, key);
       // Decrypt the encrypted data and compare
-      cipher.processBlock(data, 0);
+      test.equal(16, cipher.processBlock(data, 0, data, 0));
       // Check valid decrypted data
       test.deepEqual(hexStringToBinaryArray(pts[i]), data);
-      
-      // // Encrypt the data and verify
-      // var noekeon = new Noekeon(key);
-      // var encrypted = noekeon.encrypt(pt);
-      // test.deepEqual(ct, encrypted);
-      // 
-      // // Decrypt data and verify
-      // noekeon = new Noekeon(key);
-      // var decrypted = noekeon.decrypt(encrypted);
-      // test.deepEqual(util.hexStringToBinaryArray(pts[i]), decrypted);
     }
       
     test.done();

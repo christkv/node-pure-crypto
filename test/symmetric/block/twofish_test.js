@@ -62,13 +62,13 @@ module.exports = testCase({
       // Encrypt data
       var cipher = new Twofish();
       cipher.init(true, key);
-      cipher.processBlock(data, 0);  // Destructive to save memory      
+      test.equal(16, cipher.processBlock(data, 0, data, 0));  // Destructive to save memory      
       test.deepEqual(ct, data);
       
       // Initialize cipher for decryption
       cipher.init(false, key);
       // Decrypt the encrypted data and compare
-      cipher.processBlock(data, 0);
+      test.equal(16, cipher.processBlock(data, 0, data, 0));
       // Check valid decrypted data
       test.deepEqual(hexStringToBinaryArray(pts[i]), data);
     }
