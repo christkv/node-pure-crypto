@@ -62,7 +62,7 @@ module.exports = testCase({
         }
 
         var crypted = pt.slice(k, k+l);
-        hc256.processBytes(crypted, 0);        
+        hc256.processBytes(crypted, 0, crypted.length, crypted, 0);        
         encrypted = encrypted.concat(crypted);
         k += l;
       }
@@ -120,7 +120,7 @@ module.exports = testCase({
           l = m - k;
         }
         var uncrypted = encrypted.slice(k, k+l);
-        hc256.processBytes(uncrypted);
+        hc256.processBytes(uncrypted, 0, uncrypted.length, uncrypted, 0);
         decrypted = decrypted.concat(uncrypted);
         k += l;
       }

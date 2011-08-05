@@ -22,6 +22,7 @@ module.exports = testCase({
   //   var filePath = "./lib/symmetric/block";
   //   // Read all the block cipher names
   //   var files = fs.readdirSync(filePath)
+  //   
   //   // Iterate over each file
   //   for(var i = 0; i < files.length; i++) {
   //     var stat = fs.statSync(filePath + "/" + files[i]);
@@ -41,7 +42,7 @@ module.exports = testCase({
   //       test.ok(typeof object['getBlockSize'] == 'function');
   //       test.ok(typeof object['reset'] == 'function');
   //       test.ok(typeof object['processBlock'] == 'function');
-  //       test.ok(typeof object['init'] == 'function');        
+  //       test.ok(typeof object['init'] == 'function');
   //     }
   //   }
   //   
@@ -68,7 +69,6 @@ module.exports = testCase({
         if(files[i] != 'base.js') {
           console.log("  = " + files[i])
           // Assert method existence
-          test.ok(typeof object['getByteLength'] == 'function');
           test.ok(typeof object['getAlgorithmName'] == 'function');
           test.ok(typeof object['getDigestSize'] == 'function');
           test.ok(typeof object['update'] == 'function');

@@ -180,7 +180,7 @@ module.exports = testCase({
       var zero = pt.length;
       var encrypted = pt.slice(0);
       // Encrypt
-      isaac.processBytes(encrypted, 0);
+      isaac.processBytes(encrypted, 0, encrypted.length, encrypted, 0);
       test.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
       
       // Single byte by byte encryption
@@ -195,7 +195,7 @@ module.exports = testCase({
       
       // Decrypt the content
       isaac.init(true, util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-      isaac.processBytes(encrypted, 0);
+      isaac.processBytes(encrypted, 0, encrypted.length, encrypted, 0);
       test.deepEqual(pt, encrypted)      
     }
 

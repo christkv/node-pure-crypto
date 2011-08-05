@@ -56,7 +56,7 @@ module.exports = testCase({
       sosemanuk.init(true, key, iv);
       
       var encrypted = pt.slice(0);
-      sosemanuk.processBytes(encrypted, 0);
+      sosemanuk.processBytes(encrypted, 0, encrypted.length, encrypted, 0);
       test.deepEqual(ct, encrypted);
 
       var sosemanuk = new Sosemanuk();
@@ -74,7 +74,7 @@ module.exports = testCase({
       sosemanuk.init(false, key, iv);
       
       var decrypted = encrypted.slice(0);
-      sosemanuk.processBytes(decrypted);    
+      sosemanuk.processBytes(decrypted, 0, decrypted.length, decrypted, 0);    
       test.deepEqual(pt, decrypted)    
     }
       
@@ -113,7 +113,7 @@ module.exports = testCase({
   //       }
   //       
   //       var crypted = pt.slice(k, k+l);
-  //       sosemanuk.processBytes(crypted, 0);        
+  //       sosemanuk.processBytes(crypted, 0, crypted.length, crypted, 0);        
   //       encrypted = encrypted.concat(crypted);
   //       k += l;
   //     }
@@ -144,7 +144,7 @@ module.exports = testCase({
   //       }
   //       
   //       var uncrypted = encrypted.slice(k, k+l);
-  //       sosemanuk.processBytes(uncrypted);
+  //       sosemanuk.processBytes(uncrypted, 0, uncrypted.length, uncrypted, 0);
   //       decrypted = decrypted.concat(uncrypted);
   //       k += l;
   //     }

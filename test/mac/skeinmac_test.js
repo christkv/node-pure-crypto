@@ -1,9 +1,9 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../deps/nodeunit'),
   SkeinMac = require('mac/skeinmac').SkeinMac,
   // Skein = require('hash/skein').Skein,
   crypto = require('crypto'),
@@ -25,7 +25,7 @@ module.exports = testCase({
     callback();        
   },
 
-  "SkeinMac test vectors":function(test) {
+  "Simple SkeinMac test":function(test) {
     var messages = [
       "D3090C72167517F7C7AD82A70C2FD3F6443F608301591E598EADB195E8357135BA26FEDE2EE187417F816048D00FC23512737A2113709A77E4170C49A94B7FDFF45FF579A72287743102E7766C35CA5ABC5DFE2F63A1E726CE5FBD2926DB03A2DD18B03FC1508A9AAC45EB362440203A323E09EDEE6324EE2E37B4432C1867ED696E6C9DB1E6ABEA026288954A9C2D5758D7C5DB7C9E48AA3D21CAE3D977A7C3926066AA393DBD538DD0C30DA8916C8757F24C18488014668A2627163A37B261833DC2F8C3C56B1B2E0BE21FD3FBDB507B2950B77A6CC02EFB393E57419383A920767BCA2C972107AA61384542D47CBFB82CFE5C415389D1B0A2D74E2C5DA851",
       "D3090C72167517F7C7AD82A70C2FD3F6443F608301591E598EADB195E8357135BA26FEDE2EE187417F816048D00FC23512737A2113709A77E4170C49A94B7FDFF45FF579A72287743102E7766C35CA5ABC5DFE2F63A1E726CE5FBD2926DB03A2DD18B03FC1508A9AAC45EB362440203A323E09EDEE6324EE2E37B4432C1867ED",
@@ -39,7 +39,7 @@ module.exports = testCase({
       "CB41F1706CDE09651203C2D0EFBADDF847A0D315CB2E53FF8BAC41DA0002672E",
       "CB41F1706CDE09651203C2D0EFBADDF847A0D315CB2E53FF8BAC41DA0002672E92"
     ]
-
+  
     var digests = [
       "46A42B0D7B8679F8FCEA156C072CF9833C468A7D59AC5E5D326957D60DFE1CDFB27EB54C760B9E049FDA47F0B847AC68D6B340C02C39D4A18C1BDFECE3F405FAE8AA848BDBEFE3A4C277A095E921228618D3BE8BD1999A071682810DE748440AD416A97742CC9E8A9B85455B1D76472CF562F525116698D5CD0A35DDF86E7F8A",
       "A097340709B443ED2C0A921F5DCEFEF3EAD65C4F0BCD5F13DA54D7ED",
@@ -59,10 +59,14 @@ module.exports = testCase({
       var output = outputs[i];
       var msgLen = messageLengths[i];
       
-      var skeinmac = new SkeinMac(state, output, mac);
-      skeinmac.updateBits(message, msgLen);
-      var result = skeinmac.digest('array');
-      test.deepEqual(digest, result);
+      var skeinmac = new SkeinMac();
+      skeinmac.init(state, output, mac);
+      skeinmac.updateBits(message, 0, msgLen);
+      // Allocate output size for mac
+      var output = new Array(skeinmac.getMacSize());
+      // Calculare final mac
+      skeinmac.doFinal(output, 0);
+      test.deepEqual(output, digest);          
     }
     
     test.done();
@@ -83,10 +87,15 @@ module.exports = testCase({
       var digest = util.hexStringToBinaryArray(vector.result);
         
       if(vector.mac.match(/\(none\)/) == null) {
-        var skeinmac = new SkeinMac(stateSize, hashBitLength, mac);
-        skeinmac.updateBits(message, msgLength);
-        var result = skeinmac.digest('array');
-        test.deepEqual(digest, result);      
+        var skeinmac = new SkeinMac();
+        skeinmac.init(stateSize, hashBitLength, mac);
+        skeinmac.updateBits(message, 0, msgLength);
+
+        // Allocate output size for mac
+        var output = new Array(skeinmac.getMacSize());
+        // Calculare final mac
+        skeinmac.doFinal(output, 0);
+        test.deepEqual(output, digest);          
       }
     }
     

@@ -255,7 +255,7 @@ module.exports = testCase({
       var zero = pt.length;
 
       var encrypted = pt.slice(0);
-      salsa.processBytes(encrypted, 0);
+      salsa.processBytes(encrypted, 0, encrypted.length, encrypted, 0);
 
       // Encrypt using the purejs librarie's streaming api in 1024 blocks
       var salsa = new XSalsa20();
@@ -275,7 +275,7 @@ module.exports = testCase({
       salsa20.init(false, util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
       
       var decrypted = encrypted.slice(0);
-      salsa20.processBytes(decrypted, 0);
+      salsa20.processBytes(decrypted, 0, decrypted.length, decrypted, 0);
       
       // Decrypt using returnByte
       var salsa20 = new XSalsa20();

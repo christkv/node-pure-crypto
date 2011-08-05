@@ -52,7 +52,7 @@ module.exports = testCase({
     var zero = pt.length;
 
     var encrypted = pt.slice(0);
-    vmpc.processBytes(encrypted, 0);
+    vmpc.processBytes(encrypted, 0, encrypted.length, encrypted, 0);
     
     // Test encrypted data
     test.equal(0xA8, encrypted[0])
@@ -107,7 +107,7 @@ module.exports = testCase({
     var vmpc = new VMPC();
     vmpc.init(false, util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
     var decrypted = encrypted.slice(0);
-    vmpc.processBytes(decrypted);    
+    vmpc.processBytes(decrypted, 0, decrypted.length, decrypted, 0);    
     test.deepEqual(pt, decrypted)    
     test.done();
   },

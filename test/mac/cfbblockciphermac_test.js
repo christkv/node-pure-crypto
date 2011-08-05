@@ -6,7 +6,7 @@ var TestSuite = testCase = require('../../deps/nodeunit').testCase,
   nodeunit = require('../../deps/nodeunit'),
   // CFBBlockCipherMac = require('mac/hmac').CFBBlockCipherMac,
   crypto = require('crypto'),
-  DESKey = require('symmetric/block/des').DESKey,
+  DES = require('symmetric/block/des').DES,
   CFBBlockCipherMac = require('mac/cfbblockciphermac').CFBBlockCipherMac,
   util = require('utils');
     
@@ -39,13 +39,16 @@ module.exports = testCase({
       var key = util.hexStringToBinaryArray(keys[i]);
       var iv = ivs[i];
       var message = util.hexStringToBinaryArray(messages[i]);
-      var output = util.hexStringToBinaryArray(outputs[i]);
+      var digest = util.hexStringToBinaryArray(outputs[i]);
 
-      var cipher = new DESKey();
-      var blockCipher = new CFBBlockCipherMac(cipher, iv);
-      blockCipher.init(key);
+      var cipher = new DES();
+      var blockCipher = new CFBBlockCipherMac(cipher);
+      blockCipher.init(key, iv);
       blockCipher.update(message);
-      var digest = blockCipher.digest('array');
+      // Allocate output size for mac
+      var output = new Array(blockCipher.getMacSize());
+      // Calculare final mac
+      blockCipher.doFinal(output, 0);
       test.deepEqual(output, digest);          
     }
     

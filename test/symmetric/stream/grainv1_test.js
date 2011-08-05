@@ -63,7 +63,7 @@ module.exports = testCase({
           
       var encrypted = pt.slice(0);
       // Encrypt
-      grainV1.processBytes(encrypted, 0);          
+      grainV1.processBytes(encrypted, 0, encrypted.length, encrypted, 0);          
       test.deepEqual(util.hexStringToBinaryArray(ct), encrypted)
     
       // Encrypt byte by byte
@@ -77,7 +77,7 @@ module.exports = testCase({
       
       // Decrypt      
       grainV1.init(true, util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
-      grainV1.processBytes(encrypted, 0);
+      grainV1.processBytes(encrypted, 0, encrypted.length, encrypted, 0);
       test.deepEqual(pt, encrypted)      
     }
 
@@ -107,7 +107,7 @@ module.exports = testCase({
         }
 
         var crypted = pt.slice(k, k+l);
-        grainv1.processBytes(crypted, 0);        
+        grainv1.processBytes(crypted, 0, crypted.length, crypted, 0);        
         encrypted = encrypted.concat(crypted);
         k += l;
       }
@@ -165,7 +165,7 @@ module.exports = testCase({
         }
 
         var uncrypted = encrypted.slice(k, k+l);
-        grainv1.processBytes(uncrypted);
+        grainv1.processBytes(uncrypted, 0, uncrypted.length, uncrypted, 0);
         decrypted = decrypted.concat(uncrypted);
         k += l;
       }

@@ -46,7 +46,7 @@ module.exports = testCase({
 
     var salsa = new Salsa20();
     salsa.init(true, key, iv);
-    salsa.processBytes(data, 0);
+    salsa.processBytes(data, 0, data.length, data, 0);
     
     var data2 = zeroedData(64);
     salsa.init(true, key, iv);
@@ -68,7 +68,7 @@ module.exports = testCase({
       
       var salsa = new Salsa20();
       salsa.init(true, key, iv);
-      salsa.processBytes(data, 0);
+      salsa.processBytes(data, 0, data.length, data, 0);
       
       var data2 = zeroedData(64);
       salsa.init(true, key, iv);
@@ -101,7 +101,7 @@ module.exports = testCase({
         }
         
         var crypted = pt.slice(k, k+l);
-        salsa.processBytes(crypted, 0);        
+        salsa.processBytes(crypted, 0, crypted.length, crypted, 0);        
         encrypted = encrypted.concat(crypted);
         k += l;
       }
@@ -164,7 +164,7 @@ module.exports = testCase({
         }
 
         var unencrypted = encrypted.slice(k, k+l);
-        salsa.processBytes(unencrypted, 0);        
+        salsa.processBytes(unencrypted, 0, unencrypted.length, unencrypted, 0);        
         decrypted = decrypted.concat(unencrypted);
         k += l;
       }

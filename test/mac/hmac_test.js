@@ -1,9 +1,9 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../deps/nodeunit'),
   crypto = require('crypto'),
   HMac = require('mac/hmac').HMac,
   MD5 = require('hash/md5').MD5,
@@ -71,9 +71,14 @@ module.exports = testCase({
       message = message.substr(0, 2) == "0x" ?  util.hexStringToBinaryArray(message.substr(2)) : util.binaryStringToArray(messages[i]);
       var digest = util.hexStringToBinaryArray(digests[i]);
 
-      var hmac = new HMac(new MD5(), key);
+      var hmac = new HMac(new MD5());
+      hmac.init(key);
+      // Update
       hmac.update(message);
-      var output = hmac.digest('array');
+      // Allocate output size for mac
+      var output = new Array(hmac.getMacSize());
+      // Calculare final mac
+      hmac.doFinal(output, 0);
       test.deepEqual(output, digest);          
     }
     
@@ -100,7 +105,7 @@ module.exports = testCase({
       "Test Using Larger Than Block-Size Key - Hash Key First",
       "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data"
     ];
-
+  
     var digests = [
       "b617318655057264e28bc0b6fb378c8ef146be00",
       "effcdf6ae5eb2fa2d27416d5f184df9c259a7c79",
@@ -119,16 +124,20 @@ module.exports = testCase({
       var message = messages[i];
       message = message.substr(0, 2) == "0x" ?  util.hexStringToBinaryArray(message.substr(2)) : util.binaryStringToArray(messages[i]);
       var digest = util.hexStringToBinaryArray(digests[i]);
-
-      var hmac = new HMac(new SHA1(), key);
+  
+      var hmac = new HMac(new SHA1());
+      hmac.init(key);      
       hmac.update(message);
-      var output = hmac.digest('array');
+      // Allocate output size for mac
+      var output = new Array(hmac.getMacSize());
+      // Calculare final mac
+      hmac.doFinal(output, 0);
       test.deepEqual(output, digest);          
     }
     
     test.done();
   }, 
-
+  
   "HMac SHA224 test vectors":function(test) {
     var keys = [
       "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
@@ -149,7 +158,7 @@ module.exports = testCase({
       "Test Using Larger Than Block-Size Key - Hash Key First",
       "This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm."
     ];
-
+  
     var digests = [
       "896fb1128abbdf196832107cd49df33f47b4b1169912ba4f53684b22",
       "a30e01098bc6dbbf45690f3a7e9e6d0f8bbea2a39e6148008fd05e44",
@@ -165,16 +174,20 @@ module.exports = testCase({
       var message = messages[i];
       message = message.substr(0, 2) == "0x" ?  util.hexStringToBinaryArray(message.substr(2)) : util.binaryStringToArray(messages[i]);
       var digest = util.hexStringToBinaryArray(digests[i]);
-
-      var hmac = new HMac(new SHA224(), key);
+  
+      var hmac = new HMac(new SHA224());
+      hmac.init(key);
       hmac.update(message);
-      var output = hmac.digest('array');
+      // Allocate output size for mac
+      var output = new Array(hmac.getMacSize());
+      // Calculare final mac
+      hmac.doFinal(output, 0);
       test.deepEqual(output, digest);          
     }
     
     test.done();
   }, 
-
+  
   "HMac SHA256 test vectors":function(test) {
     var keys = [
       "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
@@ -195,7 +208,7 @@ module.exports = testCase({
       "Test Using Larger Than Block-Size Key - Hash Key First",
       "This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm."
     ];
-
+  
     var digests = [
       "b0344c61d8db38535ca8afceaf0bf12b881dc200c9833da726e9376c2e32cff7",
       "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843",
@@ -211,16 +224,20 @@ module.exports = testCase({
       var message = messages[i];
       message = message.substr(0, 2) == "0x" ?  util.hexStringToBinaryArray(message.substr(2)) : util.binaryStringToArray(messages[i]);
       var digest = util.hexStringToBinaryArray(digests[i]);
-
-      var hmac = new HMac(new SHA256(), key);
+  
+      var hmac = new HMac(new SHA256());
+      hmac.init(key);
       hmac.update(message);
-      var output = hmac.digest('array');
+      // Allocate output size for mac
+      var output = new Array(hmac.getMacSize());
+      // Calculare final mac
+      hmac.doFinal(output, 0);
       test.deepEqual(output, digest);          
     }
     
     test.done();
   }, 
-
+  
   "HMac SHA384 test vectors":function(test) {
     var keys = [
       "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
@@ -241,7 +258,7 @@ module.exports = testCase({
       "Test Using Larger Than Block-Size Key - Hash Key First",
       "This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm."
     ];
-
+  
     var digests = [
       "afd03944d84895626b0825f4ab46907f15f9dadbe4101ec682aa034c7cebc59cfaea9ea9076ede7f4af152e8b2fa9cb6",
       "af45d2e376484031617f78d2b58a6b1b9c7ef464f5a01b47e42ec3736322445e8e2240ca5e69e2c78b3239ecfab21649",
@@ -257,16 +274,20 @@ module.exports = testCase({
       var message = messages[i];
       message = message.substr(0, 2) == "0x" ?  util.hexStringToBinaryArray(message.substr(2)) : util.binaryStringToArray(messages[i]);
       var digest = util.hexStringToBinaryArray(digests[i]);
-
-      var hmac = new HMac(new SHA384(), key);
+  
+      var hmac = new HMac(new SHA384());
+      hmac.init(key);
       hmac.update(message);
-      var output = hmac.digest('array');
+      // Allocate output size for mac
+      var output = new Array(hmac.getMacSize());
+      // Calculare final mac
+      hmac.doFinal(output, 0);
       test.deepEqual(output, digest);          
     }
     
     test.done();
   }, 
-
+  
   "HMac SHA512 test vectors":function(test) {
     var keys = [
       "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
@@ -287,7 +308,7 @@ module.exports = testCase({
       "Test Using Larger Than Block-Size Key - Hash Key First",
       "This is a test using a larger than block-size key and a larger than block-size data. The key needs to be hashed before being used by the HMAC algorithm."
     ];
-
+  
     var digests = [
       "87aa7cdea5ef619d4ff0b4241a1d6cb02379f4e2ce4ec2787ad0b30545e17cdedaa833b7d6b8a702038b274eaea3f4e4be9d914eeb61f1702e696c203a126854",
       "164b7a7bfcf819e2e395fbe73b56e0a387bd64222e831fd610270cd7ea2505549758bf75c05a994a6d034f65f8f0e6fdcaeab1a34d4a6b4b636e070a38bce737",
@@ -303,16 +324,20 @@ module.exports = testCase({
       var message = messages[i];
       message = message.substr(0, 2) == "0x" ?  util.hexStringToBinaryArray(message.substr(2)) : util.binaryStringToArray(messages[i]);
       var digest = util.hexStringToBinaryArray(digests[i]);
-
-      var hmac = new HMac(new SHA512(), key);
+  
+      var hmac = new HMac(new SHA512());
+      hmac.init(key);
       hmac.update(message);
-      var output = hmac.digest('array');
+      // Allocate output size for mac
+      var output = new Array(hmac.getMacSize());
+      // Calculare final mac
+      hmac.doFinal(output, 0);
       test.deepEqual(output, digest);          
     }
     
     test.done();
   }, 
-
+  
   "HMac RIPEMD128 test vectors":function(test) {
     var keys = [
       "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
@@ -333,7 +358,7 @@ module.exports = testCase({
       "Test Using Larger Than Block-Size Key - Hash Key First",
       "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data"
     ];
-
+  
     var digests = [
       "fbf61f9492aa4bbf81c172e84e0734db",
       "875f828862b6b334b427c55f9f7ff09b",
@@ -349,16 +374,20 @@ module.exports = testCase({
       var message = messages[i];
       message = message.substr(0, 2) == "0x" ?  util.hexStringToBinaryArray(message.substr(2)) : util.binaryStringToArray(messages[i]);
       var digest = util.hexStringToBinaryArray(digests[i]);
-
-      var hmac = new HMac(new RIPEMD128(), key);
+  
+      var hmac = new HMac(new RIPEMD128());
+      hmac.init(key);
       hmac.update(message);
-      var output = hmac.digest('array');
+      // Allocate output size for mac
+      var output = new Array(hmac.getMacSize());
+      // Calculare final mac
+      hmac.doFinal(output, 0);
       test.deepEqual(output, digest);          
     }
     
     test.done();
   }, 
-
+  
   "HMac RIPEMD160 test vectors":function(test) {
     var keys = [
       "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
@@ -379,7 +408,7 @@ module.exports = testCase({
       "Test Using Larger Than Block-Size Key - Hash Key First",
       "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data"
     ];
-
+  
     var digests = [
       "24cb4bd67d20fc1a5d2ed7732dcc39377f0a5668",
       "dda6c0213a485a9e24f4742064a7f033b43c4069",
@@ -395,10 +424,14 @@ module.exports = testCase({
       var message = messages[i];
       message = message.substr(0, 2) == "0x" ?  util.hexStringToBinaryArray(message.substr(2)) : util.binaryStringToArray(messages[i]);
       var digest = util.hexStringToBinaryArray(digests[i]);
-
-      var hmac = new HMac(new RIPEMD160(), key);
+  
+      var hmac = new HMac(new RIPEMD160());
+      hmac.init(key);
       hmac.update(message);
-      var output = hmac.digest('array');
+      // Allocate output size for mac
+      var output = new Array(hmac.getMacSize());
+      // Calculare final mac
+      hmac.doFinal(output, 0);
       test.deepEqual(output, digest);          
     }
     

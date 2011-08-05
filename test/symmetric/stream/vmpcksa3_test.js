@@ -56,7 +56,7 @@ module.exports = testCase({
     var zero = pt.length;
 
     var encrypted = pt.slice(0);
-    vmpcksa3.processBytes(encrypted, 0);
+    vmpcksa3.processBytes(encrypted, 0, encrypted.length, encrypted, 0);
 
     // tests
     test.equal(0xb6, encrypted[0])
@@ -110,7 +110,7 @@ module.exports = testCase({
     var vmpc = new VMPCKSA3();
     vmpc.init(false, util.hexStringToBinaryArray(key), util.hexStringToBinaryArray(iv));
     var decrypted = encrypted.slice(0);
-    vmpc.processBytes(decrypted);    
+    vmpc.processBytes(decrypted, 0, decrypted.length, decrypted, 0);    
     test.deepEqual(pt, decrypted)
     test.done();
   },

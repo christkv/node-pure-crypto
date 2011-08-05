@@ -48,7 +48,7 @@ module.exports = testCase({
       var rabbit = new Rabbit(key, iv);
       rabbit.init(true, key, iv);
       // Encrypt bytes
-      rabbit.processBytes(data, 0);
+      rabbit.processBytes(data, 0, data.length, data, 0);
       // Compare
       test.deepEqual(ct, data);
       
@@ -67,7 +67,7 @@ module.exports = testCase({
       rabbit = new Rabbit();
       rabbit.init(false, key, iv);
       // Decrypt bytes
-      rabbit.processBytes(data, 0);
+      rabbit.processBytes(data, 0, data.length, data, 0);
       // Compare
       test.deepEqual(util.hexStringToBinaryArray(pts[i]), data);
     }
