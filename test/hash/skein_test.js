@@ -38,16 +38,18 @@ module.exports = testCase({
       var digest = util.hexStringToBinaryArray(vector.result);
   
       if(msgLength % 8 == 0) {
-        var skein = new Skein(stateSize, hashBitLength);
-        skein.update(message);        
-
+        var skein = new Skein();
+        skein.init(stateSize, hashBitLength);
+        skein.update(message, 0, message.length);        
+        
         var finalDigest = new Array(skein.getDigestSize());
         test.equal(skein.getDigestSize(), skein.doFinal(finalDigest, 0));
         test.deepEqual(digest, finalDigest);
       } else {
-        var skein = new Skein(stateSize, hashBitLength);
-        skein.updateBits(message, msgLength);
-
+        var skein = new Skein();
+        skein.init(stateSize, hashBitLength);
+        skein.updateBits(message, 0, msgLength);
+        
         var finalDigest = new Array(skein.getDigestSize());
         test.equal(skein.getDigestSize(), skein.doFinal(finalDigest, 0));
         test.deepEqual(digest, finalDigest);        
