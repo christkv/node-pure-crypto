@@ -31,7 +31,7 @@ module.exports = testCase({
     for(var i = 0; i < keys.length; i++) {
       var key = hexStringToBinaryArray(keys[i]);
       var data = hexStringToBinaryArray(pts[i]);
-      var ct = hexStringToBinaryArray(cts[i]);      
+      var ct = hexStringToBinaryArray(cts[i]);     
       // Encrypt data
       var aes = new AES();
       aes.init(true, key);
