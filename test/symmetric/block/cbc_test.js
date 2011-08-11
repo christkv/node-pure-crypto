@@ -34,81 +34,86 @@ module.exports = testCase({
   },
 
   "testCBC_AES128":function(test) {
-    var key = util.hexStringToBinaryArray("2b7e151628aed2a6abf7158809cf4f3c");
-    var pt = util.hexStringToBinaryArray(
-       "6bc1bee22e409f96e93d7e117393172a" + 
-       "ae2d8a571e03ac9c9eb76fac45af8e51" + 
-       "30c81c46a35ce411e5fbc1191a0a52ef" + 
-       "f69f2445df4f9b17ad2b417be66c3710");
-    var ct = util.hexStringToBinaryArray(
-      "7649abac8119b246cee98e9b12e9197d" + 
-      "5086cb9b507219ee95db113a917678b2" + 
-      "73bed6b8e3c1743b7116e69e22229516" + 
-      "3ff1caa1681fac09120eca307586e1a7");
+    var keys = [util.hexStringToBinaryArray("2b7e151628aed2a6abf7158809cf4f3c"),
+      util.hexStringToBinaryArray("2b7e151628aed2a6abf7158809cf4f3c")];
+    var pts = [util.hexStringToBinaryArray("6bc1bee22e409f96e93d7e117393172a"),
+      util.hexStringToBinaryArray("6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be66c3710")];
+    var cts = [util.hexStringToBinaryArray("7649ABAC8119B246CEE98E9B12E9197D"),
+      util.hexStringToBinaryArray("7649abac8119b246cee98e9b12e9197d5086cb9b507219ee95db113a917678b273bed6b8e3c1743b7116e69e222295163ff1caa1681fac09120eca307586e1a7")];
   
     // Encrypt
-    var iv = util.hexStringToBinaryArray("000102030405060708090a0b0c0d0e0f");
-    var aes = new AES();
-    var cbc = new CBC(aes)
-    cbc.init(true, iv, key);
-    
-    var encrypted = pt.slice(0);
-    
-    for(var i = 0; i < pt.length; i+=16) {
-      cbc.processBlock(encrypted, i, encrypted, i);
-    }
-    
-    test.deepEqual(ct, encrypted);
-    
-    // Decrypt data
-    var aes = new AES();
-    var cbc = new CBC(aes)
-    cbc.init(false, iv, key);
+    var ivs = [util.hexStringToBinaryArray("000102030405060708090a0b0c0d0e0f"),
+      util.hexStringToBinaryArray("000102030405060708090a0b0c0d0e0f")];
+      
+    for(var j = 0; j < keys.length; j++) {
+      var key = keys[j];
+      var pt = pts[j];
+      var ct = cts[j];
+      var iv = ivs[j];
+      
+      var aes = new AES();
+      var cbc = new CBC(aes)
+      cbc.init(true, true, iv, key);
+      var encrypted = pt.slice(0);
 
-    for(var i = 0; i < encrypted.length; i+=16) {
-      cbc.processBlock(encrypted, i, encrypted, i);
-    }
+      for(var i = 0; i < pt.length; i+=16) {
+        cbc.processBlock(encrypted, i, encrypted, i);
+      }
 
-    test.deepEqual(pt, encrypted);      
+      test.deepEqual(ct, encrypted);
+
+      // Decrypt data
+      cbc.init(false, true, iv, key);
+      
+      for(var i = 0; i < encrypted.length; i+=16) {
+        cbc.processBlock(encrypted, i, encrypted, i);
+      }
+      
+      test.deepEqual(pt, encrypted);      
+    }
+      
     test.done();
   },
   
   "test_CBC_AES192":function(test) {
-    var key = util.hexStringToBinaryArray("8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b");
+    var key = util.hexStringToBinaryArray(
+      "8e73b0f7da0e6452c810f32b809079e562f8ead2522c6b7b");
     var pt = util.hexStringToBinaryArray(
-       "6bc1bee22e409f96e93d7e117393172a" + 
-       "ae2d8a571e03ac9c9eb76fac45af8e51" + 
-       "30c81c46a35ce411e5fbc1191a0a52ef" + 
-       "f69f2445df4f9b17ad2b417be66c3710");
+      "6bc1bee22e409f96e93d7e117393172a" + 
+      "ae2d8a571e03ac9c9eb76fac45af8e51" + 
+      "30c81c46a35ce411e5fbc1191a0a52ef" + 
+      "f69f2445df4f9b17ad2b417be66c3710");
     var ct = util.hexStringToBinaryArray(
-       "4f021db243bc633d7178183a9fa071e8" + 
-       "b4d9ada9ad7dedf4e5e738763f69145a" + 
-       "571b242012fb7ae07fa9baac3df102e0" + 
-       "08b0e27988598881d920a9e64f5615cd");
+      "4f021db243bc633d7178183a9fa071e8" + 
+      "b4d9ada9ad7dedf4e5e738763f69145a" + 
+      "571b242012fb7ae07fa9baac3df102e0" + 
+      "08b0e27988598881d920a9e64f5615cd");
   
-    var iv = util.hexStringToBinaryArray("000102030405060708090a0b0c0d0e0f");
+    var iv = util.hexStringToBinaryArray(
+      "000102030405060708090a0b0c0d0e0f");
+  
     var aes = new AES();
     var cbc = new CBC(aes)
-    cbc.init(true, iv, key);
-    
+    cbc.init(true, true, iv, key);
+
     var encrypted = pt.slice(0);
-    
+
     for(var i = 0; i < pt.length; i+=16) {
       cbc.processBlock(encrypted, i, encrypted, i);
     }
-    
+
     test.deepEqual(ct, encrypted);
 
     // Decrypt data
     var aes = new AES();
     var cbc = new CBC(aes)
-    cbc.init(false, iv, key);
-
+    cbc.init(false, true, iv, key);
+    
     for(var i = 0; i < encrypted.length; i+=16) {
       cbc.processBlock(encrypted, i, encrypted, i);
     }
-
-    test.deepEqual(pt, encrypted);      
+    
+    test.deepEqual(pt, encrypted);            
     test.done();
   },
   
@@ -130,7 +135,7 @@ module.exports = testCase({
     var iv = util.hexStringToBinaryArray("000102030405060708090a0b0c0d0e0f");
     var aes = new AES();
     var cbc = new CBC(aes)
-    cbc.init(true, iv, key);
+    cbc.init(true, true, iv, key);
     
     var encrypted = pt.slice(0);
     
@@ -139,16 +144,16 @@ module.exports = testCase({
     }
     
     test.deepEqual(ct, encrypted);
-
+  
     // Decrypt data
     var aes = new AES();
     var cbc = new CBC(aes)
-    cbc.init(false, iv, key);
-
+    cbc.init(false, true, iv, key);
+  
     for(var i = 0; i < encrypted.length; i+=16) {
       cbc.processBlock(encrypted, i, encrypted, i);
     }
-
+  
     test.deepEqual(pt, encrypted);      
     test.done();
   },  
@@ -171,26 +176,26 @@ module.exports = testCase({
       var aes = new AES();
       var iv = util.hexStringToBinaryArray("00000000000000000000000000000000");
       var cbc = new CBC(aes);
-      cbc.init(true, iv, key)
-
+      cbc.init(true, true, iv, key)
+  
       // Encrypt the pt key
       var encrypted = pt.slice(0);
-
+  
       for(var j = 0; j < encrypted.length; j+=16) {
        cbc.processBlock(encrypted, j, encrypted, j);       
       }      
       test.deepEqual(ct.slice(0, encrypted.length), encrypted)
-
+  
       // Decrypt
       var cbc = new CBC(aes);
-      cbc.init(false, iv, key)
-
+      cbc.init(false, true, iv, key)
+  
       for(var j = 0; j < encrypted.length; j+=16) {
        cbc.processBlock(encrypted, j, encrypted, j);       
       }
       test.deepEqual(pt, encrypted);
     }
-
+  
     test.done();
   },
   
@@ -219,19 +224,19 @@ module.exports = testCase({
       var tea = new XTea();
       var iv = util.hexStringToBinaryArray("0000000000000000");
       var cbc = new CBC(tea);
-      cbc.init(true, iv, key)
-
+      cbc.init(true, true, iv, key)
+  
       // Encrypt the pt key
       var encrypted = pt.slice(0);
-
+  
       for(var j = 0; j < encrypted.length; j+=8) {
        cbc.processBlock(encrypted, j, encrypted, j);       
       }      
-
+  
       // Decrypt
       var cbc = new CBC(tea);
-      cbc.init(false, iv, key)
-
+      cbc.init(false, true, iv, key)
+  
       for(var j = 0; j < encrypted.length; j+=8) {
        cbc.processBlock(encrypted, j, encrypted, j);       
       }

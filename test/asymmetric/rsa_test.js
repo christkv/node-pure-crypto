@@ -1,9 +1,9 @@
 require.paths.unshift("./lib");
 
-var TestSuite = testCase = require('../deps/nodeunit').testCase,
+var TestSuite = testCase = require('../../deps/nodeunit').testCase,
   debug = require('util').debug
   inspect = require('util').inspect,
-  nodeunit = require('../deps/nodeunit'),
+  nodeunit = require('../../deps/nodeunit'),
   BigInteger = require('big_decimal').BigInteger,
   RSA = require('asymmetric/rsa/rsa').RSA,
   RSAPublicKey = require('asymmetric/rsa/rsa').RSAPublicKey,
@@ -13,7 +13,7 @@ var TestSuite = testCase = require('../deps/nodeunit').testCase,
   crypto = require('crypto'),
   BigInteger = require('asymmetric/rsa/big_integer').BigInteger,
   RSA2 = require('asymmetric/rsa/rsa_core').RSA,
-  utils = require('../lib/utils');
+  utils = require('../../lib/utils');
     
 var hexStringToBinaryArray = function(string) {
   var numberofValues = string.length / 2;
