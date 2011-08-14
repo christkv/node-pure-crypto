@@ -49,8 +49,8 @@ module.exports = testCase({
     test.done();
   },
 
-  "Verify all aead block ciphers follow expected interface standard":function(test) {
-    var filePath = "./lib/symmetric/block/aead";
+  "Verify all aead modes follow expected interface standard":function(test) {
+    var filePath = "./lib/symmetric/modes/aead";
     // Read all the block cipher names
     var files = fs.readdirSync(filePath)
     
@@ -75,6 +75,71 @@ module.exports = testCase({
         test.ok(typeof object['processByte'] == 'function');
         test.ok(typeof object['doFinal'] == 'function');
         test.ok(typeof object['getMac'] == 'function');
+        test.ok(typeof object['getUpdateOutputSize'] == 'function');
+        test.ok(typeof object['getOutputSize'] == 'function');
+        test.ok(typeof object['reset'] == 'function');
+      }
+    }
+    
+    test.done();
+  },
+
+  "Verify all block modes follow expected interface standard":function(test) {
+    var filePath = "./lib/symmetric/modes";
+    // Read all the block cipher names
+    var files = fs.readdirSync(filePath)
+    
+    // Iterate over each file
+    for(var i = 0; i < files.length; i++) {
+      var stat = fs.statSync(filePath + "/" + files[i]);
+      if(stat.isFile() && path.extname(files[i]) == '.js') {
+        var module = require(filePath.replace('./', '') + "/" + files[i]);
+        
+        // Check that we have only one key in the module
+        test.equal(1, Object.keys(module).length);
+        // Extract class for key
+        var classDefinition = module[Object.keys(module)[0]];
+        // Initialize a object
+        var object = new classDefinition;
+        
+        console.log("  = " + files[i])
+        // Assert method existence
+        test.ok(typeof object['getAlgorithmName'] == 'function');
+        test.ok(typeof object['getBlockSize'] == 'function');
+        test.ok(typeof object['reset'] == 'function');
+        test.ok(typeof object['processBlock'] == 'function');
+        test.ok(typeof object['init'] == 'function');
+      }
+    }
+    
+    test.done();
+  },
+
+  "Verify all buffered modes follow expected interface standard":function(test) {
+    var filePath = "./lib/symmetric/modes/buffered";
+    // Read all the block cipher names
+    var files = fs.readdirSync(filePath)
+    
+    // Iterate over each file
+    for(var i = 0; i < files.length; i++) {
+      var stat = fs.statSync(filePath + "/" + files[i]);
+      if(stat.isFile() && path.extname(files[i]) == '.js') {
+        var module = require(filePath.replace('./', '') + "/" + files[i]);
+        
+        // Check that we have only one key in the module
+        test.equal(1, Object.keys(module).length);
+        // Extract class for key
+        var classDefinition = module[Object.keys(module)[0]];
+        // Initialize a object
+        var object = new classDefinition;
+        
+        console.log("  = " + files[i])
+        // Assert method existence
+        test.ok(typeof object['init'] == 'function');
+        test.ok(typeof object['getUnderlyingCipher'] == 'function');
+        test.ok(typeof object['getBlockSize'] == 'function');
+        test.ok(typeof object['processByte'] == 'function');
+        test.ok(typeof object['doFinal'] == 'function');
         test.ok(typeof object['getUpdateOutputSize'] == 'function');
         test.ok(typeof object['getOutputSize'] == 'function');
         test.ok(typeof object['reset'] == 'function');

@@ -7,7 +7,7 @@ NODE = node
 NODEUNIT = deps/nodeunit/bin/nodeunit
 
 integration:
-	@$(NODEUNIT) test/symmetric/block test/symmetric/stream test/symmetric/block/aead test/mac test/hash test/asymmetric test/interface
+	@$(NODEUNIT) test/symmetric/block test/symmetric/stream test/symmetric/modes/aead test/symmetric/modes/buffered test/symmetric/modes test/mac test/hash test/asymmetric test/interface
 	# @$(NODE) test/test_all.js
 	
 

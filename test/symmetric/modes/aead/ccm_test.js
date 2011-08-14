@@ -6,7 +6,7 @@ var TestSuite = testCase = require('../../../../deps/nodeunit').testCase,
   nodeunit = require('../../../../deps/nodeunit'),
   AES = require('symmetric/block/aes').AES,
   XTea = require('symmetric/block/xtea').XTea,
-  CCM = require('symmetric/block/aead/ccm').CCM,
+  CCM = require('symmetric/modes/aead/ccm').CCM,
   NullPad = require('symmetric/padding/null').NullPad,
   crypto = require('crypto'),
   util = require('utils');

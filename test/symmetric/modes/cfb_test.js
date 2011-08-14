@@ -5,7 +5,7 @@ var TestSuite = testCase = require('../../../deps/nodeunit').testCase,
   inspect = require('util').inspect,
   nodeunit = require('../../../deps/nodeunit'),
   AES = require('symmetric/block/aes').AES,
-  CFB = require('symmetric/block/cfb').CFB,
+  CFB = require('symmetric/modes/cfb').CFB,
   crypto = require('crypto'),
   util = require('utils');
     
