@@ -62,8 +62,8 @@ module.exports = testCase({
       for(var j = 0; j < data.length; j++) {
         data[j] = cipher.returnByte(data[j]);
       }      
+      
       test.deepEqual(ct, data);
-
       
       // Initialize cipher for decryption
       cipher.init(false, key, drop);

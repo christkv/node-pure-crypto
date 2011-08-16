@@ -190,6 +190,14 @@ function isArguments (object) {
 }
 
 function objEquiv (a, b) {
+  if((Array.isArray(a) || a instanceof Buffer) && (Array.isArray(b) || b instanceof Buffer)) {    
+    for(var i = 0; i < a.length; a++) {
+      if(a[i] != b[i]) return false;
+    }
+    
+    return true;
+  }
+  
   if (isUndefinedOrNull(a) || isUndefinedOrNull(b))
     return false;
   // an identical "prototype" property.
